@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 
-import { colors, radius } from '@/constants/theme';
+import { radius } from '@/constants/theme';
+import { useTheme } from '@/contexts/ThemeContext';
 
 type CardProps = {
   children: ReactNode;
@@ -10,10 +11,12 @@ type CardProps = {
 };
 
 export function Card({ children, style, login = false }: CardProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   return <View style={[styles.card, login && styles.loginCard, style]}>{children}</View>;
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   card: {
     backgroundColor: colors.card,
     borderColor: colors.border,
@@ -28,8 +31,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
     paddingTop: 38,
     paddingBottom: 30,
-    backgroundColor: 'rgba(14,14,14,0.96)',
-    borderColor: 'rgba(212,247,0,0.14)',
+    backgroundColor: colors.card,
+    borderColor: colors.border,
     elevation: 12,
   },
 });

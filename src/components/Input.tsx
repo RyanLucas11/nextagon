@@ -1,25 +1,28 @@
 import { StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
 
-import { colors, radius } from '@/constants/theme';
+import { radius } from '@/constants/theme';
+import { useTheme } from '@/contexts/ThemeContext';
 
 type InputProps = TextInputProps & {
   icon?: string;
 };
 
 export function Input({ icon, style, placeholderTextColor, ...props }: InputProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   return (
     <View style={styles.wrap}>
       {icon ? <Text style={styles.icon}>{icon}</Text> : null}
       <TextInput
         {...props}
-        placeholderTextColor={placeholderTextColor ?? 'rgba(255,255,255,0.2)'}
+        placeholderTextColor={placeholderTextColor ?? colors.text3}
         style={[styles.input, icon ? styles.withIcon : null, style]}
       />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   wrap: {
     position: 'relative',
     justifyContent: 'center',
@@ -28,7 +31,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 14,
     zIndex: 1,
-    color: 'rgba(255,255,255,0.35)',
+    color: colors.text3,
     fontSize: 14,
   },
   input: {
@@ -37,8 +40,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: colors.borderSoft,
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    color: 'rgba(255,255,255,0.88)',
+    backgroundColor: colors.bgDeep,
+    color: colors.text,
     paddingHorizontal: 14,
     fontSize: 13,
   },

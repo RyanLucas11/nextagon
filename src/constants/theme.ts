@@ -1,4 +1,6 @@
-export const colors = {
+export type ThemeName = 'light' | 'dark';
+
+const darkColors = {
   accent: '#1a6bde',
   accent2: '#1558c0',
   accentDim: 'rgba(26, 107, 222, 0.14)',
@@ -22,6 +24,28 @@ export const colors = {
   black: '#000000',
   white: '#ffffff',
 };
+
+const lightColors = {
+  ...darkColors,
+  accent: '#1558c0',
+  accent2: '#0f469f',
+  accentDim: 'rgba(21, 88, 192, 0.12)',
+  bgDeep: '#f5f7fb',
+  bg: '#f5f7fb',
+  card: '#ffffff',
+  card2: '#eaf0f8',
+  panel: '#ffffff',
+  border: '#d7e0ec',
+  borderSoft: 'rgba(15, 38, 68, 0.16)',
+  text: '#152235',
+  text2: '#52657d',
+  text3: '#71839a',
+};
+
+// The exported object keeps legacy StyleSheet consumers compatible. New screens
+// read the active palette through useTheme so changes apply immediately.
+export const colors = { ...darkColors };
+export const palettes = { light: lightColors, dark: darkColors };
 
 export const spacing = {
   xs: 4,

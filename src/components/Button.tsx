@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
 
-import { colors, radius } from '@/constants/theme';
+import { radius } from '@/constants/theme';
+import { useTheme } from '@/contexts/ThemeContext';
 
 type ButtonProps = {
   title: string;
@@ -13,6 +14,8 @@ type ButtonProps = {
 };
 
 export function Button({ title, onPress, variant = 'primary', icon, style, disabled = false }: ButtonProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   return (
     <Pressable
       disabled={disabled}
@@ -31,12 +34,12 @@ export function Button({ title, onPress, variant = 'primary', icon, style, disab
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   button: {
     width: '100%',
     minHeight: 48,
     borderRadius: radius.sm,
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
@@ -56,7 +59,7 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   text: {
-    color: colors.black,
+    color: colors.white,
     fontSize: 12,
     fontWeight: '800',
     letterSpacing: 1.6,
