@@ -1,0 +1,4 @@
+/* paginas.css - Estilos para academia, esportes e profissionais */
+.profile-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.chat-container{display:flex;flex-direction:column;height:calc(100vh - 200px);background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+/* Adicione estilos específicos das páginas aqui */

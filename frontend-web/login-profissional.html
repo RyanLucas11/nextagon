@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Profissional - Next Agon</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+<div id="auth-overlay" style="position:fixed; inset:0; background:#080b10; display:flex; align-items:center; justify-content:center; color:white; font-family:Arial, sans-serif;">
+    <div style="background:#0e1319; padding:40px; border-radius:16px; border:1px solid #e8ff00; max-width:420px; text-align:center;">
+        <h1 style="color:#e8ff00; font-size:32px; margin-bottom:8px;"><i class="fa-solid fa-bolt"></i> NEXT AGON</h1>
+        <p style="margin-bottom:30px; color:#8a9bb0;">Login Profissional</p>
+
+        <input type="email" id="login-email" placeholder="seu@email.com" style="width:100%; padding:14px; margin:10px 0; background:#141b24; border:1px solid #333; border-radius:8px; color:white;"><br>
+        <input type="password" id="login-pass" placeholder="Senha" style="width:100%; padding:14px; margin:10px 0; background:#141b24; border:1px solid #333; border-radius:8px; color:white;"><br>
+
+        <button onclick="doLogin()" style="width:100%; padding:14px; background:#e8ff00; color:black; border:none; border-radius:8px; font-weight:bold; margin-top:10px;">ENTRAR</button>
+
+        <p style="margin-top:20px; font-size:14px;">
+            <a href="index.html" style="color:#e8ff00;">← Voltar para página principal</a>
+        </p>
+    </div>
+</div>
+
+<script src="js/auth.js"></script>
+</body>
+</html>

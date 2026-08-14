@@ -1,0 +1,73 @@
+/*
+ * chat-patch.css — Next Agon · Correções visuais do Chat v2.0
+ *
+ * COMO APLICAR:
+ *   Adicione esta linha no <head> de chat.html, após os outros estilos:
+ *   <link rel="stylesheet" href="css/chat-patch.css">
+ *
+ *   OU copie os blocos abaixo diretamente no <style> existente de chat.html,
+ *   substituindo as regras .message-bubble correspondentes.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Bolha: mensagem PRÓPRIA (azul) ───────────────────────────────────────── */
+.message-row.mine .message-bubble {
+    background: var(--bubble-me);          /* azul #1a6bde */
+    color: #ffffff;                        /* ✅ BRANCO — máximo contraste sobre azul */
+    border-bottom-right-radius: 5px;
+}
+
+/* Rodapé (hora + ✓✓) nas mensagens próprias */
+.message-row.mine .message-footer {
+    color: rgba(255, 255, 255, 0.72);      /* ✅ branco translúcido — legível */
+}
+
+/* ── Bolha: mensagem DO OUTRO (tema escuro) ───────────────────────────────── */
+.message-row.theirs .message-bubble {
+    background: var(--bubble-them);        /* #182437 no escuro */
+    color: #f1f5f9;                        /* ✅ QUASE-BRANCO — legível no fundo escuro */
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 5px;
+}
+
+/* Rodapé nas mensagens do outro */
+.message-row.theirs .message-footer {
+    color: var(--muted);
+}
+
+/* ── Correções para TEMA CLARO ────────────────────────────────────────────── */
+body.tema-claro .message-row.mine .message-bubble {
+    background: var(--bubble-me);          /* mantém azul */
+    color: #ffffff;                        /* ✅ BRANCO sobre azul */
+}
+
+body.tema-claro .message-row.mine .message-footer {
+    color: rgba(255, 255, 255, 0.80);
+}
+
+body.tema-claro .message-row.theirs .message-bubble {
+    background: var(--bubble-them);        /* #dde4ef no claro */
+    color: #0a1120;                        /* ✅ PRETO — máximo contraste sobre cinza-claro */
+    border-color: var(--border);
+}
+
+body.tema-claro .message-row.theirs .message-footer {
+    color: var(--muted);
+}
+
+/* ── Nome do autor (bolha theirs em grupos) ───────────────────────────────── */
+.message-author {
+    font-size: 11px;
+    color: var(--blue);
+    font-weight: 900;
+    margin-bottom: 3px;
+}
+
+body.tema-claro .message-author {
+    color: var(--accent);                  /* azul do sistema no tema claro */
+}
+
+/* ── Texto pré-formatado dentro das bolhas ────────────────────────────────── */
+.message-text {
+    white-space: pre-wrap;
+    /* herda color do .message-bubble pai — nenhum override necessário */
+}

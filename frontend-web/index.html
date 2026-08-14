@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Next Agon — Login</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+<!-- Fundo estilo academia -->
+<div class="gym-bg" aria-hidden="true">
+  <div class="gym-overlay"></div>
+  <div class="gym-grain"></div>
+  <div class="gym-vignette"></div>
+</div>
+<div class="ambient-light light-top"    aria-hidden="true"></div>
+<div class="ambient-light light-bottom" aria-hidden="true"></div>
+
+<!-- Card de autenticação -->
+<div class="login-card">
+
+  <div class="logo">
+    <div class="logo-wordmark">
+      <span class="logo-brand">NEXT AGON</span>
+      <span class="logo-tagline">ATHLETICS</span>
+    </div>
+  </div>
+
+  <div class="divider-line" aria-hidden="true"></div>
+
+  <div class="main-tabs" role="tablist">
+    <button class="main-tab active" role="tab" aria-selected="true"
+            onclick="showPanel('login')">Login</button>
+    <button class="main-tab" role="tab" aria-selected="false"
+            onclick="showPanel('criar')">Criar Conta</button>
+    <button class="main-tab" role="tab" aria-selected="false"
+            onclick="showPanel('senha')">Trocar Senha</button>
+  </div>
+
+  <!-- PAINEL: LOGIN -->
+  <div class="panel active" id="panel-login" role="tabpanel">
+    <div class="role-tabs" role="group" aria-label="Selecionar perfil">
+      <div class="role-tab" id="tab-atleta"
+           onclick="selectRole('atleta')" tabindex="0" role="button">
+        <span class="rt-icon"><i class="fa-solid fa-person-running"></i></span>
+        <div class="rt-label">Atleta</div>
+      </div>
+      <div class="role-tab active" id="tab-profissional"
+           onclick="selectRole('profissional')" tabindex="0" role="button">
+        <span class="rt-icon"><i class="fa-solid fa-user-doctor"></i></span>
+        <div class="rt-label">Profissional</div>
+      </div>
+      <div class="role-tab" id="tab-admin"
+           onclick="selectRole('admin')" tabindex="0" role="button">
+        <span class="rt-icon"><i class="fa-solid fa-shield-halved"></i></span>
+        <div class="rt-label">Admin</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="input-wrapper">
+        <i class="fa-regular fa-envelope input-icon"></i>
+        <input type="email" id="login-email" placeholder="E-mail"
+               value="profissional@nextagon.com" autocomplete="email">
+      </div>
+    </div>
+    <div class="field">
+      <div class="input-wrapper">
+        <i class="fa-solid fa-lock input-icon"></i>
+        <input type="password" id="login-pass" placeholder="Senha"
+               value="123456" autocomplete="current-password">
+      </div>
+    </div>
+
+    <button class="btn-main" onclick="doLogin()">ENTRAR NO TREINO</button>
+    <div class="msg error" id="login-error" aria-live="assertive"></div>
+
+    <p class="link-txt">
+      Não tem conta? <a onclick="showPanel('criar')">Criar agora</a>
+      &nbsp;·&nbsp;
+      <a onclick="showPanel('senha')">Esqueceu a senha?</a>
+    </p>
+  </div>
+
+  <!-- PAINEL: CRIAR CONTA -->
+  <div class="panel" id="panel-criar" role="tabpanel">
+    <div class="field">
+      <div class="input-wrapper">
+        <i class="fa-regular fa-user input-icon"></i>
+        <input type="text" id="c-nome" placeholder="Nome completo"
+               autocomplete="name">
+      </div>
+    </div>
+    <div class="field">
+      <div class="input-wrapper">
+        <i class="fa-regular fa-envelope input-icon"></i>
+        <input type="email" id="c-email" placeholder="E-mail"
+               autocomplete="email">
+      </div>
+    </div>
+    <div class="field">
+      <div class="input-wrapper">
+        <i class="fa-solid fa-id-badge input-icon"></i>
+        <select id="c-role">
+          <option value="atleta">Atleta</option>
+          <option value="profissional">Profissional</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <div class="input-wrapper">
+        <i class="fa-solid fa-lock input-icon"></i>
+        <input type="password" id="c-senha"
+               placeholder="Senha (mín. 6 caracteres)"
+               autocomplete="new-password"
+               oninput="checkStrength(this.value)">
+      </div>
+      <div class="strength-bar">
+        <div class="strength-fill" id="strength-fill"></div>
+      </div>
+      <div class="strength-label" id="strength-label">—</div>
+      <div class="req-list">
+        <span class="req" id="req-len">6+ chars</span>
+        <span class="req" id="req-num">Número</span>
+        <span class="req" id="req-upper">Maiúscula</span>
+        <span class="req" id="req-special">Especial</span>
+      </div>
+    </div>
+    <div class="field">
+      <div class="input-wrapper">
+        <i class="fa-solid fa-lock input-icon"></i>
+        <input type="password" id="c-confirma"
+               placeholder="Confirmar senha"
+               autocomplete="new-password">
+      </div>
+    </div>
+    <button class="btn-main" onclick="criarConta()">CRIAR CONTA</button>
+    <div class="msg" id="criar-msg" aria-live="polite"></div>
+    <p class="link-txt">
+      Já tem conta? <a onclick="showPanel('login')">Entrar</a>
+    </p>
+  </div>
+
+  <!-- PAINEL: TROCAR SENHA -->
+  <div class="panel" id="panel-senha" role="tabpanel">
+    <div class="field">
+      <div class="input-wrapper">
+        <i class="fa-regular fa-envelope input-icon"></i>
+        <input type="email" id="s-email" placeholder="E-mail da conta"
+               autocomplete="email">
+      </div>
+    </div>
+    <div class="field">
+      <div class="input-wrapper">
+        <i class="fa-solid fa-lock input-icon"></i>
+        <input type="password" id="s-atual" placeholder="Senha atual"
+               autocomplete="current-password">
+      </div>
+    </div>
+    <div class="field">
+      <div class="input-wrapper">
+        <i class="fa-solid fa-key input-icon"></i>
+        <input type="password" id="s-nova" placeholder="Nova senha"
+               autocomplete="new-password"
+               oninput="checkStrengthTrocar(this.value)">
+      </div>
+      <div class="strength-bar">
+        <div class="strength-fill" id="strength-fill-t"></div>
+      </div>
+      <div class="strength-label" id="strength-label-t">—</div>
+    </div>
+    <div class="field">
+      <div class="input-wrapper">
+        <i class="fa-solid fa-key input-icon"></i>
+        <input type="password" id="s-confirma"
+               placeholder="Confirmar nova senha"
+               autocomplete="new-password">
+      </div>
+    </div>
+    <button class="btn-main" onclick="trocarSenha()">SALVAR NOVA SENHA</button>
+    <div class="msg" id="senha-msg" aria-live="polite"></div>
+    <p class="link-txt">
+      Lembrou a senha? <a onclick="showPanel('login')">Voltar ao login</a>
+    </p>
+  </div>
+
+  <p class="footer-text">Next Agon v1.0 · Saúde &amp; Performance</p>
+
+</div>
+
+<script src="js/auth.js"></script>
+</body>
+</html>

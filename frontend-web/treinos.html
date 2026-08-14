@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treinos — Next Agon</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* ── RESET & BASE ─────────────────────────────────────────── */
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root {
+            --border2:#243554;
+            --accent3:#0f3f8c;
+            --glow:rgba(26,107,222,.18);
+            --neon:#e8ff00;
+            --neon2:#c8e000;
+            --orange:#ff8c42;
+            --purple:#a78bfa;
+            --font-display:'Syne',sans-serif;
+            --font-body:'DM Sans',sans-serif;
+            --r-sm:8px;
+            --r-md:12px;
+            --r-lg:18px;
+            --r-xl:24px;
+            --sidebar-w:220px;
+            --transition:.18s cubic-bezier(.4,0,.2,1);
+        }
+        html,body{height:100%;overflow:hidden}
+        body{font-family:var(--font-body);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;display:flex}
+
+        /* ── MAIN CONTENT ─────────────────────────────────────────── */
+        .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+        /* ── TOPBAR ──────────────────────────────────────────────── */
+        .topbar{
+            display:flex;align-items:center;gap:16px;
+            padding:16px 28px;
+            background:rgba(6,12,24,.8);
+            border-bottom:1px solid var(--border);
+            backdrop-filter:blur(12px);
+            flex-shrink:0;
+        }
+        .topbar-title{font-family:var(--font-display);font-size:20px;font-weight:700;letter-spacing:-.3px}
+        .topbar-sub{font-size:13px;color:var(--text2);margin-top:1px}
+        .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+        .btn{
+            display:inline-flex;align-items:center;gap:7px;
+            padding:9px 16px;border-radius:var(--r-md);
+            font-family:var(--font-body);font-size:13.5px;font-weight:500;
+            cursor:pointer;transition:var(--transition);border:none;
+        }
+        .btn-primary{background:var(--accent);color:#fff}
+        .btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+        .btn-primary:active{transform:translateY(0);background:var(--accent3)}
+        .btn-ghost{background:var(--card2);color:var(--text2);border:1px solid var(--border)}
+        .btn-ghost:hover{background:var(--card2);color:var(--text);border-color:var(--border2)}
+        .btn svg{width:16px;height:16px}
+        .btn-icon{
+            width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+            border-radius:var(--r-sm);background:var(--card2);border:1px solid var(--border);
+            cursor:pointer;color:var(--text2);transition:var(--transition);
+        }
+        .btn-icon:hover{background:var(--card2);color:var(--text);border-color:var(--border2)}
+        .btn-icon svg{width:16px;height:16px}
+
+        /* ── STATS BAR ───────────────────────────────────────────── */
+        .stats-bar{
+            display:flex;gap:1px;background:var(--border);
+            border-bottom:1px solid var(--border);
+            flex-shrink:0;
+        }
+        .stat-card{
+            flex:1;background:var(--card);
+            padding:14px 20px;display:flex;align-items:center;gap:12px;
+        }
+        .stat-icon{
+            width:36px;height:36px;border-radius:var(--r-sm);
+            display:flex;align-items:center;justify-content:center;flex-shrink:0;
+        }
+        .stat-icon svg{width:18px;height:18px}
+        .stat-icon.blue{background:rgba(26,107,222,.15);color:var(--accent)}
+        .stat-icon.green{background:rgba(34,208,122,.12);color:var(--green)}
+        .stat-icon.orange{background:rgba(255,140,66,.12);color:var(--orange)}
+        .stat-icon.purple{background:rgba(167,139,250,.12);color:var(--purple)}
+        .stat-val{font-family:var(--font-display);font-size:22px;font-weight:700;line-height:1;margin-bottom:2px}
+        .stat-label{font-size:11.5px;color:var(--text2)}
+
+        /* ── CONTROLS BAR ────────────────────────────────────────── */
+        .controls-bar{
+            display:flex;align-items:center;gap:10px;
+            padding:14px 28px;
+            border-bottom:1px solid var(--border);
+            flex-shrink:0;background:var(--card);
+            flex-wrap:wrap;
+        }
+        .search-wrap{position:relative;flex:1;min-width:200px;max-width:320px}
+        .search-wrap svg{
+            position:absolute;left:11px;top:50%;transform:translateY(-50%);
+            width:15px;height:15px;color:var(--text3);pointer-events:none;
+        }
+        .search-input{
+            width:100%;background:var(--card2);border:1px solid var(--border);
+            border-radius:var(--r-md);padding:8px 12px 8px 34px;
+            color:var(--text);font-family:var(--font-body);font-size:13.5px;
+            transition:var(--transition);outline:none;
+        }
+        .search-input::placeholder{color:var(--text3)}
+        .search-input:focus{border-color:var(--accent);background:var(--card2);box-shadow:0 0 0 3px var(--glow)}
+        .filter-wrap{display:flex;gap:6px;flex-wrap:wrap}
+        .filter-btn{
+            padding:7px 13px;border-radius:var(--r-sm);
+            background:var(--card2);border:1px solid var(--border);
+            color:var(--text2);font-size:12.5px;font-weight:500;
+            cursor:pointer;transition:var(--transition);white-space:nowrap;
+        }
+        .filter-btn:hover{background:var(--card2);color:var(--text);border-color:var(--border2)}
+        .filter-btn.active{background:rgba(26,107,222,.16);color:var(--accent);border-color:rgba(26,107,222,.3)}
+        .view-toggle{display:flex;background:var(--card2);border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;margin-left:auto}
+        .view-btn{
+            padding:7px 11px;cursor:pointer;color:var(--text3);
+            transition:var(--transition);display:flex;align-items:center;
+        }
+        .view-btn svg{width:15px;height:15px}
+        .view-btn:hover{color:var(--text);background:var(--card2)}
+        .view-btn.active{color:var(--accent);background:rgba(26,107,222,.12)}
+        .sort-select{
+            background:var(--card2);border:1px solid var(--border);
+            color:var(--text2);font-family:var(--font-body);font-size:12.5px;
+            border-radius:var(--r-sm);padding:7px 10px;cursor:pointer;outline:none;
+            transition:var(--transition);
+        }
+        .sort-select:focus{border-color:var(--accent)}
+
+        /* ── BOARD / GRID ────────────────────────────────────────── */
+        .content-area{flex:1;overflow-y:auto;padding:20px 28px;min-height:0}
+        .content-area::-webkit-scrollbar{width:6px}
+        .content-area::-webkit-scrollbar-track{background:transparent}
+        .content-area::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+        /* Kanban */
+        .kanban-board{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;height:100%}
+        .kanban-col{
+            background:var(--card);border:1px solid var(--border);
+            border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column;
+            min-height:400px;
+        }
+        .col-header{
+            padding:14px 16px;border-bottom:1px solid var(--border);
+            display:flex;align-items:center;gap:8px;
+        }
+        .col-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+        .col-title{font-family:var(--font-display);font-size:13px;font-weight:600;letter-spacing:.01em}
+        .col-count{
+            margin-left:auto;font-size:11px;font-weight:600;
+            background:var(--card2);color:var(--text2);
+            padding:2px 8px;border-radius:999px;
+        }
+        .col-body{flex:1;padding:10px;display:flex;flex-direction:column;gap:8px;overflow-y:auto}
+        .col-body::-webkit-scrollbar{width:4px}
+        .col-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+
+        /* Card */
+        .workout-card{
+            background:var(--card2);border:1px solid var(--border);
+            border-radius:var(--r-md);padding:14px;
+            cursor:grab;transition:var(--transition);
+            animation:cardIn .25s ease;
+            position:relative;overflow:hidden;
+        }
+        @keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        .workout-card::before{
+            content:'';position:absolute;top:0;left:0;right:0;height:3px;
+            border-radius:var(--r-md) var(--r-md) 0 0;
+        }
+        .workout-card.cat-forca::before{background:var(--accent)}
+        .workout-card.cat-cardio::before{background:var(--orange)}
+        .workout-card.cat-mobilidade::before{background:var(--green)}
+        .workout-card.cat-hiit::before{background:var(--red)}
+        .workout-card.cat-yoga::before{background:var(--purple)}
+        .workout-card.cat-outro::before{background:var(--text3)}
+        .workout-card:hover{
+            border-color:var(--border2);background:var(--card2);
+            transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);
+        }
+        .workout-card.dragging{opacity:.4;cursor:grabbing}
+        .workout-card.drag-over{border-color:var(--accent);box-shadow:0 0 0 2px var(--glow)}
+        .card-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
+        .card-cat{
+            font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+            padding:3px 8px;border-radius:999px;flex-shrink:0;
+        }
+        .cat-forca .card-cat{background:rgba(26,107,222,.18);color:#60a5fa}
+        .cat-cardio .card-cat{background:rgba(255,140,66,.18);color:var(--orange)}
+        .cat-mobilidade .card-cat{background:rgba(34,208,122,.18);color:var(--green)}
+        .cat-hiit .card-cat{background:rgba(255,90,90,.18);color:var(--red)}
+        .cat-yoga .card-cat{background:rgba(167,139,250,.18);color:var(--purple)}
+        .cat-outro .card-cat{background:rgba(61,85,114,.3);color:var(--text2)}
+        .card-title{font-family:var(--font-display);font-size:14px;font-weight:600;line-height:1.3;flex:1}
+        .card-priority{
+            width:20px;height:20px;border-radius:50%;flex-shrink:0;
+            display:flex;align-items:center;justify-content:center;font-size:10px;
+        }
+        .priority-alta{background:rgba(255,90,90,.2);color:var(--red)}
+        .priority-media{background:rgba(255,140,66,.2);color:var(--orange)}
+        .priority-baixa{background:rgba(34,208,122,.2);color:var(--green)}
+        .card-desc{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+        .card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+        .tag{
+            font-size:10px;color:var(--text3);
+            background:var(--card);border:1px solid var(--border);
+            padding:2px 7px;border-radius:999px;
+        }
+        .card-meta{display:flex;align-items:center;gap:10px;justify-content:space-between}
+        .card-meta-left{display:flex;align-items:center;gap:8px}
+        .card-time{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text3)}
+        .card-time svg{width:12px;height:12px}
+        .card-date{font-size:11px;color:var(--text3)}
+        .card-actions{display:flex;gap:4px;opacity:0;transition:var(--transition)}
+        .workout-card:hover .card-actions{opacity:1}
+        .card-action{
+            width:24px;height:24px;border-radius:6px;
+            display:flex;align-items:center;justify-content:center;
+            cursor:pointer;transition:var(--transition);color:var(--text3);
+        }
+        .card-action svg{width:13px;height:13px}
+        .card-action:hover{background:var(--card);color:var(--text)}
+        .card-action.del:hover{background:rgba(255,90,90,.15);color:var(--red)}
+        .card-action.check:hover{background:rgba(34,208,122,.15);color:var(--green)}
+        .card-done .card-title{text-decoration:line-through;opacity:.5}
+        .card-done{opacity:.7}
+
+        /* Grid View */
+        .grid-view{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+
+        /* List View */
+        .list-view{display:flex;flex-direction:column;gap:6px}
+        .list-row{
+            background:var(--card);border:1px solid var(--border);
+            border-radius:var(--r-md);padding:12px 16px;
+            display:flex;align-items:center;gap:12px;
+            transition:var(--transition);cursor:pointer;
+            animation:cardIn .2s ease;
+        }
+        .list-row:hover{background:var(--card2);border-color:var(--border2)}
+        .list-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+        .list-title{font-size:14px;font-weight:500;flex:1}
+        .list-cat-badge{font-size:11px;padding:3px 9px;border-radius:999px;font-weight:500}
+        .list-time{font-size:12px;color:var(--text2);min-width:60px;text-align:right}
+        .list-pri{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+        .list-status{font-size:11px;color:var(--text3);min-width:80px;text-align:center}
+        .list-actions{display:flex;gap:4px;opacity:0;transition:var(--transition)}
+        .list-row:hover .list-actions{opacity:1}
+
+        /* Empty State */
+        .empty-state{
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            padding:48px 24px;text-align:center;color:var(--text3);
+        }
+        .empty-state svg{width:48px;height:48px;margin-bottom:16px;opacity:.4}
+        .empty-state h3{font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text2);margin-bottom:6px}
+        .empty-state p{font-size:13px;line-height:1.6}
+
+        /* ── MODAL ───────────────────────────────────────────────── */
+        .modal-overlay{
+            position:fixed;inset:0;background:rgba(0,0,0,.7);
+            display:flex;align-items:center;justify-content:center;
+            z-index:100;padding:20px;
+            animation:fadeIn .15s ease;
+        }
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        .modal-overlay.hidden{display:none}
+        .modal{
+            background:var(--card);border:1px solid var(--border2);
+            border-radius:var(--r-xl);padding:0;width:100%;max-width:560px;
+            max-height:90vh;overflow-y:auto;
+            animation:slideUp .2s ease;
+        }
+        @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+        .modal::-webkit-scrollbar{width:5px}
+        .modal::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+        .modal-header{
+            padding:24px 24px 0;display:flex;align-items:center;gap:12px;
+            border-bottom:1px solid var(--border);padding-bottom:18px;margin-bottom:0;
+        }
+        .modal-icon{
+            width:40px;height:40px;border-radius:var(--r-md);flex-shrink:0;
+            background:rgba(26,107,222,.15);color:var(--accent);
+            display:flex;align-items:center;justify-content:center;
+        }
+        .modal-icon svg{width:20px;height:20px}
+        .modal-title{font-family:var(--font-display);font-size:18px;font-weight:700}
+        .modal-close{
+            margin-left:auto;width:32px;height:32px;border-radius:var(--r-sm);
+            display:flex;align-items:center;justify-content:center;
+            cursor:pointer;color:var(--text3);background:var(--card2);
+            transition:var(--transition);
+        }
+        .modal-close:hover{background:var(--card2);color:var(--text)}
+        .modal-close svg{width:16px;height:16px}
+        .modal-body{padding:20px 24px 24px}
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .form-field{display:flex;flex-direction:column;gap:5px}
+        .form-field.full{grid-column:1/-1}
+        .form-label{font-size:12px;font-weight:600;color:var(--text2);letter-spacing:.02em}
+        .form-input,.form-select,.form-textarea{
+            background:var(--card2);border:1px solid var(--border);
+            border-radius:var(--r-md);padding:9px 12px;
+            color:var(--text);font-family:var(--font-body);font-size:13.5px;
+            outline:none;transition:var(--transition);width:100%;
+        }
+        .form-input:focus,.form-select:focus,.form-textarea:focus{
+            border-color:var(--accent);background:var(--card2);
+            box-shadow:0 0 0 3px var(--glow);
+        }
+        .form-input::placeholder,.form-textarea::placeholder{color:var(--text3)}
+        .form-select{cursor:pointer}
+        .form-textarea{resize:vertical;min-height:80px;line-height:1.5}
+        .tags-input-wrap{
+            background:var(--card2);border:1px solid var(--border);
+            border-radius:var(--r-md);padding:6px 10px;
+            display:flex;flex-wrap:wrap;gap:5px;align-items:center;
+            transition:var(--transition);cursor:text;
+        }
+        .tags-input-wrap:focus-within{border-color:var(--accent);background:var(--card2);box-shadow:0 0 0 3px var(--glow)}
+        .tag-item{
+            display:flex;align-items:center;gap:4px;
+            background:var(--card2);border:1px solid var(--border2);
+            padding:3px 8px;border-radius:999px;font-size:12px;color:var(--text2);
+        }
+        .tag-remove{cursor:pointer;color:var(--text3);display:flex;align-items:center}
+        .tag-remove:hover{color:var(--red)}
+        .tag-remove svg{width:11px;height:11px}
+        .tags-input{
+            border:none;background:transparent;color:var(--text);
+            font-family:var(--font-body);font-size:13px;outline:none;
+            flex:1;min-width:80px;
+        }
+        .tags-input::placeholder{color:var(--text3)}
+        .modal-footer{
+            padding:16px 24px;border-top:1px solid var(--border);
+            display:flex;align-items:center;gap:10px;justify-content:flex-end;
+        }
+
+        /* ── TOAST ───────────────────────────────────────────────── */
+        .toast-container{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px}
+        .toast{
+            background:var(--card2);border:1px solid var(--border2);
+            border-radius:var(--r-md);padding:12px 16px;
+            display:flex;align-items:center;gap:10px;
+            font-size:13.5px;font-weight:500;
+            box-shadow:0 8px 32px rgba(0,0,0,.4);
+            animation:toastIn .25s ease;min-width:220px;
+        }
+        @keyframes toastIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+        .toast-out{animation:toastOut .2s ease forwards}
+        @keyframes toastOut{to{opacity:0;transform:translateX(24px)}}
+        .toast svg{width:16px;height:16px;flex-shrink:0}
+        .toast.success{border-left:3px solid var(--green)}
+        .toast.success svg{color:var(--green)}
+        .toast.error{border-left:3px solid var(--red)}
+        .toast.error svg{color:var(--red)}
+        .toast.info{border-left:3px solid var(--accent)}
+        .toast.info svg{color:var(--accent)}
+
+        /* ── DRAG & DROP COLUMN HIGHLIGHT ─────────────────────────── */
+        .kanban-col.drop-target{
+            border-color:var(--accent);
+            background:rgba(26,107,222,.05);
+        }
+        .col-body.drag-active{min-height:80px;border:2px dashed var(--border2);border-radius:var(--r-md)}
+
+        /* ── PROGRESS BAR ────────────────────────────────────────── */
+        .progress-bar{height:3px;background:var(--border);border-radius:99px;margin-top:8px;overflow:hidden}
+        .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),#4d8fef);border-radius:99px;transition:width .4s ease}
+
+        /* ── RESPONSIVE ──────────────────────────────────────────── */
+        @media(max-width:900px){
+            .sidebar{width:60px;overflow:visible}
+            .sidebar-logo i~*,.sidebar-logo span,.sidebar-nav .nav-item i~*{display:none}
+            .nav-item{justify-content:center;padding:10px}
+            .kanban-board{grid-template-columns:1fr}
+            .form-grid{grid-template-columns:1fr}
+            .stats-bar{flex-direction:column;gap:0}
+            :root{--sidebar-w:60px}
+        }
+        @media(max-width:600px){
+            .topbar{padding:12px 16px}
+            .controls-bar{padding:10px 16px}
+            .content-area{padding:14px 16px}
+            .stats-bar{display:none}
+            .btn span{display:none}
+        }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="sidebar-logo"><i class="fa-solid fa-bolt"></i> Next Agon</div>
+    <nav class="sidebar-nav">
+        <button class="nav-item" onclick="location.href='dashboard.html'"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
+        <button class="nav-item active"><i class="fa-solid fa-bolt"></i> Treinos</button>
+        <button class="nav-item" onclick="location.href='academia.html'"><i class="fa-solid fa-dumbbell"></i> Academia</button>
+        <button class="nav-item" onclick="location.href='esportes.html'"><i class="fa-solid fa-globe"></i> Esportes</button>
+        <button class="nav-item" onclick="location.href='profissionais.html'"><i class="fa-solid fa-user-doctor"></i> Profissionais</button>
+        <button class="nav-item" onclick="location.href='chat.html'"><i class="fa-regular fa-comments"></i> Chat</button>
+    </nav>
+
+    <div class="sidebar-profile" onclick="doLogout()" title="Sair" role="button" tabindex="0">
+        <div class="sidebar-profile-avatar" id="sidebar-avatar">?</div>
+        <div class="sidebar-profile-info">
+            <div class="sidebar-profile-name" id="sidebar-name">Usuário</div>
+            <div class="sidebar-profile-role" id="sidebar-role"><i class="fa-solid fa-person-running"></i> atleta</div>
+        </div>
+        <button class="sidebar-profile-gear" aria-label="Sair"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div>
+            <div class="topbar-title">Meus Treinos</div>
+            <div class="topbar-sub" id="topbar-sub">Carregando...</div>
+        </div>
+        <div class="topbar-right">
+            <button class="btn btn-ghost" onclick="exportData()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Exportar</span>
+            </button>
+            <button class="btn btn-primary" onclick="openModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Novo Treino</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-bar">
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <div>
+                <div class="stat-val" id="stat-total">0</div>
+                <div class="stat-label">Total de Treinos</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+                <div class="stat-val" id="stat-done">0</div>
+                <div class="stat-label">Concluídos</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon orange">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+                <div class="stat-val" id="stat-time">0h</div>
+                <div class="stat-label">Tempo Total</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+                <div class="stat-val" id="stat-pct">0%</div>
+                <div class="stat-label">Taxa de Conclusão</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="controls-bar">
+        <div class="search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="search-input" id="search-input" placeholder="Buscar treinos, tags, descrição..." oninput="renderAll()">
+        </div>
+
+        <div class="filter-wrap">
+            <button class="filter-btn active" data-filter="all" onclick="setFilter(this,'all')">Todos</button>
+            <button class="filter-btn" data-filter="pendente" onclick="setFilter(this,'pendente')">Pendentes</button>
+            <button class="filter-btn" data-filter="em_progresso" onclick="setFilter(this,'em_progresso')">Em Progresso</button>
+            <button class="filter-btn" data-filter="concluido" onclick="setFilter(this,'concluido')">Concluídos</button>
+            <button class="filter-btn" data-filter="forca" onclick="setFilter(this,'forca')">Força</button>
+            <button class="filter-btn" data-filter="cardio" onclick="setFilter(this,'cardio')">Cardio</button>
+            <button class="filter-btn" data-filter="hiit" onclick="setFilter(this,'hiit')">HIIT</button>
+        </div>
+
+        <select class="sort-select" id="sort-select" onchange="renderAll()">
+            <option value="criado_desc">Mais recentes</option>
+            <option value="criado_asc">Mais antigos</option>
+            <option value="prioridade">Prioridade</option>
+            <option value="data">Data do treino</option>
+            <option value="tempo">Duração</option>
+            <option value="nome">A-Z</option>
+        </select>
+
+        <div class="view-toggle">
+            <div class="view-btn active" id="view-kanban" onclick="setView('kanban')" title="Kanban">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="18"/><rect x="14" y="3" width="7" height="18"/></svg>
+            </div>
+            <div class="view-btn" id="view-grid" onclick="setView('grid')" title="Grid">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </div>
+            <div class="view-btn" id="view-list" onclick="setView('list')" title="Lista">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content-area" id="content-area"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModalOutside(event)">
+    <div class="modal" id="modal">
+        <div class="modal-header">
+            <div class="modal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <div class="modal-title" id="modal-title">Novo Treino</div>
+            <div class="modal-close" onclick="closeModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </div>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="edit-id">
+            <div class="form-grid">
+                <div class="form-field full">
+                    <label class="form-label">Título do Treino *</label>
+                    <input class="form-input" id="f-titulo" placeholder="Ex: Treino de Costas e Bíceps">
+                </div>
+                <div class="form-field full">
+                    <label class="form-label">Descrição</label>
+                    <textarea class="form-textarea" id="f-desc" placeholder="Descreva o treino, exercícios principais, objetivos..."></textarea>
+                </div>
+                <div class="form-field">
+                    <label class="form-label">Categoria</label>
+                    <select class="form-select" id="f-cat">
+                        <option value="forca">💪 Força</option>
+                        <option value="cardio">🏃 Cardio</option>
+                        <option value="hiit">⚡ HIIT</option>
+                        <option value="mobilidade">🧘 Mobilidade</option>
+                        <option value="yoga">🌿 Yoga</option>
+                        <option value="outro">📌 Outro</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label class="form-label">Prioridade</label>
+                    <select class="form-select" id="f-pri">
+                        <option value="alta">🔴 Alta</option>
+                        <option value="media" selected>🟡 Média</option>
+                        <option value="baixa">🟢 Baixa</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="f-status">
+                        <option value="pendente">⏳ Pendente</option>
+                        <option value="em_progresso">🔄 Em Progresso</option>
+                        <option value="concluido">✅ Concluído</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label class="form-label">Duração (minutos)</label>
+                    <input class="form-input" id="f-tempo" type="number" min="1" max="300" placeholder="60">
+                </div>
+                <div class="form-field">
+                    <label class="form-label">Data do Treino</label>
+                    <input class="form-input" id="f-data" type="date">
+                </div>
+                <div class="form-field full">
+                    <label class="form-label">Tags (pressione Enter para adicionar)</label>
+                    <div class="tags-input-wrap" id="tags-wrap" onclick="document.getElementById('tags-text').focus()">
+                        <input class="tags-input" id="tags-text" placeholder="ex: costas, hipertrofia..." onkeydown="handleTagInput(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveWorkout()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Salvar Treino
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="js/auth.js"></script>
+<script>
+    /* ── ESTADO ─────────────────────────────────────────────────── */
+    const STORAGE_KEY = 'na_treinos_v2';
+    let workouts = [];
+    let currentFilter = 'all';
+    let currentView = 'kanban';
+    let currentTags = [];
+    let dragId = null;
+    let editingId = null;
+
+    /* ── INIT ────────────────────────────────────────────────────── */
+    document.addEventListener('DOMContentLoaded', () => {
+        initUser();
+        workouts = loadWorkouts();
+        if (!workouts.length) seedData();
+        renderAll();
+        updateStats();
+
+        document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeModal();
+        });
+    });
+
+    function initUser() {
+        try {
+            const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+            if (user) {
+                document.getElementById('sidebar-avatar').textContent = user.avatar || user.nome[0];
+                document.getElementById('sidebar-name').textContent = user.nome;
+                document.getElementById('sidebar-role').innerHTML = '<i class="fa-solid fa-person-running"></i> ' + user.role;
+            }
+        } catch(e) {}
+        const d = new Date();
+        document.getElementById('topbar-sub').textContent =
+            d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+    }
+
+    /* ── PERSISTÊNCIA ────────────────────────────────────────────── */
+    function loadWorkouts() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch(e) { return []; }
+    }
+    function saveWorkouts() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(workouts)); } catch(e) {}
+    }
+
+    function seedData() {
+        const now = Date.now();
+        workouts = [
+            { id:now+1, titulo:'Treino de Força — Costas e Bíceps', desc:'4x de Puxada frontal, Remada curvada, Remada unilateral. Finaliza com rosca direta e alternada.', cat:'forca', pri:'alta', status:'em_progresso', tempo:75, data:'2026-05-08', tags:['costas','bíceps','força','hipertrofia'], criado:now+1 },
+            { id:now+2, titulo:'HIIT Cardio Intenso 20min', desc:'Protocolo Tabata: 20s de esforço máximo, 10s de descanso. 8 rodadas por exercício.', cat:'hiit', pri:'alta', status:'pendente', tempo:20, data:'2026-05-09', tags:['hiit','cardio','tabata'], criado:now+2 },
+            { id:now+3, titulo:'Mobilidade e Flexibilidade Matinal', desc:'Sequência de alongamentos dinâmicos e estáticos para liberação miofascial e melhora da amplitude.', cat:'mobilidade', pri:'baixa', status:'concluido', tempo:30, data:'2026-05-07', tags:['mobilidade','relaxamento','manhã'], criado:now+3 },
+            { id:now+4, titulo:'Peito e Tríceps — Volume Máximo', desc:'Supino reto, inclinado e declinado. Crucifixo, Peck Deck. Tríceps pulley, testa e mergulho.', cat:'forca', pri:'media', status:'pendente', tempo:90, data:'2026-05-10', tags:['peito','tríceps','volume'], criado:now+4 },
+            { id:now+5, titulo:'Corrida Intervalada 5km', desc:'Aquecimento 10 min, corrida em blocos: 400m forte / 200m leve. Total 5km + resfriamento.', cat:'cardio', pri:'media', status:'pendente', tempo:45, data:'2026-05-11', tags:['corrida','resistência','aeróbico'], criado:now+5 },
+            { id:now+6, titulo:'Yoga Flow — Recuperação Ativa', desc:'Vinyasa flow focado em abertura de quadril e ombros. Ideal para dias após treino pesado.', cat:'yoga', pri:'baixa', status:'concluido', tempo:40, data:'2026-05-06', tags:['yoga','recuperação','ombros'], criado:now+6 },
+        ];
+        saveWorkouts();
+    }
+
+    /* ── FILTRO E ORDENAÇÃO ──────────────────────────────────────── */
+    function setFilter(btn, filter) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = filter;
+        renderAll();
+    }
+
+    function getFiltered() {
+        const q = (document.getElementById('search-input').value || '').toLowerCase().trim();
+        const sort = document.getElementById('sort-select').value;
+        const priMap = { alta:0, media:1, baixa:2 };
+
+        let list = workouts.filter(w => {
+            const matchFilter =
+                currentFilter === 'all' ? true :
+                    currentFilter === 'pendente' ? w.status === 'pendente' :
+                        currentFilter === 'em_progresso' ? w.status === 'em_progresso' :
+                            currentFilter === 'concluido' ? w.status === 'concluido' :
+                                w.cat === currentFilter;
+
+            if (!matchFilter) return false;
+            if (!q) return true;
+            return (
+                w.titulo.toLowerCase().includes(q) ||
+                (w.desc||'').toLowerCase().includes(q) ||
+                (w.tags||[]).some(t => t.toLowerCase().includes(q))
+            );
+        });
+
+        list.sort((a,b) => {
+            if (sort === 'criado_desc') return b.criado - a.criado;
+            if (sort === 'criado_asc') return a.criado - b.criado;
+            if (sort === 'prioridade') return (priMap[a.pri]||1) - (priMap[b.pri]||1);
+            if (sort === 'data') return (a.data||'').localeCompare(b.data||'');
+            if (sort === 'tempo') return (b.tempo||0) - (a.tempo||0);
+            if (sort === 'nome') return a.titulo.localeCompare(b.titulo);
+            return 0;
+        });
+
+        return list;
+    }
+
+    /* ── RENDER ──────────────────────────────────────────────────── */
+    function renderAll() {
+        const filtered = getFiltered();
+        const area = document.getElementById('content-area');
+
+        if (currentView === 'kanban') renderKanban(filtered, area);
+        else if (currentView === 'grid') renderGrid(filtered, area);
+        else renderList(filtered, area);
+
+        updateStats();
+    }
+
+    function setView(v) {
+        currentView = v;
+        ['kanban','grid','list'].forEach(x => {
+            document.getElementById('view-' + x).classList.toggle('active', x === v);
+        });
+        renderAll();
+    }
+
+    /* ── KANBAN ──────────────────────────────────────────────────── */
+    function renderKanban(filtered, area) {
+        const cols = [
+            { key:'pendente', label:'Pendente', color:'#60a5fa' },
+            { key:'em_progresso', label:'Em Progresso', color:'#fb923c' },
+            { key:'concluido', label:'Concluído', color:'#22d07a' },
+        ];
+
+        area.innerHTML = `<div class="kanban-board">${cols.map(col => {
+            const items = filtered.filter(w => w.status === col.key);
+            return `<div class="kanban-col" data-col="${col.key}" ondragover="onDragOver(event,'${col.key}')" ondrop="onDrop(event,'${col.key}')" ondragleave="onDragLeave(event)">
+      <div class="col-header">
+        <div class="col-dot" style="background:${col.color}"></div>
+        <div class="col-title">${col.label}</div>
+        <div class="col-count">${items.length}</div>
+      </div>
+      <div class="col-body" id="col-${col.key}">
+        ${items.length ? items.map(renderCard).join('') : `<div class="empty-state" style="padding:24px 12px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;margin-bottom:10px;opacity:.3"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="13" y2="13"/></svg>
+          <p style="font-size:12px;color:var(--text3)">Sem treinos aqui</p>
+        </div>`}
+      </div>
+    </div>`;
+        }).join('')}</div>`;
+    }
+
+    function renderCard(w) {
+        const pri = { alta:'▲', media:'●', baixa:'▼' };
+        const priClass = { alta:'priority-alta', media:'priority-media', baixa:'priority-baixa' };
+        const catLabel = { forca:'Força', cardio:'Cardio', hiit:'HIIT', mobilidade:'Mobilidade', yoga:'Yoga', outro:'Outro' };
+        const done = w.status === 'concluido';
+
+        const tags = (w.tags||[]).slice(0,3).map(t => `<span class="tag">#${t}</span>`).join('');
+        const dateStr = w.data ? new Date(w.data+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}) : '';
+
+        return `<div class="workout-card cat-${w.cat} ${done?'card-done':''}" draggable="true"
+    data-id="${w.id}"
+    ondragstart="onDragStart(event,${w.id})"
+    ondragend="onDragEnd(event)">
+    <div class="card-top">
+      <span class="card-cat">${catLabel[w.cat]||w.cat}</span>
+      <div class="card-title">${esc(w.titulo)}</div>
+      <div class="card-priority ${priClass[w.pri]}" title="Prioridade ${w.pri}">${pri[w.pri]||'●'}</div>
+    </div>
+    ${w.desc ? `<div class="card-desc">${esc(w.desc)}</div>` : ''}
+    ${tags ? `<div class="card-tags">${tags}</div>` : ''}
+    <div class="card-meta">
+      <div class="card-meta-left">
+        ${w.tempo ? `<div class="card-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${w.tempo}min</div>` : ''}
+        ${dateStr ? `<div class="card-date">${dateStr}</div>` : ''}
+      </div>
+      <div class="card-actions">
+        <div class="card-action check" onclick="toggleDone(${w.id},event)" title="${done?'Reabrir':'Concluir'}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="card-action" onclick="editWorkout(${w.id},event)" title="Editar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </div>
+        <div class="card-action del" onclick="deleteWorkout(${w.id},event)" title="Excluir">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>`;
+    }
+
+    /* ── GRID ────────────────────────────────────────────────────── */
+    function renderGrid(filtered, area) {
+        if (!filtered.length) { area.innerHTML = emptyState(); return; }
+        area.innerHTML = `<div class="grid-view">${filtered.map(renderCard).join('')}</div>`;
+    }
+
+    /* ── LIST ────────────────────────────────────────────────────── */
+    function renderList(filtered, area) {
+        if (!filtered.length) { area.innerHTML = emptyState(); return; }
+        const statusColors = { pendente:'#60a5fa', em_progresso:'#fb923c', concluido:'#22d07a' };
+        const catColors = { forca:'rgba(26,107,222,.18)', cardio:'rgba(255,140,66,.18)', hiit:'rgba(255,90,90,.18)', mobilidade:'rgba(34,208,122,.18)', yoga:'rgba(167,139,250,.18)', outro:'rgba(61,85,114,.3)' };
+        const catText = { forca:'#60a5fa', cardio:'#ff8c42', hiit:'#ff5a5a', mobilidade:'#22d07a', yoga:'#a78bfa', outro:'#7a96b8' };
+        const catLabel = { forca:'Força', cardio:'Cardio', hiit:'HIIT', mobilidade:'Mobilidade', yoga:'Yoga', outro:'Outro' };
+        const priClass = { alta:'priority-alta', media:'priority-media', baixa:'priority-baixa' };
+        const pri = { alta:'▲', media:'●', baixa:'▼' };
+        const statusLabel = { pendente:'Pendente', em_progresso:'Em Progresso', concluido:'Concluído' };
+
+        area.innerHTML = `<div class="list-view">${filtered.map(w => `
+    <div class="list-row">
+      <div class="list-dot" style="background:${statusColors[w.status]||'#888'}"></div>
+      <div class="list-pri ${priClass[w.pri]}" title="Prioridade ${w.pri}">${pri[w.pri]||'●'}</div>
+      <div class="list-title ${w.status==='concluido'?'card-done':''}">${esc(w.titulo)}</div>
+      <span class="list-cat-badge" style="background:${catColors[w.cat]||'rgba(61,85,114,.3)'};color:${catText[w.cat]||'#7a96b8'}">${catLabel[w.cat]||w.cat}</span>
+      <div class="list-status" style="color:${statusColors[w.status]||'#888'}">${statusLabel[w.status]||w.status}</div>
+      ${w.tempo ? `<div class="list-time">${w.tempo}min</div>` : '<div class="list-time">—</div>'}
+      <div class="list-actions">
+        <div class="card-action check" onclick="toggleDone(${w.id},event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="card-action" onclick="editWorkout(${w.id},event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </div>
+        <div class="card-action del" onclick="deleteWorkout(${w.id},event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </div>
+      </div>
+    </div>`).join('')}</div>`;
+    }
+
+    function emptyState() {
+        return `<div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <h3>Nenhum treino encontrado</h3>
+    <p>Tente outros filtros ou adicione um novo treino</p>
+  </div>`;
+    }
+
+    /* ── STATS ───────────────────────────────────────────────────── */
+    function updateStats() {
+        const total = workouts.length;
+        const done = workouts.filter(w => w.status === 'concluido').length;
+        const mins = workouts.reduce((s,w) => s + (w.tempo||0), 0);
+        const pct = total ? Math.round((done/total)*100) : 0;
+        document.getElementById('stat-total').textContent = total;
+        document.getElementById('stat-done').textContent = done;
+        document.getElementById('stat-time').textContent = mins >= 60 ? Math.round(mins/60) + 'h' : mins + 'min';
+        document.getElementById('stat-pct').textContent = pct + '%';
+        document.getElementById('nav-count') && (document.getElementById('nav-count').textContent = total);
+    }
+
+    /* ── CRUD ────────────────────────────────────────────────────── */
+    function toggleDone(id, e) {
+        e && e.stopPropagation();
+        const w = workouts.find(x => x.id === id);
+        if (!w) return;
+        w.status = w.status === 'concluido' ? 'pendente' : 'concluido';
+        saveWorkouts();
+        renderAll();
+        toast(w.status === 'concluido' ? 'Treino concluído! 💪' : 'Treino reaberto', 'success');
+    }
+
+    function deleteWorkout(id, e) {
+        e && e.stopPropagation();
+        if (!confirm('Excluir este treino?')) return;
+        workouts = workouts.filter(x => x.id !== id);
+        saveWorkouts();
+        renderAll();
+        toast('Treino excluído', 'info');
+    }
+
+    function editWorkout(id, e) {
+        e && e.stopPropagation();
+        const w = workouts.find(x => x.id === id);
+        if (!w) return;
+        editingId = id;
+        document.getElementById('modal-title').textContent = 'Editar Treino';
+        document.getElementById('edit-id').value = id;
+        document.getElementById('f-titulo').value = w.titulo;
+        document.getElementById('f-desc').value = w.desc || '';
+        document.getElementById('f-cat').value = w.cat;
+        document.getElementById('f-pri').value = w.pri;
+        document.getElementById('f-status').value = w.status;
+        document.getElementById('f-tempo').value = w.tempo || '';
+        document.getElementById('f-data').value = w.data || '';
+        currentTags = [...(w.tags||[])];
+        renderTags();
+        openModal();
+    }
+
+    function saveWorkout() {
+        const titulo = document.getElementById('f-titulo').value.trim();
+        if (!titulo) { toast('Informe o título do treino', 'error'); document.getElementById('f-titulo').focus(); return; }
+
+        const data = {
+            titulo,
+            desc: document.getElementById('f-desc').value.trim(),
+            cat: document.getElementById('f-cat').value,
+            pri: document.getElementById('f-pri').value,
+            status: document.getElementById('f-status').value,
+            tempo: parseInt(document.getElementById('f-tempo').value) || 0,
+            data: document.getElementById('f-data').value,
+            tags: [...currentTags],
+        };
+
+        if (editingId) {
+            const idx = workouts.findIndex(x => x.id === editingId);
+            if (idx >= 0) workouts[idx] = { ...workouts[idx], ...data };
+            toast('Treino atualizado!', 'success');
+        } else {
+            workouts.unshift({ ...data, id: Date.now(), criado: Date.now() });
+            toast('Treino criado! 🎯', 'success');
+        }
+
+        saveWorkouts();
+        closeModal();
+        renderAll();
+    }
+
+    /* ── MODAL ───────────────────────────────────────────────────── */
+    function openModal() {
+        document.getElementById('modal-overlay').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => document.getElementById('f-titulo').focus(), 100);
+    }
+
+    function closeModal() {
+        document.getElementById('modal-overlay').classList.add('hidden');
+        document.body.style.overflow = '';
+        resetModal();
+    }
+
+    function closeModalOutside(e) {
+        if (e.target === document.getElementById('modal-overlay')) closeModal();
+    }
+
+    function resetModal() {
+        editingId = null;
+        document.getElementById('modal-title').textContent = 'Novo Treino';
+        document.getElementById('edit-id').value = '';
+        document.getElementById('f-titulo').value = '';
+        document.getElementById('f-desc').value = '';
+        document.getElementById('f-cat').value = 'forca';
+        document.getElementById('f-pri').value = 'media';
+        document.getElementById('f-status').value = 'pendente';
+        document.getElementById('f-tempo').value = '';
+        document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
+        currentTags = [];
+        renderTags();
+    }
+
+    /* ── TAGS ────────────────────────────────────────────────────── */
+    function handleTagInput(e) {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            const val = e.target.value.trim().replace(/,/g,'').toLowerCase();
+            if (val && !currentTags.includes(val) && currentTags.length < 8) {
+                currentTags.push(val);
+                renderTags();
+            }
+            e.target.value = '';
+        } else if (e.key === 'Backspace' && !e.target.value && currentTags.length) {
+            currentTags.pop();
+            renderTags();
+        }
+    }
+
+    function removeTag(tag) {
+        currentTags = currentTags.filter(t => t !== tag);
+        renderTags();
+    }
+
+    function renderTags() {
+        const wrap = document.getElementById('tags-wrap');
+        const input = document.getElementById('tags-text');
+        const tagEls = currentTags.map(t => `
+    <span class="tag-item">${esc(t)}
+      <span class="tag-remove" onclick="removeTag('${esc(t)}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </span>
+    </span>`).join('');
+        wrap.innerHTML = tagEls;
+        wrap.appendChild(input);
+    }
+
+    /* ── DRAG & DROP ─────────────────────────────────────────────── */
+    function onDragStart(e, id) {
+        dragId = id;
+        setTimeout(() => { e.target.classList.add('dragging'); }, 0);
+        e.dataTransfer.effectAllowed = 'move';
+    }
+
+    function onDragEnd(e) {
+        e.target.classList.remove('dragging');
+        document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drop-target'));
+        dragId = null;
+    }
+
+    function onDragOver(e, col) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drop-target'));
+        document.querySelector(`[data-col="${col}"]`)?.classList.add('drop-target');
+    }
+
+    function onDragLeave(e) {
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+            e.currentTarget.classList.remove('drop-target');
+        }
+    }
+
+    function onDrop(e, col) {
+        e.preventDefault();
+        document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drop-target'));
+        if (!dragId) return;
+        const w = workouts.find(x => x.id === dragId);
+        if (w && w.status !== col) {
+            w.status = col;
+            saveWorkouts();
+            renderAll();
+            const labels = { pendente:'Pendente', em_progresso:'Em Progresso', concluido:'Concluído' };
+            toast(`Movido para "${labels[col]}"`, 'info');
+        }
+    }
+
+    /* ── EXPORTAR ────────────────────────────────────────────────── */
+    function exportData() {
+        const data = JSON.stringify(workouts, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `nextagon-treinos-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast('Treinos exportados!', 'success');
+    }
+
+    /* ── TOAST ───────────────────────────────────────────────────── */
+    function toast(msg, type = 'info') {
+        const icons = {
+            success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+            error:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+            info:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+        };
+        const c = document.getElementById('toast-container');
+        const el = document.createElement('div');
+        el.className = `toast ${type}`;
+        el.innerHTML = `${icons[type]||''}<span>${esc(msg)}</span>`;
+        c.appendChild(el);
+        setTimeout(() => {
+            el.classList.add('toast-out');
+            setTimeout(() => el.remove(), 220);
+        }, 3000);
+    }
+
+    /* ── UTIL ────────────────────────────────────────────────────── */
+    function esc(s) {
+        return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function doLogout() {
+        try {
+            if (typeof clearSession === 'function') clearSession();
+            else { localStorage.removeItem('na_session_v2'); sessionStorage.clear(); }
+        } catch(e) {}
+        window.location.href = 'index.html';
+    }
+</script>
+</body>
+</html>

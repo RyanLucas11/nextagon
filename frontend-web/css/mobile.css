@@ -1,0 +1,618 @@
+/* =============================================================
+   mobile.css — Next Agon · Sistema Mobile Completo
+   Header mobile, bottom nav, drawer, ajustes de layout.
+   Breakpoints: ≤768px = mobile, 769–1024px = tablet
+   ============================================================= */
+
+/* ══════════════════════════════════════════════════════════════
+   VARIÁVEIS MOBILE
+══════════════════════════════════════════════════════════════ */
+:root {
+    --mob-header-h:  58px;
+    --mob-bottom-h:  64px;
+    --mob-safe-bot:  env(safe-area-inset-bottom, 0px);
+    --mob-radius:    20px;
+    --mob-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
+    --mob-ease:      cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MOBILE HEADER — topo fixo só em mobile
+══════════════════════════════════════════════════════════════ */
+.mob-header {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mob-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        height: var(--mob-header-h);
+        background: rgba(10, 17, 32, 0.92);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(26, 44, 66, 0.8);
+        padding: 0 16px;
+        z-index: 900;
+        gap: 12px;
+    }
+
+    .mob-header-logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--title);
+        letter-spacing: -0.4px;
+        text-decoration: none;
+    }
+
+    .mob-header-logo i {
+        color: var(--accent);
+        font-size: 16px;
+    }
+
+    .mob-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: auto;
+    }
+
+    .mob-header-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        color: var(--text2);
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.18s, color 0.18s, transform 0.18s;
+        -webkit-tap-highlight-color: transparent;
+        position: relative;
+    }
+
+    .mob-header-btn:active { transform: scale(0.92); }
+    .mob-header-btn:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+
+    /* Avatar no header */
+    .mob-header-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        color: #fff;
+        font-size: 12px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: 2px solid rgba(26, 107, 222, 0.4);
+        overflow: hidden;
+        transition: transform 0.18s, box-shadow 0.18s;
+        -webkit-tap-highlight-color: transparent;
+        flex-shrink: 0;
+    }
+
+    .mob-header-avatar:active { transform: scale(0.9); }
+    .mob-header-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+    /* Hamburger button */
+    .mob-hamburger {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: none;
+        border: none;
+        color: var(--text2);
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        transition: color 0.18s;
+    }
+
+    .mob-hamburger:active { color: var(--accent); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BOTTOM NAVIGATION BAR
+══════════════════════════════════════════════════════════════ */
+.mob-bottom-nav {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mob-bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        height: calc(var(--mob-bottom-h) + var(--mob-safe-bot));
+        padding-bottom: var(--mob-safe-bot);
+        background: rgba(10, 17, 32, 0.96);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border-top: 1px solid rgba(26, 44, 66, 0.9);
+        z-index: 900;
+        align-items: center;
+        justify-content: space-around;
+    }
+
+    .mob-nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 8px 4px 6px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text3);
+        font-size: 10px;
+        font-weight: 600;
+        font-family: inherit;
+        letter-spacing: 0.02em;
+        transition: color 0.18s;
+        -webkit-tap-highlight-color: transparent;
+        position: relative;
+        height: var(--mob-bottom-h);
+    }
+
+    .mob-nav-item i {
+        font-size: 20px;
+        transition: transform 0.22s var(--mob-spring), color 0.18s;
+        display: block;
+    }
+
+    .mob-nav-item span {
+        font-size: 10px;
+        transition: color 0.18s;
+    }
+
+    .mob-nav-item.active {
+        color: var(--accent);
+    }
+
+    .mob-nav-item.active i {
+        transform: translateY(-2px);
+    }
+
+    /* Pill indicator under active icon */
+    .mob-nav-item::after {
+        content: '';
+        position: absolute;
+        bottom: 6px;
+        left: 50%;
+        transform: translateX(-50%) scaleX(0);
+        width: 20px;
+        height: 3px;
+        border-radius: 2px;
+        background: var(--accent);
+        transition: transform 0.22s var(--mob-spring);
+    }
+
+    .mob-nav-item.active::after {
+        transform: translateX(-50%) scaleX(1);
+    }
+
+    /* Badge de notificação */
+    .mob-nav-badge {
+        position: absolute;
+        top: 6px;
+        right: 18%;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--red);
+        color: #fff;
+        font-size: 9px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--bg);
+        line-height: 1;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SIDEBAR DRAWER (mobile: sidebar vira drawer lateral)
+══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    /* Esconde sidebar desktop */
+    .sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        height: 100vh;
+        width: 280px;
+        z-index: 1100;
+        transform: translateX(-100%);
+        transition: transform 0.32s var(--mob-ease);
+        box-shadow: 4px 0 40px rgba(0,0,0,0.6);
+        overflow-y: auto;
+        padding-top: calc(var(--mob-header-h) + 12px);
+    }
+
+    .sidebar.mob-open {
+        transform: translateX(0);
+    }
+
+    /* Overlay do drawer */
+    .mob-drawer-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 1050;
+        opacity: 0;
+        transition: opacity 0.28s var(--mob-ease);
+    }
+
+    .mob-drawer-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+    /* Layout ajustado */
+    .app {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+    }
+
+    .main {
+        padding: calc(var(--mob-header-h) + 20px) 16px calc(var(--mob-bottom-h) + 16px + var(--mob-safe-bot));
+        overflow-y: visible;
+        min-height: 100vh;
+    }
+
+    /* Sidebar profile esconde no mobile (está no header) */
+    .sidebar-profile {
+        display: none;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TABLET (769–1024px) — sidebar colapsada (só ícones)
+══════════════════════════════════════════════════════════════ */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .sidebar {
+        width: 68px;
+        padding: 20px 10px 16px;
+        overflow: visible;
+    }
+
+    .sidebar-logo span,
+    .sidebar-logo .logo-text,
+    .nav-item span,
+    .sidebar-profile-info,
+    .sidebar-profile-gear,
+    .sidebar-section {
+        display: none;
+    }
+
+    .sidebar-logo {
+        justify-content: center;
+        padding: 0;
+        margin-bottom: 20px;
+        font-size: 0;
+    }
+
+    .sidebar-logo i {
+        font-size: 20px;
+    }
+
+    .nav-item {
+        justify-content: center;
+        padding: 12px;
+        position: relative;
+    }
+
+    .nav-item i {
+        font-size: 18px;
+        margin: 0;
+    }
+
+    /* Tooltip no hover para tablet */
+    .nav-item[title]:hover::after {
+        content: attr(title);
+        position: absolute;
+        left: calc(100% + 12px);
+        top: 50%;
+        transform: translateY(-50%);
+        background: var(--card2);
+        color: var(--text);
+        font-size: 12px;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 8px;
+        white-space: nowrap;
+        border: 1px solid var(--border);
+        pointer-events: none;
+        z-index: 200;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+
+    .sidebar-profile {
+        justify-content: center;
+        padding: 10px 4px;
+    }
+
+    .sidebar-profile-avatar {
+        width: 38px;
+        height: 38px;
+    }
+
+    .main {
+        padding: 24px 24px;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   AJUSTES DE COMPONENTES PARA MOBILE
+══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+    /* Stats grid: 2 colunas */
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+    }
+
+    /* Grid utilitários */
+    .grid-2, .grid-3, .grid-4 {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    /* Topbar: empilha */
+    .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 20px !important;
+    }
+
+    .topbar h1 { font-size: 20px !important; }
+
+    /* Cards */
+    .stat-card { padding: 16px !important; }
+    .stat-card .stat-value { font-size: 30px !important; }
+
+    /* Profile panel: fullscreen no mobile */
+    #profile-panel {
+        width: 100% !important;
+        border-left: none !important;
+        border-radius: var(--mob-radius) var(--mob-radius) 0 0 !important;
+        top: auto !important;
+        bottom: 0 !important;
+        height: 88vh !important;
+        transform: translateY(100%) !important;
+    }
+
+    #profile-panel.pp-open {
+        transform: translateY(0) !important;
+    }
+
+    /* Handle bar no topo do painel */
+    #profile-panel::before {
+        content: '';
+        display: block;
+        width: 36px;
+        height: 4px;
+        border-radius: 2px;
+        background: rgba(255,255,255,0.15);
+        margin: 12px auto 4px;
+        flex-shrink: 0;
+    }
+
+    /* Toast: bottom nav clearance */
+    .toast {
+        bottom: calc(var(--mob-bottom-h) + 16px + var(--mob-safe-bot)) !important;
+        left: 16px !important;
+        right: 16px !important;
+        transform: none !important;
+        border-radius: 14px !important;
+        opacity: 0;
+        transform: translateY(12px) !important;
+    }
+
+    .toast.show {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+
+    /* Modais: fullscreen bottom sheet */
+    .modal-overlay {
+        align-items: flex-end !important;
+    }
+
+    .modal-card,
+    .modal-card-agendar,
+    .modal {
+        border-radius: var(--mob-radius) var(--mob-radius) 0 0 !important;
+        max-height: 92vh !important;
+        overflow-y: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+    }
+
+    /* Tables: scroll horizontal */
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { min-width: 500px; }
+
+    /* Chart: reduz altura */
+    .bar-chart {
+        height: 160px !important;
+    }
+
+    /* Profissionais: grid 1 col */
+    .prof-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Painel de filtros: compacto */
+    .filter-panel { padding: 16px !important; }
+    .filter-grid-modern { grid-template-columns: 1fr !important; }
+    .filter-grid-modern.secondary { grid-template-columns: 1fr !important; }
+
+    /* Chips: scroll horizontal */
+    .chips-row {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+    }
+
+    .chips-row::-webkit-scrollbar { display: none; }
+    .segmented-group {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Page titles */
+    .page-title { font-size: 20px !important; }
+    .page-sub, .page-subtitle { font-size: 12px !important; }
+
+    /* Botões de topbar */
+    .topbar-right {
+        flex-wrap: wrap;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .topbar-right button { flex: 1; min-width: 0; font-size: 12px; padding: 8px 12px; }
+
+    /* Sidebar admin (Admin.html) */
+    .app.admin-app > .sidebar,
+    aside.sidebar {
+        padding-top: calc(var(--mob-header-h) + 12px);
+    }
+
+    /* Card de profissional: compacto */
+    .prof-card { margin-bottom: 4px; }
+    .card-body { padding: 16px !important; }
+
+    /* Chat layout */
+    .chat-layout, .chat-container {
+        height: calc(100vh - var(--mob-header-h) - var(--mob-bottom-h) - var(--mob-safe-bot)) !important;
+    }
+
+    /* Main sidebar do chat: esconde */
+    .main-sidebar { display: none !important; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ACADEMIA — AJUSTES MOBILE
+══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .treinos-layout {
+        grid-template-columns: 1fr !important;
+    }
+
+    .exercise-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+    }
+
+    .muscle-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+    }
+
+    .muscle-tabs::-webkit-scrollbar { display: none; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ESPORTES — AJUSTES MOBILE
+══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .sport-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SWIPE GESTURE — handle visual para bottom sheet
+══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .pp-header {
+        padding-top: 8px !important;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TOUCH IMPROVEMENTS
+══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    /* Maiores áreas de toque */
+    .nav-item,
+    .btn,
+    .btn-primary,
+    .btn-secondary,
+    .btn-danger,
+    .seg-btn,
+    .chip,
+    .pp-opt,
+    .mob-nav-item {
+        min-height: 44px;
+    }
+
+    /* Remove hover effects (touch devices) */
+    .nav-item:hover:not(.active),
+    .pp-opt:hover {
+        transform: none !important;
+    }
+
+    /* Scroll momentum */
+    .main,
+    .pp-body,
+    .modal-body,
+    .prof-grid {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Prevent text selection on tap */
+    .mob-nav-item,
+    .mob-header-btn,
+    .mob-header-avatar,
+    .mob-hamburger {
+        user-select: none;
+        -webkit-user-select: none;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SMOOTH ANIMATIONS — respects prefers-reduced-motion
+══════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+    .sidebar,
+    #profile-panel,
+    .mob-drawer-overlay,
+    .mob-nav-item i,
+    .mob-nav-item::after {
+        transition: none !important;
+        animation: none !important;
+    }
+}

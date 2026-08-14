@@ -1,0 +1,345 @@
+/* =============================================================
+   dashboard.css — Next Agon · Painel do Usuário
+   Estilos exclusivos da dashboard.html: painel de perfil
+   deslizante, topbar, gráfico de barras e sobreposição.
+   Depende de global.css para variáveis e componentes base.
+   ============================================================= */
+
+/* ── Topbar (saudação + botão de perfil) ─────────────────── */
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
+}
+
+.topbar h1 {
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.topbar h1 span { color: var(--accent); }
+
+.topbar .date-label {
+    color: var(--text3);
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+/* Botão "Meu Perfil" no topo direito */
+.btn-perfil {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 10px 20px;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-perfil:hover { background: var(--accent-dim); }
+
+/* ── Grade de cards de estatísticas ─────────────────────── */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+}
+
+.stat-card .stat-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+}
+
+.stat-card .stat-value {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 10px;
+}
+
+.stat-card .stat-diff { font-size: 13px; }
+.stat-card .stat-diff.up   { color: var(--green); }
+.stat-card .stat-diff.info { color: var(--text2); }
+
+/* ── Gráfico de barras (desempenho) ──────────────────────── */
+.chart-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+}
+
+.chart-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 28px;
+}
+
+.bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    height: 200px;
+}
+
+/* Coluna individual do gráfico */
+.bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    gap: 10px;
+}
+
+.bar {
+    width: 65%;
+    border-radius: 6px 6px 0 0;
+    background: linear-gradient(to top, #1e3050, #2e4a78); /* barra padrão */
+}
+
+/* Barra do mês atual (destaque com glow) */
+.bar.current {
+    background: linear-gradient(to top, var(--accent2), var(--accent));
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.bar-label {
+    font-size: 12px;
+    color: var(--text3);
+}
+
+.bar-label.current {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* ── Sobreposição escura (quando painel de perfil abre) ──── */
+#panel-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(3px);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+#panel-overlay.ov-open {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* ── Painel deslizante de perfil (slide-in da direita) ───── */
+#profile-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 360px;
+    height: 100vh;
+    background: var(--bg);
+    border-left: 1px solid var(--border);
+    transform: translateX(100%);
+    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+#profile-panel.pp-open { transform: translateX(0); }
+
+/* Cabeçalho do painel de perfil */
+.pp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 22px 0;
+}
+
+.pp-header h2 { font-size: 18px; font-weight: 700; }
+
+.pp-close {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: background 0.2s, color 0.2s;
+}
+
+.pp-close:hover { background: var(--card); color: var(--text); }
+
+/* Seção do avatar no painel */
+.pp-avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 22px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.pp-avatar-wrap { position: relative; margin-bottom: 14px; }
+
+.pp-avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #000;
+    font-size: 30px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid var(--bg);
+    box-shadow: 0 0 0 2px var(--accent-glow), 0 8px 24px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+}
+
+.pp-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Botão câmera sobre o avatar */
+.pp-avatar-edit {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 28px;
+    height: 28px;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.pp-name  { font-size: 18px; font-weight: 700; margin-bottom: 5px; }
+.pp-email { font-size: 12px; color: var(--text3); }
+
+/* Badge de perfil (Atleta / Profissional / Admin) */
+.pp-role-badge {
+    background: var(--accent-dim);
+    border: 1px solid rgba(232, 255, 0, 0.3);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 13px;
+    border-radius: 20px;
+    margin-bottom: 5px;
+}
+
+/* ── Opções do menu de perfil ────────────────────────────── */
+.pp-body { padding: 16px 16px 0; flex: 1; }
+
+/* Label de seção (ex: "Conta", "Preferências") */
+.pp-section-lbl {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    font-weight: 700;
+    padding: 0 6px;
+    margin: 14px 0 6px;
+}
+
+/* Item de opção clicável */
+.pp-opt {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, transform 0.18s;
+    color: var(--text);
+}
+
+.pp-opt:hover {
+    background: var(--card2);
+    border-color: #2a4060;
+    transform: translateX(3px);
+}
+
+.pp-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+}
+
+.pp-opt-title { font-size: 14px; font-weight: 600; }
+.pp-opt-sub   { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+/* Seta à direita de cada opção */
+.pp-arrow { color: var(--text3); font-size: 14px; margin-left: auto; }
+.pp-opt:hover .pp-arrow { color: var(--text2); }
+
+/* ── Rodapé do painel (botão Sair) ───────────────────────── */
+.pp-footer { padding: 16px; }
+
+.btn-sair {
+    width: 100%;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: var(--red);
+    padding: 13px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+
+.btn-sair:hover { background: rgba(239, 68, 68, 0.22); }
+
+.pp-version {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 10px;
+}

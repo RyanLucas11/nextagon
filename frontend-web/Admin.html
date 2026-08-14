@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin — Next Agon</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<div class="app">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <i class="fa-solid fa-bolt"></i> Next Agon
+            <span class="admin-badge-logo">ADMIN</span>
+        </div>
+
+        <div class="sidebar-section">Visão Geral</div>
+        <button class="nav-item active" onclick="showPage('dashboard', this)"><i class="fa-solid fa-gauge-high"></i> Dashboard</button>
+        <button class="nav-item" onclick="showPage('historico', this)"><i class="fa-solid fa-clock-rotate-left"></i> Histórico de Alterações</button>
+        <button class="nav-item" onclick="showPage('auditoria', this)"><i class="fa-solid fa-chart-bar"></i> Auditoria do Sistema</button>
+
+        <div class="sidebar-section">Usuários &amp; Perfis</div>
+        <button class="nav-item" onclick="showPage('usuarios', this)"><i class="fa-solid fa-users"></i> Usuários</button>
+        <button class="nav-item" onclick="showPage('profissionais', this)"><i class="fa-solid fa-user-doctor"></i> Profissionais</button>
+
+        <div class="sidebar-section">Conteúdo</div>
+        <button class="nav-item" onclick="showPage('treinos', this)"><i class="fa-solid fa-dumbbell"></i> Treinos</button>
+        <button class="nav-item" onclick="showPage('exercicios', this)"><i class="fa-solid fa-person-running"></i> Exercícios</button>
+
+        <div class="sidebar-sep"></div>
+        <button class="nav-item nav-back" onclick="voltarDashboard()"><i class="fa-solid fa-arrow-left"></i> Voltar ao Sistema</button>
+
+        <div class="sidebar-profile">
+            <div class="sidebar-profile-main" onclick="openAdminPanel()" title="Meu Perfil" role="button" tabindex="0">
+                <div class="sidebar-profile-avatar" id="sideAvatar">CA</div>
+                <div style="flex:1;min-width:0;">
+                    <div class="sidebar-profile-name" id="sideNome">Carlos Admin</div>
+                    <div class="sidebar-profile-role"><i class="fa-solid fa-shield-halved"></i> Administrador</div>
+                </div>
+                <button class="sidebar-profile-gear" onclick="openAdminPanel();event.stopPropagation();" title="Configurações" aria-label="Configurações"><i class="fa-solid fa-gear"></i></button>
+            </div>
+            <div class="sidebar-quick-actions">
+                <button class="sidebar-quick-btn sq-tema" onclick="adminOptTema()" title="Alterar Tema"><i class="fa-solid fa-moon"></i> Tema</button>
+                <button class="sidebar-quick-btn sq-foto" onclick="adminOptFoto()" title="Alterar Foto"><i class="fa-solid fa-camera"></i> Foto</button>
+                <button class="sidebar-quick-btn sq-sair" onclick="adminOptSair()" title="Sair"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ── MAIN ── -->
+    <main class="main">
+
+        <!-- PAGE: DASHBOARD -->
+        <div class="page active" id="page-dashboard">
+            <div class="topbar">
+                <div>
+                    <div class="page-title"><span>Painel</span> Administrativo</div>
+                    <div class="page-sub" id="adminDateLabel"></div>
+                </div>
+                <div class="topbar-right">
+                    <button class="btn-secondary" onclick="showPage('historico', document.querySelector('[onclick*=historico]'))">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Ver Histórico
+                    </button>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-lbl">Total de Usuários</div>
+                    <div class="stat-val" id="statUsuarios">3</div>
+                    <div class="stat-sub">Registrados no sistema</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-lbl">Profissionais</div>
+                    <div class="stat-val" id="statProfs">6</div>
+                    <div class="stat-sub">Perfis cadastrados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-lbl">Treinos Ativos</div>
+                    <div class="stat-val" id="statTreinos">1</div>
+                    <div class="stat-sub">Treino recomendado</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-lbl">Ações Registradas</div>
+                    <div class="stat-val" id="statAcoes">0</div>
+                    <div class="stat-sub">No histórico</div>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <div class="table-head">
+                    <div class="table-head-title">
+                        <i class="fa-solid fa-clock-rotate-left" style="color:var(--admin);margin-right:8px"></i>Últimas Ações
+                    </div>
+                    <button class="btn-secondary" onclick="showPage('historico', document.querySelector('[onclick*=historico]'))">
+                        <i class="fa-solid fa-arrow-right"></i> Ver tudo
+                    </button>
+                </div>
+                <div class="log-list" id="dashLogList"></div>
+            </div>
+        </div>
+
+        <!-- PAGE: HISTÓRICO -->
+        <div class="page" id="page-historico">
+            <div class="topbar">
+                <div>
+                    <div class="page-title"><span>Histórico</span> de Alterações</div>
+                    <div class="page-sub">Registro completo de todas as ações no sistema</div>
+                </div>
+                <div class="topbar-right">
+                    <button class="btn-danger" onclick="confirmarLimparLog()"><i class="fa-solid fa-trash"></i> Limpar Histórico</button>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <div class="log-filters" id="logFilters">
+                    <button class="log-filter-btn active" onclick="setLogFilter('todos', this)">Todos</button>
+                    <button class="log-filter-btn" onclick="setLogFilter('create', this)"><i class="fa-solid fa-plus" style="color:#34d399"></i> Criação</button>
+                    <button class="log-filter-btn" onclick="setLogFilter('edit', this)"><i class="fa-solid fa-pen" style="color:#60a5fa"></i> Edição</button>
+                    <button class="log-filter-btn" onclick="setLogFilter('delete', this)"><i class="fa-solid fa-trash" style="color:#f87171"></i> Exclusão</button>
+                    <button class="log-filter-btn" onclick="setLogFilter('login', this)"><i class="fa-solid fa-right-to-bracket" style="color:#a78bfa"></i> Login</button>
+                    <button class="log-filter-btn" onclick="setLogFilter('system', this)"><i class="fa-solid fa-gear" style="color:#fbbf24"></i> Sistema</button>
+                </div>
+                <div class="log-list" id="logList"></div>
+                <div class="pag" id="logPag" style="display:none">
+                    <span class="pag-info" id="logPagInfo"></span>
+                    <button class="pag-btn" id="logPrev" onclick="logPage(-1)">&#8249; Anterior</button>
+                    <button class="pag-btn" id="logNext" onclick="logPage(1)">Próximo &#8250;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: USUÁRIOS -->
+        <div class="page" id="page-usuarios">
+            <div class="topbar">
+                <div>
+                    <div class="page-title"><span>Gerenciar</span> Usuários</div>
+                    <div class="page-sub">Adicione, edite ou remova contas de usuário</div>
+                </div>
+                <div class="topbar-right">
+                    <button class="btn-primary" onclick="abrirModalUsuario()"><i class="fa-solid fa-plus"></i> Novo Usuário</button>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <div class="table-head">
+                    <div class="table-head-title">Usuários Cadastrados</div>
+                    <div class="table-search-wrap">
+                        <i class="fa-solid fa-search"></i>
+                        <input class="table-search" placeholder="Buscar usuário..." oninput="filtrarTabela('tblUsuarios', this.value)">
+                    </div>
+                </div>
+                <table id="tblUsuarios">
+                    <thead><tr>
+                        <th>Usuário</th><th>E-mail</th><th>Perfil</th><th>Status</th><th>Ações</th>
+                    </tr></thead>
+                    <tbody id="tbodyUsuarios"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PAGE: PROFISSIONAIS -->
+        <div class="page" id="page-profissionais">
+            <div class="topbar">
+                <div>
+                    <div class="page-title"><span>Gerenciar</span> Profissionais</div>
+                    <div class="page-sub">Edite, ative/desative ou remova perfis profissionais</div>
+                </div>
+                <div class="topbar-right">
+                    <button class="btn-primary" onclick="abrirModalProfissional()"><i class="fa-solid fa-plus"></i> Novo Profissional</button>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <div class="table-head">
+                    <div class="table-head-title">Profissionais Cadastrados</div>
+                    <div class="table-search-wrap">
+                        <i class="fa-solid fa-search"></i>
+                        <input class="table-search" placeholder="Buscar profissional..." oninput="filtrarTabela('tblProfs', this.value)">
+                    </div>
+                </div>
+                <table id="tblProfs">
+                    <thead><tr>
+                        <th>Nome</th><th>Área</th><th>Cidade</th><th>Modalidade</th><th>Status</th><th>Preço/h</th><th>Ações</th>
+                    </tr></thead>
+                    <tbody id="tbodyProfs"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PAGE: TREINOS -->
+        <div class="page" id="page-treinos">
+            <div class="topbar">
+                <div>
+                    <div class="page-title"><span>Gerenciar</span> Treinos</div>
+                    <div class="page-sub">Edite o treino recomendado e treinos criados por usuários</div>
+                </div>
+                <div class="topbar-right">
+                    <button class="btn-primary" onclick="abrirModalTreino()"><i class="fa-solid fa-plus"></i> Novo Treino</button>
+                </div>
+            </div>
+            <div id="treinoAdminList"></div>
+        </div>
+
+        <!-- PAGE: EXERCÍCIOS -->
+        <div class="page" id="page-exercicios">
+            <div class="topbar">
+                <div>
+                    <div class="page-title"><span>Gerenciar</span> Exercícios</div>
+                    <div class="page-sub">Adicione, edite ou remova exercícios do banco de dados</div>
+                </div>
+                <div class="topbar-right">
+                    <button class="btn-primary" onclick="abrirModalExercicio()"><i class="fa-solid fa-plus"></i> Novo Exercício</button>
+                </div>
+            </div>
+            <div class="table-wrap" style="margin-bottom:20px">
+                <div class="table-head">
+                    <div class="table-head-title">Exercícios no Sistema</div>
+                    <div class="table-search-wrap">
+                        <i class="fa-solid fa-search"></i>
+                        <input class="table-search" placeholder="Buscar exercício..." oninput="filtrarTabela('tblEx', this.value)">
+                    </div>
+                </div>
+                <table id="tblEx">
+                    <thead><tr>
+                        <th>Exercício</th><th>Músculo</th><th>Equipamento</th><th>Dificuldade</th><th>Tipo</th><th>Ações</th>
+                    </tr></thead>
+                    <tbody id="tbodyEx"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PAGE: AUDITORIA DO SISTEMA -->
+        <div class="page" id="page-auditoria">
+            <div class="topbar">
+                <div>
+                    <div class="page-title"><span>Auditoria</span> do Sistema</div>
+                    <div class="page-sub" id="auditSubtitle">Visão completa de todas as alterações e atividades</div>
+                </div>
+                <div class="topbar-right">
+                    <button class="btn-secondary" onclick="exportarAuditCSV()"><i class="fa-solid fa-download"></i> Exportar CSV</button>
+                    <button class="btn-danger" onclick="confirmarLimparLog()" style="margin-left:8px"><i class="fa-solid fa-trash"></i> Limpar</button>
+                </div>
+            </div>
+
+            <div class="audit-kpi-grid" id="auditKpis"></div>
+
+            <div class="audit-charts-row">
+                <div class="table-wrap audit-chart-box" style="flex:2">
+                    <div class="audit-chart-title"><i class="fa-solid fa-chart-bar" style="color:var(--admin)"></i> Atividade por Tipo</div>
+                    <div class="audit-bar-chart" id="auditBarChart"></div>
+                </div>
+                <div class="table-wrap audit-chart-box" style="flex:1">
+                    <div class="audit-chart-title"><i class="fa-solid fa-clock" style="color:var(--admin)"></i> Distribuição por Hora</div>
+                    <div class="audit-hour-chart" id="auditHourChart"></div>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <div class="table-head" style="flex-wrap:wrap;gap:10px">
+                    <div class="table-head-title">
+                        <i class="fa-solid fa-timeline" style="color:var(--admin);margin-right:8px"></i>Timeline Completa
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                        <div class="audit-type-filter" id="auditTypeFilter"></div>
+                        <div class="table-search-wrap">
+                            <i class="fa-solid fa-search"></i>
+                            <input class="table-search" id="auditSearch" placeholder="Buscar ação, detalhe, usuário..." oninput="renderAuditTimeline()">
+                        </div>
+                    </div>
+                </div>
+                <div id="auditTimeline"></div>
+                <div class="pag" id="auditPag" style="display:none">
+                    <span class="pag-info" id="auditPagInfo"></span>
+                    <button class="pag-btn" id="auditPrev" onclick="auditChangePage(-1)">&#8249; Anterior</button>
+                    <button class="pag-btn" id="auditNext" onclick="auditChangePage(1)">Próximo &#8250;</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- MODAL: Usuário -->
+<div class="modal-overlay" id="modalUsuario" onclick="fecharModalSeOverlay(event,'modalUsuario')">
+    <div class="modal">
+        <div class="modal-head">
+            <h3><i class="fa-solid fa-user-plus"></i> <span id="modalUsuarioTitulo">Novo Usuário</span></h3>
+            <button class="modal-close" onclick="fechar('modalUsuario')">&#215;</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="uIdx">
+            <div class="field-row">
+                <div class="field"><label>Nome Completo</label><input id="uNome" placeholder="Ex: João Silva"></div>
+                <div class="field"><label>Avatar (iniciais)</label><input id="uAvatar" placeholder="Ex: JS" maxlength="3"></div>
+            </div>
+            <div class="field"><label>E-mail</label><input id="uEmail" type="email" placeholder="joao@nextagon.com"></div>
+            <div class="field-row">
+                <div class="field"><label>Senha</label><input id="uSenha" type="password" placeholder="Mínimo 6 caracteres"></div>
+                <div class="field"><label>Perfil</label>
+                    <select id="uRole">
+                        <option value="atleta">Atleta</option>
+                        <option value="profissional">Profissional</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="fechar('modalUsuario')">Cancelar</button>
+            <button class="btn-primary" onclick="salvarUsuario()"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Profissional -->
+<div class="modal-overlay" id="modalProfissional" onclick="fecharModalSeOverlay(event,'modalProfissional')">
+    <div class="modal">
+        <div class="modal-head">
+            <h3><i class="fa-solid fa-user-doctor"></i> <span id="modalProfTitulo">Novo Profissional</span></h3>
+            <button class="modal-close" onclick="fechar('modalProfissional')">&#215;</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="pIdx">
+            <div class="field-row">
+                <div class="field"><label>Nome Completo</label><input id="pNome" placeholder="Ex: Carlos Lima"></div>
+                <div class="field"><label>Área</label>
+                    <select id="pArea">
+                        <option>Personal Trainer</option>
+                        <option>Nutricionista</option>
+                        <option>Fisioterapeuta</option>
+                        <option>Preparador Físico</option>
+                        <option>Psicólogo Esportivo</option>
+                        <option>Médico Esportivo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field"><label>Cidade</label><input id="pCidade" placeholder="Ex: São Paulo, SP"></div>
+                <div class="field"><label>Registro Profissional</label><input id="pRegistro" placeholder="Ex: CREF 012345-G/SP"></div>
+            </div>
+            <div class="field-row">
+                <div class="field"><label>Preço por hora (R$)</label><input id="pPreco" type="number" placeholder="200"></div>
+                <div class="field"><label>Experiência (anos)</label><input id="pExp" type="number" placeholder="5"></div>
+            </div>
+            <div class="field-row">
+                <div class="field"><label>Modalidade</label>
+                    <select id="pModalidade">
+                        <option>Presencial</option>
+                        <option>Online</option>
+                        <option>Ambos</option>
+                    </select>
+                </div>
+                <div class="field"><label>Disponibilidade</label>
+                    <select id="pDisponivel">
+                        <option value="true">Disponível</option>
+                        <option value="false">Indisponível</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field"><label>Especialidades (separadas por vírgula)</label><input id="pSpecs" placeholder="Ex: Hipertrofia, Força, Emagrecimento"></div>
+            <div class="field"><label>URL da Foto (opcional)</label><input id="pFoto" placeholder="https://..."></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="fechar('modalProfissional')">Cancelar</button>
+            <button class="btn-primary" onclick="salvarProfissional()"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Treino -->
+<div class="modal-overlay" id="modalTreino" onclick="fecharModalSeOverlay(event,'modalTreino')">
+    <div class="modal">
+        <div class="modal-head">
+            <h3><i class="fa-solid fa-dumbbell"></i> <span id="modalTreinoTitulo">Novo Treino</span></h3>
+            <button class="modal-close" onclick="fechar('modalTreino')">&#215;</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="tIdx">
+            <div class="field"><label>Nome do Treino</label><input id="tNome" placeholder="Ex: Hipertrofia Superior A"></div>
+            <div class="field"><label>Descrição</label><textarea id="tDesc" rows="2" placeholder="Descreva o objetivo e foco do treino..."></textarea></div>
+            <div class="field-row">
+                <div class="field"><label>Frequência</label><input id="tFreq" placeholder="Ex: 4x/semana"></div>
+                <div class="field"><label>Duração</label><input id="tDur" placeholder="Ex: 60–70 min"></div>
+            </div>
+            <div class="field"><label>Nível</label>
+                <select id="tNivel">
+                    <option>Iniciante</option>
+                    <option>Intermediário</option>
+                    <option>Avançado</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Exercícios
+                    <button type="button" onclick="addExRow()"
+                            style="background:var(--admin-dim);border:1px solid var(--admin);color:var(--admin);padding:3px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:700;font-family:inherit;margin-left:8px">
+                        + Adicionar
+                    </button>
+                </label>
+                <div id="tExList" style="display:flex;flex-direction:column;gap:6px;margin-top:8px"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="fechar('modalTreino')">Cancelar</button>
+            <button class="btn-primary" onclick="salvarTreino()"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Exercício -->
+<div class="modal-overlay" id="modalExercicio" onclick="fecharModalSeOverlay(event,'modalExercicio')">
+    <div class="modal">
+        <div class="modal-head">
+            <h3><i class="fa-solid fa-person-running"></i> <span id="modalExTitulo">Novo Exercício</span></h3>
+            <button class="modal-close" onclick="fechar('modalExercicio')">&#215;</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="exIdx">
+            <div class="field"><label>Nome do Exercício</label><input id="exNome" placeholder="Ex: Supino Reto com Barra"></div>
+            <div class="field-row">
+                <div class="field"><label>Músculo Principal</label>
+                    <select id="exMusculo">
+                        <option value="peito">Peito</option>
+                        <option value="costas">Costas</option>
+                        <option value="ombros">Ombros</option>
+                        <option value="biceps">Bíceps</option>
+                        <option value="triceps">Tríceps</option>
+                        <option value="pernas">Pernas</option>
+                        <option value="gluteos">Glúteos</option>
+                        <option value="abdomen">Abdômen</option>
+                        <option value="full body">Full Body</option>
+                    </select>
+                </div>
+                <div class="field"><label>Equipamento</label><input id="exEquip" placeholder="Ex: Barra, Halteres, Máquina"></div>
+            </div>
+            <div class="field-row">
+                <div class="field"><label>Dificuldade</label>
+                    <select id="exDiff">
+                        <option value="Fácil">Fácil</option>
+                        <option value="Médio">Médio</option>
+                        <option value="Difícil">Difícil</option>
+                    </select>
+                </div>
+                <div class="field"><label>Tipo</label>
+                    <select id="exTipo">
+                        <option>Força</option>
+                        <option>Cardio</option>
+                        <option>Funcional</option>
+                        <option>Flexibilidade</option>
+                        <option>Resistência</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field"><label>Emoji / Ícone</label><input id="exEmoji" placeholder="Ex: 💪" maxlength="4"></div>
+            <div class="field">
+                <label>Séries padrão (ex: 4x10, 3x12)</label>
+                <div id="exSeriesList" style="display:flex;flex-direction:column;gap:6px;margin-top:4px"></div>
+                <button type="button" onclick="addSerieRow()"
+                        style="background:var(--admin-dim);border:1px solid var(--admin);color:var(--admin);padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:700;font-family:inherit;margin-top:8px">
+                    + Adicionar série
+                </button>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="fechar('modalExercicio')">Cancelar</button>
+            <button class="btn-primary" onclick="salvarExercicio()"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Confirmar -->
+<div class="modal-overlay" id="modalConfirm" onclick="fecharModalSeOverlay(event,'modalConfirm')">
+    <div class="confirm-modal">
+        <div class="confirm-icon"  id="confirmIcon">&#128465;</div>
+        <div class="confirm-title" id="confirmTitle">Confirmar exclusão</div>
+        <div class="confirm-sub"   id="confirmSub">Essa ação não pode ser desfeita.</div>
+        <div class="confirm-btns">
+            <button class="btn-secondary" onclick="fechar('modalConfirm')">Cancelar</button>
+            <button class="btn-danger"    id="confirmBtn">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+    <i class="fa-solid fa-circle-check" id="toastIcon"></i>
+    <span id="toastMsg"></span>
+</div>
+
+<script src="js/admin.js"></script>
+<script>
+    /* ── Perfil Admin ── */
+    var _adminTemaEscuro = true;
+
+    /* Aplica tema salvo ao carregar */
+    (function(){
+        try {
+            if (localStorage.getItem('na_tema') === 'claro') {
+                _adminTemaEscuro = false;
+                var r = document.documentElement;
+                r.style.setProperty('--bg',    '#f0f4f8');
+                r.style.setProperty('--card',  '#ffffff');
+                r.style.setProperty('--card2', '#e8eef5');
+                r.style.setProperty('--text',  '#0a1120');
+                r.style.setProperty('--text2', '#3d5068');
+            }
+        } catch(e){}
+    })();
+
+    function _getUser() {
+        try { return JSON.parse(sessionStorage.getItem('naUser') || 'null'); } catch(e){ return null; }
+    }
+    function _iniciais(nome) {
+        return (nome||'CA').split(' ').slice(0,2).map(function(w){ return w[0]; }).join('').toUpperCase() || 'CA';
+    }
+    function _renderAvatar(el, fotoUrl, ini) {
+        if (!el) return;
+        if (fotoUrl) {
+            el.innerHTML = '<img src="'+fotoUrl+'" onerror="this.parentNode.innerHTML=\''+ini+'\'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+        } else {
+            el.innerHTML = ini;
+        }
+    }
+
+    function openAdminPanel() {
+        var u = _getUser();
+        var nome  = u ? (u.nome || u.name || 'Carlos Admin') : 'Carlos Admin';
+        var email = u ? (u.email || u.login || 'admin@nextagon.com') : 'admin@nextagon.com';
+        var ini   = _iniciais(nome);
+        var foto  = u && u.foto ? u.foto : null;
+
+        var ppNome  = document.getElementById('ap-nome');
+        var ppEmail = document.getElementById('ap-email');
+        var ppAv    = document.getElementById('ap-avatar');
+        if (ppNome)  ppNome.textContent  = nome;
+        if (ppEmail) ppEmail.textContent = email;
+        _renderAvatar(ppAv, foto, ini);
+
+        _syncTemaUI();
+
+        document.getElementById('admin-profile-panel').classList.add('ap-open');
+        document.getElementById('admin-panel-overlay').classList.add('ov-open');
+        document.getElementById('admin-profile-panel').focus();
+    }
+
+    function closeAdminPanel() {
+        document.getElementById('admin-profile-panel').classList.remove('ap-open');
+        document.getElementById('admin-panel-overlay').classList.remove('ov-open');
+    }
+
+    /* ── Tema ── */
+    function _syncTemaUI() {
+        var sub  = document.getElementById('ap-tema-sub');
+        var icoP = document.getElementById('ap-tema-icon');
+        var icoS = document.querySelector('.sq-tema i');
+        var tog  = document.getElementById('ap-tema-toggle');
+        var escuro = _adminTemaEscuro;
+        if (sub)  sub.textContent  = escuro ? 'Tema escuro ativo' : 'Tema claro ativo';
+        if (icoP) icoP.className   = escuro ? 'fa-solid fa-moon'  : 'fa-solid fa-sun';
+        if (icoS) icoS.className   = escuro ? 'fa-solid fa-moon'  : 'fa-solid fa-sun';
+        if (tog)  tog.classList.toggle('tog-on', !escuro);
+    }
+
+    function adminOptTema() {
+        _adminTemaEscuro = !_adminTemaEscuro;
+        var r = document.documentElement;
+        if (_adminTemaEscuro) {
+            r.style.removeProperty('--bg');
+            r.style.removeProperty('--card');
+            r.style.removeProperty('--card2');
+            r.style.removeProperty('--text');
+            r.style.removeProperty('--text2');
+        } else {
+            r.style.setProperty('--bg',    '#f0f4f8');
+            r.style.setProperty('--card',  '#ffffff');
+            r.style.setProperty('--card2', '#e8eef5');
+            r.style.setProperty('--text',  '#0a1120');
+            r.style.setProperty('--text2', '#3d5068');
+        }
+        _syncTemaUI();
+        try { localStorage.setItem('na_tema', _adminTemaEscuro ? 'escuro' : 'claro'); } catch(e){}
+    }
+
+    /* ── Foto ── */
+    function adminOptFoto() {
+        document.getElementById('ap-file-input').click();
+    }
+
+    function _applyFoto(dataUrl) {
+        var u = _getUser();
+        var ini = _iniciais(u ? (u.nome||u.name||'CA') : 'CA');
+
+        var sideAv = document.getElementById('sideAvatar');
+        var ppAv   = document.getElementById('ap-avatar');
+        _renderAvatar(sideAv, dataUrl, ini);
+        _renderAvatar(ppAv,   dataUrl, ini);
+
+        try {
+            var obj = u || {};
+            obj.foto = dataUrl;
+            sessionStorage.setItem('naUser', JSON.stringify(obj));
+        } catch(e){}
+
+        _showToastAdmin('Foto de perfil atualizada!', 'ok');
+    }
+
+    /* Upload por arquivo */
+    document.addEventListener('DOMContentLoaded', function() {
+        var inp = document.getElementById('ap-file-input');
+        if (inp) {
+            inp.addEventListener('change', function(e) {
+                var file = e.target.files && e.target.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    _showToastAdmin('Selecione uma imagem válida.', 'err'); return;
+                }
+                var reader = new FileReader();
+                reader.onload = function(ev) { _applyFoto(ev.target.result); };
+                reader.readAsDataURL(file);
+                inp.value = '';
+            });
+        }
+    });
+
+    /* ── Sair (modal estilizado) ── */
+    function adminOptSair() {
+        document.getElementById('modal-sair-admin').classList.add('ms-open');
+    }
+    function _confirmarSair() {
+        sessionStorage.removeItem('naUser');
+        sessionStorage.removeItem('naPerms');
+        window.location.href = 'index.html';
+    }
+    function _cancelarSair() {
+        document.getElementById('modal-sair-admin').classList.remove('ms-open');
+    }
+
+    /* ── Mini toast interno ── */
+    function _showToastAdmin(msg, tipo) {
+        var t = document.getElementById('toast');
+        var i = document.getElementById('toastIcon');
+        var m = document.getElementById('toastMsg');
+        if (!t) return;
+        if (i) i.className = tipo === 'err' ? 'fa-solid fa-circle-xmark' : 'fa-solid fa-circle-check';
+        if (m) m.textContent = msg;
+        t.classList.add('show');
+        setTimeout(function(){ t.classList.remove('show'); }, 2800);
+    }
+</script>
+
+<!-- Input de arquivo oculto para upload de foto -->
+<input type="file" id="ap-file-input" accept="image/*" style="display:none">
+
+<!-- ── Overlay ── -->
+<div id="admin-panel-overlay" onclick="closeAdminPanel()" style="
+    position:fixed;inset:0;background:rgba(0,0,0,.55);
+    backdrop-filter:blur(3px);z-index:999;
+    opacity:0;pointer-events:none;transition:opacity .3s;
+"></div>
+
+<!-- ── Modal de Confirmação de Saída ── -->
+<div id="modal-sair-admin" style="
+    position:fixed;inset:0;z-index:2000;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.65);backdrop-filter:blur(4px);
+    opacity:0;pointer-events:none;transition:opacity .25s;
+">
+    <div style="
+        background:var(--card,#111927);
+        border:1px solid rgba(239,68,68,.3);
+        border-radius:20px;padding:36px 32px;max-width:360px;width:90%;
+        text-align:center;transform:scale(.95);transition:transform .25s;
+        box-shadow:0 24px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(239,68,68,.1);
+    " id="modal-sair-box">
+        <div style="
+            width:64px;height:64px;border-radius:50%;
+            background:rgba(239,68,68,.12);border:2px solid rgba(239,68,68,.3);
+            display:flex;align-items:center;justify-content:center;
+            margin:0 auto 18px;font-size:26px;color:#f87171;
+        "><i class="fa-solid fa-right-from-bracket"></i></div>
+        <div style="font-size:18px;font-weight:800;color:#f1f5f9;margin-bottom:8px;">Sair da conta?</div>
+        <div style="font-size:13px;color:#64748b;margin-bottom:28px;line-height:1.5;">
+            Você será desconectado do painel administrativo e redirecionado para a página inicial.
+        </div>
+        <div style="display:flex;gap:10px;">
+            <button onclick="_cancelarSair()" style="
+                flex:1;background:var(--card2,#19253a);border:1px solid var(--border,#1a2c42);
+                color:#94a3b8;padding:12px;border-radius:12px;font-size:14px;font-weight:700;
+                cursor:pointer;font-family:inherit;transition:background .18s;
+            " onmouseover="this.style.background='var(--bg,#0a1120)'"
+                    onmouseout="this.style.background='var(--card2,#19253a)'">Cancelar</button>
+            <button onclick="_confirmarSair()" style="
+                flex:1;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);
+                color:#f87171;padding:12px;border-radius:12px;font-size:14px;font-weight:700;
+                cursor:pointer;font-family:inherit;transition:background .18s;
+            " onmouseover="this.style.background='rgba(239,68,68,.28)'"
+                    onmouseout="this.style.background='rgba(239,68,68,.15)'">
+                <i class="fa-solid fa-right-from-bracket"></i> Sair
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+    /* Animação do modal de saída */
+    var _modalSairEl  = document.getElementById('modal-sair-admin');
+    var _modalSairBox = document.getElementById('modal-sair-box');
+    var _modalSairObs = new MutationObserver(function(){
+        if (_modalSairEl.classList.contains('ms-open')) {
+            _modalSairEl.style.opacity = '1';
+            _modalSairEl.style.pointerEvents = 'all';
+            _modalSairBox.style.transform = 'scale(1)';
+        } else {
+            _modalSairEl.style.opacity = '0';
+            _modalSairEl.style.pointerEvents = 'none';
+            _modalSairBox.style.transform = 'scale(.95)';
+        }
+    });
+    _modalSairObs.observe(_modalSairEl, {attributes:true, attributeFilter:['class']});
+    _modalSairEl.addEventListener('click', function(e){ if(e.target===_modalSairEl) _cancelarSair(); });
+</script>
+
+
+<!-- ── Painel de Perfil Admin ── -->
+<aside id="admin-profile-panel" aria-label="Painel de perfil" role="dialog" tabindex="-1">
+
+    <div class="ap-header">
+        <div class="ap-header-left">
+            <h2><i class="fa-solid fa-user-shield" style="font-size:15px"></i> Meu Perfil</h2>
+            <span class="ap-header-badge">ADMIN</span>
+        </div>
+        <button class="ap-close" onclick="closeAdminPanel()" aria-label="Fechar painel">×</button>
+    </div>
+
+    <div class="ap-avatar-section">
+        <div class="ap-avatar-wrap" onclick="adminOptFoto()" title="Clique para alterar foto">
+            <div class="ap-avatar" id="ap-avatar">CA</div>
+            <div class="ap-avatar-edit" aria-hidden="true"><i class="fa-solid fa-camera"></i></div>
+        </div>
+        <div class="ap-name" id="ap-nome">Carlos Admin</div>
+        <div class="ap-role-badge"><i class="fa-solid fa-shield-halved"></i> Administrador</div>
+        <div class="ap-email" id="ap-email">admin@nextagon.com</div>
+    </div>
+
+    <div class="ap-body">
+
+        <div class="ap-section-lbl">Conta</div>
+
+        <button class="ap-opt" onclick="adminOptFoto()">
+            <div class="ap-icon" style="background:rgba(167,139,250,.12)">
+                <i class="fa-solid fa-camera" style="color:#a78bfa"></i>
+            </div>
+            <div>
+                <div class="ap-opt-title">Alterar Foto de Perfil</div>
+                <div class="ap-opt-sub">Faça upload de uma imagem</div>
+            </div>
+            <span class="ap-arrow">›</span>
+        </button>
+
+        <button class="ap-opt" onclick="alert('Em breve: troca de senha do administrador.')">
+            <div class="ap-icon" style="background:rgba(96,165,250,.12)">
+                <i class="fa-solid fa-key" style="color:#60a5fa"></i>
+            </div>
+            <div>
+                <div class="ap-opt-title">Trocar Senha</div>
+                <div class="ap-opt-sub">Altere sua senha de acesso</div>
+            </div>
+            <span class="ap-arrow">›</span>
+        </button>
+
+        <div class="ap-section-lbl">Aparência</div>
+
+        <div class="ap-tema-row" onclick="adminOptTema()" role="button" tabindex="0">
+            <div class="ap-icon" style="background:rgba(100,116,139,.12)">
+                <i id="ap-tema-icon" class="fa-solid fa-moon" style="color:#94a3b8"></i>
+            </div>
+            <div>
+                <div class="ap-opt-title">Tema da Interface</div>
+                <div class="ap-opt-sub" id="ap-tema-sub">Tema escuro ativo</div>
+            </div>
+            <div class="ap-toggle" id="ap-tema-toggle" title="Alternar tema" aria-hidden="true"></div>
+        </div>
+
+    </div>
+
+    <div class="ap-footer">
+        <button class="ap-btn-sair" onclick="adminOptSair()">
+            <i class="fa-solid fa-right-from-bracket"></i> Sair da Conta
+        </button>
+        <div class="ap-version">Next Agon Admin v1.0</div>
+    </div>
+
+</aside>
+</body>
+</html>

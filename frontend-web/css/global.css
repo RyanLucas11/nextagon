@@ -1,0 +1,422 @@
+/* =============================================================
+   global.css — Next Agon Design System
+   Variáveis de tema, reset, componentes reutilizáveis globais
+   ============================================================= */
+
+/* ── Paleta & Tokens ─────────────────────────────────────── */
+:root {
+    /* Cores de destaque — azul cobalto Next Agon */
+    --accent:      #1a6bde;
+    --accent2:     #1558c0;
+    --accent-dim:  rgba(26, 107, 222, 0.14);
+    --accent-glow: rgba(26, 107, 222, 0.28);
+
+    /* ── Velocity Athletics: amarelo-neon ──── */
+    --velocity-yellow:      #d4f700;
+    --velocity-yellow-dim:  rgba(212, 247, 0, 0.12);
+    --velocity-yellow-glow: rgba(212, 247, 0, 0.25);
+
+    /* Título amarelo — identidade da marca */
+    --title:  #e8ff00;
+    --title2: #c8e000;
+
+    /* ── Velocity Athletics: fundos escuros (gym aesthetic) */
+    --velocity-bg-deep:  #0d0d0d;
+    --velocity-bg-mid:   #141414;
+    --velocity-bg-panel: #1c1c1c;
+    --velocity-border:   #2a2a2a;
+
+    /* Fundos em camadas Next Agon */
+    --bg:    #0a1120;
+    --card:  #111927;
+    --card2: #19253a;
+
+    /* Bordas */
+    --border: #1a2c42;
+
+    /* Tipografia */
+    --text:  #f1f5f9;
+    --text2: #7a90aa;
+    --text3: #3d5068;
+
+    /* Cores semânticas */
+    --green: #34d399;
+    --blue:  #60a5fa;
+    --red:   #f87171;
+
+    /* Bordas arredondadas */
+    --radius-lg: 16px;
+    --radius-sm: 10px;
+
+    /* ── Aliases de compatibilidade (auth.css, treinos.html) */
+    --bg2:     var(--card);
+    --bg3:     var(--card2);
+    --border2: var(--border);
+    --display: 'Inter', system-ui, sans-serif;
+}
+
+/* ── Reset ───────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ── Base ────────────────────────────────────────────────── */
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+}
+
+/* ── Layout Principal (sidebar + conteúdo) ───────────────── */
+.app {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    padding: 24px 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+}
+
+.sidebar-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sidebar-logo {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.4px;
+    margin-bottom: 28px;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ── Cartão de perfil fixo no rodapé da sidebar ──────────── */
+.sidebar-profile {
+    margin-top: auto;
+    padding: 10px 8px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background 0.18s;
+}
+
+.sidebar-profile:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.sidebar-profile-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #000;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.sidebar-profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.sidebar-profile-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.sidebar-profile-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-profile-role {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-profile-gear {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text3);
+    padding: 4px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    transition: color 0.18s, background 0.18s, transform 0.2s;
+    line-height: 1;
+}
+
+.sidebar-profile-gear:hover {
+    color: var(--accent);
+    background: var(--accent-dim);
+    transform: rotate(30deg);
+}
+
+/* ── Itens de navegação ──────────────────────────────────── */
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+    background: none;
+    border: none;
+    color: var(--text2);
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.nav-item.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.nav-item:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+}
+
+/* ── Área de conteúdo principal ──────────────────────────── */
+.main {
+    flex: 1;
+    padding: 32px 36px;
+    overflow-y: auto;
+    background: var(--bg);
+}
+
+/* ── Componente: Card ────────────────────────────────────── */
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+}
+
+/* ── Componente: Botão principal ─────────────────────────── */
+.btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 11px 20px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+    transition: background 0.18s, transform 0.18s;
+}
+
+.btn:hover {
+    background: var(--accent2);
+    transform: translateY(-1px);
+}
+
+/* ── Componente: Toast ───────────────────────────────────── */
+.toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.25s, transform 0.25s;
+    z-index: 2000;
+    pointer-events: none;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ── Grids utilitários ───────────────────────────────────── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr;        gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr;    gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+/* ── Stat card ───────────────────────────────────────────── */
+.stat { padding: 18px 20px; }
+.stat-label {
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+}
+.stat-value {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 10px;
+}
+
+/* ── Cards de perfil ─────────────────────────────────────── */
+.profile-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+/* ── Chat container ──────────────────────────────────────── */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 200px);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+/* ── Animação shake ──────────────────────────────────────── */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-6px); }
+    40%       { transform: translateX(6px); }
+    60%       { transform: translateX(-4px); }
+    80%       { transform: translateX(4px); }
+}
+
+/* ── Títulos mantêm o amarelo da marca ───────────────────── */
+h1, h2, h3, h4,
+.page-title,
+.chart-title,
+.section-title,
+.sidebar-logo,
+.logo-text,
+.panel-title,
+.modal-title,
+.saved-title,
+.success-title,
+.contacts-title,
+.wk-name,
+.modal-header h2 {
+    color: var(--title);
+}
+
+.subtitle,
+.page-subtitle,
+.logo-sub,
+.section-lbl,
+.topbar h1 span,
+.chat-name {
+    color: var(--title2);
+}
+
+/* sidebar logo permanece amarelo */
+.sidebar-logo         { color: var(--title) !important; }
+/* .logo dentro da sidebar permanece amarelo;
+   a tela de login usa .logo-brand com cor própria */
+.sidebar .logo        { color: var(--title) !important; }
+
+/* Buttons with accent background */
+[style*="background:var(--accent)"],
+[style*="background: var(--accent)"] {
+    color: #fff !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   TEMA CLARO
+   ══════════════════════════════════════════════════════════ */
+[data-tema="light"] {
+    --accent:      #1a6bde;
+    --accent2:     #1558c0;
+    --accent-dim:  rgba(26, 107, 222, 0.10);
+    --accent-glow: rgba(26, 107, 222, 0.20);
+
+    --title:  #1558c0;
+    --title2: #1a6bde;
+
+    --bg:    #f0f4f8;
+    --card:  #ffffff;
+    --card2: #e8edf3;
+
+    --border: #d1dbe8;
+
+    --text:  #0f172a;
+    --text2: #475569;
+    --text3: #94a3b8;
+
+    --green: #16a34a;
+    --blue:  #2563eb;
+    --red:   #dc2626;
+
+    --bg2:     var(--card);
+    --bg3:     var(--card2);
+    --border2: var(--border);
+}
+
+[data-tema="light"] body {
+    background: var(--bg);
+    color: var(--text);
+}
+
+[data-tema="light"] .sidebar-logo,
+[data-tema="light"] .sidebar .logo {
+    color: var(--accent) !important;
+}
+
+[data-tema="light"] .mob-header {
+    background: var(--card);
+    border-bottom-color: var(--border);
+}
+
+[data-tema="light"] .mob-bottom-nav {
+    background: var(--card);
+    border-top-color: var(--border);
+}

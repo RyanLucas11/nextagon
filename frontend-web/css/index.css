@@ -1,0 +1,394 @@
+/* =============================================================
+   index.css — Next Agon · Tela de Login (Velocity Athletics)
+   Paleta: preto academia #0d0d0d + neon amarelo-lima #d4f700
+   ============================================================= */
+
+body {
+    background: var(--velocity-bg-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding: 20px;
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ── Fundo estilo academia ───────────────────────────────── */
+.gym-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse 80% 60% at 50% 100%, rgba(30,30,30,0.9) 0%, transparent 70%),
+        linear-gradient(160deg, #111111 0%, #0a0a0a 40%, #0d0d0d 100%);
+}
+
+.gym-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 100% 50% at 50% 0%,
+        rgba(212,247,0,0.03) 0%, transparent 60%);
+}
+
+.gym-grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 256px 256px;
+}
+
+.gym-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 90% 80% at 50% 50%,
+        transparent 40%, rgba(0,0,0,0.7) 100%);
+}
+
+/* ── Luzes ambientais ────────────────────────────────────── */
+.ambient-light {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(120px);
+}
+
+.light-top {
+    width: 600px;
+    height: 300px;
+    background: radial-gradient(ellipse, rgba(212,247,0,0.06) 0%, transparent 70%);
+    top: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.light-bottom {
+    width: 400px;
+    height: 200px;
+    background: radial-gradient(ellipse, rgba(26,107,222,0.08) 0%, transparent 70%);
+    bottom: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* ── Card principal ──────────────────────────────────────── */
+.login-card {
+    background: rgba(14, 14, 14, 0.95);
+    border: 1px solid rgba(212, 247, 0, 0.14);
+    border-radius: 4px;
+    padding: 40px 36px 32px;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    z-index: 1;
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04),
+        0 40px 80px rgba(0,0,0,0.85),
+        0 0 60px rgba(212,247,0,0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    animation: cardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes cardIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* ── Logo estilo Velocity ────────────────────────────────── */
+.logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    /* Anula qualquer herança de cor do global.css */
+    color: unset !important;
+}
+
+.logo-wordmark {
+    text-align: center;
+    line-height: 1;
+}
+
+.logo-brand {
+    display: block;
+    font-family: 'Bebas Neue', 'Impact', sans-serif;
+    font-size: 40px;
+    letter-spacing: 0.14em;
+    color: var(--velocity-yellow) !important;
+    text-shadow:
+        0 0 20px rgba(212,247,0,0.4),
+        0 0 60px rgba(212,247,0,0.15);
+    line-height: 1;
+}
+
+.logo-tagline {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.38em;
+    color: rgba(255,255,255,0.3) !important;
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+
+/* ── Divisor decorativo ──────────────────────────────────── */
+.divider-line {
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(212,247,0,0.25) 30%,
+        rgba(212,247,0,0.25) 70%,
+        transparent 100%);
+    margin-bottom: 24px;
+}
+
+/* ── Abas ────────────────────────────────────────────────── */
+.main-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.main-tab {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 8px 0;
+    margin-right: 24px;
+    margin-bottom: -1px;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.22);
+    transition: color 0.2s, border-color 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.main-tab:hover  { color: rgba(255,255,255,0.55); }
+.main-tab.active { color: var(--velocity-yellow); border-bottom-color: var(--velocity-yellow); }
+
+/* ── Painéis ─────────────────────────────────────────────── */
+.panel        { display: none; }
+.panel.active { display: block; }
+
+/* ── Seletor de perfil ───────────────────────────────────── */
+.role-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+
+.role-tab {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 3px;
+    padding: 10px 6px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    color: rgba(255,255,255,0.28);
+}
+
+.role-tab:hover {
+    border-color: rgba(212,247,0,0.2);
+    color: rgba(255,255,255,0.65);
+    background: rgba(212,247,0,0.04);
+}
+
+.role-tab.active {
+    border-color: rgba(212,247,0,0.5);
+    background: rgba(212,247,0,0.08);
+    color: var(--velocity-yellow);
+}
+
+.rt-icon {
+    font-size: 18px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.rt-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+    /* impede que global.css sobrescreva com --title */
+    color: inherit !important;
+}
+
+/* ── Campos de formulário ────────────────────────────────── */
+.field { margin-bottom: 12px; }
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 14px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.18);
+    pointer-events: none;
+    transition: color 0.2s;
+    z-index: 1;
+}
+
+.input-wrapper:focus-within .input-icon {
+    color: rgba(212,247,0,0.55);
+}
+
+.field input,
+.field select {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 3px;
+    padding: 13px 14px 13px 40px;
+    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    box-sizing: border-box;
+}
+
+.field input::placeholder { color: rgba(255,255,255,0.18); }
+
+.field input:focus,
+.field select:focus {
+    border-color: rgba(212,247,0,0.4);
+    background: rgba(212,247,0,0.04);
+    box-shadow: 0 0 0 3px rgba(212,247,0,0.08);
+}
+
+.field select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.2)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    cursor: pointer;
+}
+
+.field select option { background: #1a1a1a; color: #f1f5f9; }
+
+/* ── Força de senha ──────────────────────────────────────── */
+.strength-bar {
+    height: 2px;
+    border-radius: 2px;
+    margin-top: 8px;
+    background: rgba(255,255,255,0.07);
+    overflow: hidden;
+}
+
+.strength-fill {
+    height: 100%;
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.3s, background 0.3s;
+}
+
+.strength-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+    margin-top: 4px;
+    text-align: right;
+}
+
+/* ── Requisitos de senha ─────────────────────────────────── */
+.req-list { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+
+.req {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.2);
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.req.ok {
+    background: rgba(212,247,0,0.1);
+    border-color: rgba(212,247,0,0.3);
+    color: var(--velocity-yellow);
+}
+
+/* ── Botão principal ─────────────────────────────────────── */
+.btn-main {
+    width: 100%;
+    background: var(--velocity-yellow);
+    color: #000;
+    border: none;
+    padding: 14px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 800;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+    margin-top: 16px;
+    box-shadow: 0 4px 24px rgba(212,247,0,0.2);
+}
+
+.btn-main:hover {
+    background: #c8e800;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 30px rgba(212,247,0,0.35);
+}
+
+.btn-main:active { transform: translateY(0); }
+
+/* ── Mensagens ───────────────────────────────────────────── */
+.msg {
+    font-size: 12px;
+    text-align: center;
+    margin-top: 10px;
+    font-weight: 500;
+    min-height: 16px;
+}
+
+.msg.error   { color: var(--red); }
+.msg.success { color: var(--velocity-yellow); }
+
+/* ── Links e rodapé ──────────────────────────────────────── */
+.link-txt {
+    text-align: center;
+    font-size: 11px;
+    color: rgba(255,255,255,0.18);
+    margin-top: 18px;
+}
+
+.link-txt a {
+    color: rgba(212,247,0,0.65);
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.15s;
+}
+
+.link-txt a:hover { color: var(--velocity-yellow); }
+
+.footer-text {
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.1);
+    margin-top: 28px;
+}

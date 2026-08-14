@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Next Agon</title>
+
+    <!-- Design system global -->
+    <style>
+        /* ── Painel de Perfil ── */
+        #panel-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(3px);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        #panel-overlay.ov-open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        #profile-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 360px;
+            height: 100vh;
+            background: var(--bg);
+            border-left: 1px solid var(--border);
+            transform: translateX(100%);
+            transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        #profile-panel.pp-open { transform: translateX(0); }
+
+        .pp-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 22px 22px 0;
+        }
+        .pp-header h2 { font-size: 18px; font-weight: 700; color: var(--title); }
+
+        .pp-close {
+            background: var(--card2);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: background 0.2s, color 0.2s;
+        }
+        .pp-close:hover { background: var(--card); color: var(--text); }
+
+        .pp-avatar-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 22px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .pp-avatar-wrap { position: relative; margin-bottom: 14px; }
+
+        .pp-avatar {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #000;
+            font-size: 30px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--bg);
+            box-shadow: 0 0 0 2px rgba(26,107,222,.4), 0 8px 24px rgba(0,0,0,.4);
+            overflow: hidden;
+        }
+        .pp-avatar img {
+            width: 100%; height: 100%;
+            object-fit: cover; border-radius: 50%;
+        }
+
+        .pp-avatar-edit {
+            position: absolute;
+            bottom: 2px; right: 2px;
+            width: 28px; height: 28px;
+            background: var(--accent);
+            border: 2px solid var(--bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .pp-name  { font-size: 18px; font-weight: 700; margin-bottom: 5px; }
+        .pp-email { font-size: 12px; color: var(--text3); }
+
+        .pp-role-badge {
+            background: var(--accent-dim);
+            border: 1px solid rgba(232,255,0,.3);
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 13px;
+            border-radius: 20px;
+            margin-bottom: 5px;
+        }
+
+        .pp-body { padding: 16px 16px 0; flex: 1; }
+
+        .pp-section-lbl {
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text3);
+            font-weight: 700;
+            padding: 0 6px;
+            margin: 14px 0 6px;
+        }
+
+        .pp-opt {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 13px 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background 0.18s, border-color 0.18s, transform 0.18s;
+            color: var(--text);
+        }
+        .pp-opt:hover {
+            background: var(--card2);
+            border-color: #2a4060;
+            transform: translateX(3px);
+        }
+        .pp-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+        .pp-opt-title { font-size: 14px; font-weight: 600; }
+        .pp-opt-sub   { font-size: 11px; color: var(--text3); margin-top: 1px; }
+        .pp-arrow { color: var(--text3); font-size: 14px; margin-left: auto; }
+        .pp-opt:hover .pp-arrow { color: var(--text2); }
+
+        .pp-footer { padding: 16px; }
+        .btn-sair {
+            width: 100%;
+            background: rgba(239,68,68,.12);
+            border: 1px solid rgba(239,68,68,.25);
+            color: var(--red);
+            padding: 13px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        .btn-sair:hover { background: rgba(239,68,68,.22); }
+        .pp-version {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text3);
+            margin-top: 10px;
+        }
+    </style>
+    <link rel="stylesheet" href="css/global.css">
+    <!-- Estilos específicos do dashboard -->
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+<!-- ── Mobile Header ─────────────────────────────────────── -->
+<header class="mob-header" aria-label="Cabeçalho mobile">
+    <button class="mob-hamburger" onclick="mobToggleDrawer()" aria-label="Menu" aria-expanded="false" id="mobHamburger">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+    <a class="mob-header-logo" href="dashboard.html" aria-label="Next Agon Home">
+        <i class="fa-solid fa-bolt"></i> Next Agon
+    </a>
+    <div class="mob-header-actions">
+        <button class="mob-header-btn" onclick="showPage('chat')" aria-label="Chat" title="Chat">
+            <i class="fa-regular fa-comments"></i>
+        </button>
+        <div class="mob-header-avatar" id="mob-avatar" onclick="openPanel()" title="Meu Perfil" role="button" tabindex="0" aria-label="Abrir perfil">U</div>
+    </div>
+</header>
+
+<!-- ── Drawer Overlay ────────────────────────────────────── -->
+<div class="mob-drawer-overlay" id="mobDrawerOverlay" onclick="mobCloseDrawer()" aria-hidden="true"></div>
+
+<div class="app">
+
+    <!-- ── Sidebar de navegação ──────────────────────────────── -->
+    <aside class="sidebar">
+        <div class="sidebar-logo" aria-label="Next Agon"><i class="fa-solid fa-bolt"></i> Next Agon</div>
+        <nav class="sidebar-nav" aria-label="Menu principal">
+            <button class="nav-item active" onclick="showPage('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
+            <button class="nav-item"        onclick="showPage('treinos')"><i class="fa-solid fa-bolt"></i> Treinos</button>
+            <button class="nav-item"        onclick="showPage('academia')"><i class="fa-solid fa-dumbbell"></i> Academia</button>
+            <button class="nav-item"        onclick="showPage('profissionais')"><i class="fa-solid fa-user-doctor"></i> Profissionais</button>
+            <button class="nav-item"        onclick="showPage('chat')"><i class="fa-regular fa-comments"></i> Chat</button>
+        </nav>
+        <!-- Cartão de perfil fixo no rodapé da sidebar -->
+        <div class="sidebar-profile" onclick="openPanel()" title="Meu Perfil" role="button" tabindex="0">
+            <div class="sidebar-profile-avatar" id="sidebar-avatar">JR</div>
+            <div class="sidebar-profile-info">
+                <div class="sidebar-profile-name" id="sidebar-nome">João Ribeiro</div>
+                <div class="sidebar-profile-role" id="sidebar-role"><i class="fa-solid fa-person-running"></i> Atleta</div>
+            </div>
+            <button class="sidebar-profile-gear"
+                    onclick="openPanel(); event.stopPropagation();"
+                    aria-label="Configurações do perfil" title="Configurações"><i class="fa-solid fa-gear"></i></button>
+        </div>
+    </aside>
+
+    <!-- ── Área principal ────────────────────────────────────── -->
+    <main class="main">
+
+        <!-- Topbar: saudação -->
+        <div class="topbar">
+            <div>
+                <h1>Bem-vindo, <span id="user-nome">João</span> </h1>
+                <p class="date-label" id="data-hoje">Segunda-feira, 27 de Abril de 2026</p>
+            </div>
+        </div>
+
+        <!-- Grade de cards de estatísticas -->
+        <div class="stats-grid" aria-label="Resumo do mês">
+            <div class="stat-card">
+                <div class="stat-label">Profissionais contatados</div>
+                <div class="stat-value">18</div>
+                <div class="stat-diff up">▲ +3 vs. mês anterior</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Notificações do chat</div>
+                <div class="stat-value">2.4K</div>
+                <div class="stat-diff info">Média diária</div>
+            </div>
+            <div class="stat-card" id="card-treino-dia">
+                <div class="stat-label">Treino do dia concluído</div>
+                <div class="stat-value" id="treino-dia-valor">—</div>
+                <div class="stat-diff" id="treino-dia-sub">Registre na página Academia</div>
+            </div>
+        </div>
+
+        <!-- Gráfico de barras: Tempo de Uso -->
+        <div class="chart-wrap">
+            <div class="chart-title">Tempo de Uso</div>
+            <div class="bar-chart" role="img" aria-label="Gráfico de barras de desempenho mensal">
+                <div class="bar-col">
+                    <div class="bar" style="height:75px"></div>
+                    <span class="bar-label">Jan</span>
+                </div>
+                <div class="bar-col">
+                    <div class="bar" style="height:115px"></div>
+                    <span class="bar-label">Fev</span>
+                </div>
+                <div class="bar-col">
+                    <div class="bar" style="height:88px"></div>
+                    <span class="bar-label">Mar</span>
+                </div>
+                <div class="bar-col">
+                    <div class="bar" style="height:136px"></div>
+                    <span class="bar-label">Abr</span>
+                </div>
+                <!-- Mês atual em destaque -->
+                <div class="bar-col">
+                    <div class="bar current" style="height:200px"></div>
+                    <span class="bar-label current">Mai</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Auditoria só para admin -->
+        <div id="auditoria-section" style="display:none">
+            <div class="topbar" style="margin-top:28px;margin-bottom:16px">
+                <div>
+                    <h1 style="font-size:18px">Alterações do <span>Sistema</span></h1>
+                    <p class="date-label">Registro completo de todas as ações do painel admin</p>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <button onclick="auditSetFilter('todos',this)" class="audit-dash-pill active">Todos</button>
+                    <button onclick="auditSetFilter('create',this)" class="audit-dash-pill"><i class="fa-solid fa-plus" style="color:#34d399"></i> Criação</button>
+                    <button onclick="auditSetFilter('edit',this)" class="audit-dash-pill"><i class="fa-solid fa-pen" style="color:#60a5fa"></i> Edição</button>
+                    <button onclick="auditSetFilter('delete',this)" class="audit-dash-pill"><i class="fa-solid fa-trash" style="color:#f87171"></i> Exclusão</button>
+                    <button onclick="auditSetFilter('login',this)" class="audit-dash-pill"><i class="fa-solid fa-right-to-bracket" style="color:#a78bfa"></i> Login</button>
+                </div>
+            </div>
+            <div class="audit-dash-kpis" id="auditDashKpis"></div>
+            <div class="audit-dash-grid" id="auditDashGrid"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+                <div class="audit-dash-pag-info" id="auditDashPagInfo"></div>
+                <div style="display:flex;gap:8px">
+                    <button class="audit-dash-pag-btn" id="auditDashPrev" onclick="auditDashPage(-1)">&#8249; Anterior</button>
+                    <button class="audit-dash-pag-btn" id="auditDashNext" onclick="auditDashPage(1)">Próximo &#8250;</button>
+                    <button class="audit-dash-pag-btn" onclick="window.location.href='Admin.html'" style="border-color:rgba(124,58,237,.4);color:#a78bfa"><i class="fa-solid fa-shield-halved"></i> Painel Admin</button>
+                </div>
+            </div>
+        </div>
+
+    </main><!-- /main -->
+</div><!-- /app -->
+
+<style>
+    .audit-dash-pill { background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:600;padding:7px 14px;border-radius:99px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;font-family:inherit; }
+    .audit-dash-pill.active { background:rgba(124,58,237,.14);border-color:#7c3aed;color:#a78bfa; }
+    .audit-dash-pill:hover:not(.active) { border-color:var(--text3);color:var(--text); }
+    .audit-dash-kpis { display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px; }
+    .audit-dash-kpi { background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:4px;transition:transform .15s; }
+    .audit-dash-kpi:hover { transform:translateY(-2px); }
+    .audit-dash-kpi-icon { width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:4px; }
+    .audit-dash-kpi-val { font-size:26px;font-weight:800;color:var(--text);line-height:1; }
+    .audit-dash-kpi-lbl { font-size:11px;color:var(--text2);font-weight:600; }
+    .audit-dash-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px; }
+    .audit-dash-card { background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start;transition:border-color .18s,transform .15s,box-shadow .15s; }
+    .audit-dash-card:hover { transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);border-color:#2e4a6a; }
+    .audit-dash-card-icon { width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0; }
+    .audit-dash-card-icon.create { background:rgba(52,211,153,.12);color:#34d399; }
+    .audit-dash-card-icon.edit   { background:rgba(96,165,250,.12); color:#60a5fa; }
+    .audit-dash-card-icon.delete { background:rgba(248,113,113,.12);color:#f87171; }
+    .audit-dash-card-icon.login  { background:rgba(167,139,250,.12);color:#a78bfa; }
+    .audit-dash-card-icon.system { background:rgba(251,191,36,.12); color:#fbbf24; }
+    .audit-dash-card-body { flex:1;min-width:0; }
+    .audit-dash-card-action { font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .audit-dash-card-detail { font-size:12px;color:var(--text2);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .audit-dash-card-footer { display:flex;align-items:center;justify-content:space-between;gap:8px; }
+    .audit-dash-badge { display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:.04em; }
+    .audit-dash-badge.create { background:rgba(52,211,153,.12);color:#34d399; }
+    .audit-dash-badge.edit   { background:rgba(96,165,250,.12); color:#60a5fa; }
+    .audit-dash-badge.delete { background:rgba(248,113,113,.12);color:#f87171; }
+    .audit-dash-badge.login  { background:rgba(167,139,250,.12);color:#a78bfa; }
+    .audit-dash-badge.system { background:rgba(251,191,36,.12); color:#fbbf24; }
+    .audit-dash-card-time { font-size:11px;color:var(--text3);white-space:nowrap; }
+    .audit-dash-pag-info { font-size:12px;color:var(--text3); }
+    .audit-dash-pag-btn { background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:600;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all .2s;font-family:inherit;display:flex;align-items:center;gap:6px; }
+    .audit-dash-pag-btn:hover { border-color:#7c3aed;color:#a78bfa; }
+    .audit-dash-empty { grid-column:1/-1;display:flex;flex-direction:column;align-items:center;padding:40px;color:var(--text3);gap:10px;font-size:14px; }
+    .audit-dash-empty i { font-size:32px;opacity:.35; }
+</style>
+
+<!-- ── Sobreposição (fecha o painel de perfil ao clicar) ──── -->
+<!-- ── Sobreposição ───────────────────────────────────────── -->
+<!-- ── Overlay ─────────────────────────────────────────────── -->
+<div id="panel-overlay" aria-hidden="true"></div>
+
+<!-- ── Painel deslizante de perfil ───────────────────────── -->
+<aside id="profile-panel" aria-label="Painel de perfil" role="dialog">
+
+    <div class="pp-header">
+        <h2>Meu Perfil</h2>
+        <button class="pp-close" onclick="closePanel()" aria-label="Fechar painel">×</button>
+    </div>
+
+    <div class="pp-avatar-section">
+        <div class="pp-avatar-wrap">
+            <div class="pp-avatar" id="pp-avatar">U</div>
+            <div class="pp-avatar-edit" onclick="optFoto()" title="Alterar foto" role="button" tabindex="0"><i class="fa-solid fa-camera"></i></div>
+        </div>
+        <div class="pp-name" id="pp-nome">Usuário</div>
+        <div class="pp-role-badge" id="pp-role"><i class="fa-solid fa-person-running"></i> Atleta</div>
+        <div class="pp-email" id="pp-email"></div>
+    </div>
+
+    <div class="pp-body">
+
+        <div class="pp-section-lbl">Conta</div>
+
+        <div class="pp-opt" onclick="optFoto()" tabindex="0" role="button">
+            <div class="pp-icon" style="background:var(--accent-dim)"><i class="fa-solid fa-camera" style="color:var(--accent)"></i></div>
+            <div>
+                <div class="pp-opt-title">Alterar Foto de Perfil</div>
+                <div class="pp-opt-sub">Atualize sua foto</div>
+            </div>
+            <span class="pp-arrow" aria-hidden="true">›</span>
+        </div>
+
+        <div class="pp-opt" onclick="optSenha()" tabindex="0" role="button">
+            <div class="pp-icon" style="background:rgba(96,165,250,.12)"><i class="fa-solid fa-key" style="color:#60a5fa"></i></div>
+            <div>
+                <div class="pp-opt-title">Trocar Senha</div>
+                <div class="pp-opt-sub">Altere sua senha de acesso</div>
+            </div>
+            <span class="pp-arrow" aria-hidden="true">›</span>
+        </div>
+
+        <div class="pp-opt" onclick="optLogin()" tabindex="0" role="button">
+            <div class="pp-icon" style="background:rgba(167,139,250,.12)"><i class="fa-solid fa-circle-info" style="color:#a78bfa"></i></div>
+            <div>
+                <div class="pp-opt-title">Informações de Login</div>
+                <div class="pp-opt-sub">E-mail, dispositivos, acessos</div>
+            </div>
+            <span class="pp-arrow" aria-hidden="true">›</span>
+        </div>
+
+        <div class="pp-section-lbl">Preferências</div>
+
+        <div class="pp-opt" onclick="optFavoritos()" tabindex="0" role="button">
+            <div class="pp-icon" style="background:rgba(248,113,113,.12)"><i class="fa-solid fa-heart" style="color:#f87171"></i></div>
+            <div>
+                <div class="pp-opt-title">Meus Favoritos</div>
+                <div class="pp-opt-sub">Profissionais e treinos salvos</div>
+            </div>
+            <span class="pp-arrow" aria-hidden="true">›</span>
+        </div>
+
+        <div class="pp-opt" onclick="optIdioma()" tabindex="0" role="button">
+            <div class="pp-icon" style="background:rgba(52,211,153,.12)"><i class="fa-solid fa-globe" style="color:#34d399"></i></div>
+            <div>
+                <div class="pp-opt-title">Alterar Idioma</div>
+                <div class="pp-opt-sub">Português (Brasil)</div>
+            </div>
+            <span class="pp-arrow" aria-hidden="true">›</span>
+        </div>
+
+        <div class="pp-opt" onclick="optTema()" tabindex="0" role="button">
+            <div class="pp-icon" style="background:rgba(100,116,139,.12)"><i class="fa-solid fa-moon" style="color:#94a3b8"></i></div>
+            <div>
+                <div class="pp-opt-title">Alterar Tema</div>
+                <div class="pp-opt-sub" id="tema-sub">Escuro ativo</div>
+            </div>
+            <span class="pp-arrow" aria-hidden="true">›</span>
+        </div>
+
+        <div class="pp-opt" onclick="optNotif()" tabindex="0" role="button">
+            <div class="pp-icon" style="background:var(--accent-dim)"><i class="fa-solid fa-bell" style="color:var(--accent)"></i></div>
+            <div>
+                <div class="pp-opt-title">Notificações</div>
+                <div class="pp-opt-sub">Gerenciar alertas e avisos</div>
+            </div>
+            <span class="pp-arrow" aria-hidden="true">›</span>
+        </div>
+
+    </div>
+
+    <div class="pp-footer">
+        <button class="btn-sair" onclick="optSair()"><i class="fa-solid fa-right-from-bracket"></i> Sair da Conta</button>
+        <div class="pp-version">Next Agon v1.0</div>
+    </div>
+
+</aside><!-- /profile-panel -->
+
+<!-- Toast de notificação global -->
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastIcon"></span><span id="toastMsg"></span></div>
+
+<!-- Scripts: ordem importa (main antes do dashboard) -->
+<script src="js/auth.js"></script>
+<script src="js/main.js"></script>
+<script src="js/dashboard.js"></script>
+<script>
+    (function() {
+        const ACCOUNT_PROFILE_MAP = {
+            "carlos": 1, "carlos lima": 1, "carlos.lima@nextagon.com": 1,
+            "fernanda": 2, "fernanda ramos": 2, "fernanda.ramos@nextagon.com": 2,
+            "lucas": 3, "lucas andrade": 3, "lucas.andrade@nextagon.com": 3,
+            "marina": 4, "marina souza": 4, "marina.souza@nextagon.com": 4,
+            "rafael": 5, "rafael torres": 5, "rafael.torres@nextagon.com": 5,
+            "patricia": 6, "patrícia": 6, "patricia alves": 6, "patrícia alves": 6,
+            "patricia.alves@nextagon.com": 6, "patrícia.alves@nextagon.com": 6,
+            "profissional@nextagon.com": 2
+        };
+
+        // ── Identificar usuário e role ──
+        let userKey = 'cliente.local@nextagon.com';
+        let userRole = 'atleta';
+        try {
+            const u = JSON.parse(sessionStorage.getItem('naUser') || 'null');
+            if (u) {
+                userKey = String(u.email || u.login || u.user || u.nome || u.name || 'cliente.local').toLowerCase().trim();
+                userRole = String(u.role || 'atleta').toLowerCase();
+            }
+        } catch(e) {}
+
+        const isProfissional = userRole === 'profissional' || userRole === 'admin';
+        const profId = ACCOUNT_PROFILE_MAP[userKey];
+        const conversations = JSON.parse(localStorage.getItem('naConversasReaisNextAgon') || '[]');
+
+        // ── Card 1 ──
+        const card1 = document.querySelector('.stats-grid .stat-card:nth-child(1)');
+        if (card1 && isProfissional) {
+            // Profissional: trocar label e calcular mensagens de atletas
+            card1.querySelector('.stat-label').textContent = 'Mensagens de atletas';
+            let msgAtletas = 0;
+            conversations
+                .filter(c => String(c.professionalId) === String(profId))
+                .forEach(c => (c.messages || []).forEach(m => {
+                    if (String(m.senderKey).toLowerCase() !== userKey) msgAtletas++;
+                }));
+            card1.querySelector('.stat-value').textContent = msgAtletas > 999
+                ? (msgAtletas / 1000).toFixed(1) + 'K' : String(msgAtletas);
+            const d = card1.querySelector('.stat-diff');
+            d.textContent = msgAtletas === 0 ? 'Nenhuma mensagem recebida' : msgAtletas + ' mensagens de atletas';
+            d.className = msgAtletas > 0 ? 'stat-diff up' : 'stat-diff info';
+        }
+        // Atleta: não altera nada — mantém os valores originais do HTML
+
+        // ── Card 2: Notificações do chat ──
+        let totalRecebidas = 0;
+        conversations.forEach(conv => {
+            if (String(conv.clientKey).toLowerCase() === userKey) {
+                (conv.messages || []).forEach(m => {
+                    if (String(m.senderKey).toLowerCase() !== userKey) totalRecebidas++;
+                });
+            }
+        });
+        const card2 = document.querySelector('.stats-grid .stat-card:nth-child(2)');
+        if (card2) {
+            card2.querySelector('.stat-value').textContent = totalRecebidas > 999
+                ? (totalRecebidas / 1000).toFixed(1) + 'K' : String(totalRecebidas);
+            const d = card2.querySelector('.stat-diff');
+            d.textContent = totalRecebidas === 0 ? 'Nenhuma mensagem recebida' : 'Mensagens recebidas no chat';
+            d.className = totalRecebidas > 0 ? 'stat-diff up' : 'stat-diff info';
+        }
+
+        // ── Card 3: Treino do dia ──
+        const hoje = new Date().toLocaleDateString('pt-BR');
+        const registro = JSON.parse(localStorage.getItem('na_treino_dia') || 'null');
+        const val = document.getElementById('treino-dia-valor');
+        const sub = document.getElementById('treino-dia-sub');
+        if (registro && registro.data === hoje) {
+            if (registro.concluido) {
+                val.textContent = 'Sim ✓';
+                val.style.color = '#22c55e';
+                sub.textContent = 'Treino concluído hoje!';
+                sub.className = 'stat-diff up';
+            } else {
+                val.textContent = 'Não';
+                val.style.color = '#f87171';
+                sub.textContent = 'Treino não realizado hoje';
+                sub.className = 'stat-diff';
+                sub.style.color = '#f87171';
+            }
+        } else {
+            val.textContent = '—';
+            sub.textContent = 'Registre na página Academia';
+            sub.className = 'stat-diff info';
+        }
+    })();
+
+    // Mostra seção admin no painel de perfil se for admin
+    (function() {
+        try {
+            const u = JSON.parse(sessionStorage.getItem('naUser')||'null');
+            if (u && u.role === 'admin') {
+                const sec = document.getElementById('admin-section');
+                if (sec) sec.style.display = 'block';
+            }
+        } catch(e){}
+    })();
+</script>
+
+<script>
+    // ── Auditoria no Dashboard (só para admin) ──────────────────────
+    (function() {
+        const u = JSON.parse(sessionStorage.getItem('naUser') || 'null');
+        if (!u || u.role !== 'admin') return;
+        const sec = document.getElementById('auditoria-section');
+        if (sec) sec.style.display = 'block';
+    })();
+
+    let _auditDashFilter = 'todos';
+    let _auditDashPage   = 0;
+    const AUDIT_DASH_PER = 9;
+
+    const _AUDIT_ICON_MAP  = { create:'fa-plus', edit:'fa-pen', delete:'fa-trash', login:'fa-right-to-bracket', system:'fa-gear' };
+    const _AUDIT_LABEL_MAP = { create:'Criação', edit:'Edição', delete:'Exclusão', login:'Login', system:'Sistema' };
+
+    function _getAuditLog() {
+        try { return JSON.parse(localStorage.getItem('na_admin_log') || '[]'); } catch(e) { return []; }
+    }
+
+    function _auditFiltered() {
+        const log = _getAuditLog();
+        return _auditDashFilter === 'todos' ? log : log.filter(e => e.tipo === _auditDashFilter);
+    }
+
+    function auditSetFilter(tipo, btn) {
+        _auditDashFilter = tipo;
+        _auditDashPage = 0;
+        document.querySelectorAll('.audit-dash-pill').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        _renderAuditDash();
+    }
+
+    function auditDashPage(dir) {
+        const total = _auditFiltered().length;
+        _auditDashPage = Math.max(0, Math.min(Math.ceil(total / AUDIT_DASH_PER) - 1, _auditDashPage + dir));
+        _renderAuditDash();
+    }
+
+    function _renderAuditDash() {
+        _renderAuditDashKPIs();
+        _renderAuditDashGrid();
+    }
+
+    function _renderAuditDashKPIs() {
+        const log = _getAuditLog();
+        const counts = { create:0, edit:0, delete:0, login:0, system:0 };
+        log.forEach(e => { if (counts[e.tipo] !== undefined) counts[e.tipo]++; });
+        const kpis = [
+            { icon:'fa-bolt',             color:'#fbbf24', bg:'rgba(251,191,36,.12)',  val:log.length,     lbl:'Total' },
+            { icon:'fa-plus',             color:'#34d399', bg:'rgba(52,211,153,.12)',  val:counts.create,  lbl:'Criações' },
+            { icon:'fa-pen',              color:'#60a5fa', bg:'rgba(96,165,250,.12)',  val:counts.edit,    lbl:'Edições' },
+            { icon:'fa-trash',            color:'#f87171', bg:'rgba(248,113,113,.12)', val:counts.delete,  lbl:'Exclusões' },
+            { icon:'fa-right-to-bracket', color:'#a78bfa', bg:'rgba(167,139,250,.12)', val:counts.login,   lbl:'Logins' },
+            { icon:'fa-users',            color:'#38bdf8', bg:'rgba(56,189,248,.12)',  val:new Set(log.map(e=>e.usuario)).size, lbl:'Usuários' },
+        ];
+        const el = document.getElementById('auditDashKpis');
+        if (!el) return;
+        el.innerHTML = kpis.map(k => `
+        <div class="audit-dash-kpi">
+            <div class="audit-dash-kpi-icon" style="background:${k.bg};color:${k.color}"><i class="fa-solid ${k.icon}"></i></div>
+            <div class="audit-dash-kpi-val">${k.val}</div>
+            <div class="audit-dash-kpi-lbl">${k.lbl}</div>
+        </div>`).join('');
+    }
+
+    function _renderAuditDashGrid() {
+        const filtered = _auditFiltered();
+        const total    = filtered.length;
+        const start    = _auditDashPage * AUDIT_DASH_PER;
+        const page     = filtered.slice(start, start + AUDIT_DASH_PER);
+
+        const pag     = document.getElementById('auditDashPag');
+        const pagInfo = document.getElementById('auditDashPagInfo');
+        if (pagInfo) pagInfo.textContent = total ? `${start+1}–${Math.min(start+AUDIT_DASH_PER,total)} de ${total} registros` : '';
+        const prev = document.getElementById('auditDashPrev');
+        const next = document.getElementById('auditDashNext');
+        if (prev) prev.style.display = total > AUDIT_DASH_PER ? '' : 'none';
+        if (next) next.style.display = total > AUDIT_DASH_PER ? '' : 'none';
+        if (prev) prev.disabled = _auditDashPage === 0;
+        if (next) next.disabled = start + AUDIT_DASH_PER >= total;
+
+        const grid = document.getElementById('auditDashGrid');
+        if (!grid) return;
+        if (!page.length) {
+            grid.innerHTML = '<div class="audit-dash-empty"><i class="fa-solid fa-clock-rotate-left"></i><p>Nenhuma ação registrada ainda.</p></div>';
+            return;
+        }
+        grid.innerHTML = page.map(e => {
+            const d    = new Date(e.ts);
+            const time = d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+            const date = d.toLocaleDateString('pt-BR');
+            return `
+        <div class="audit-dash-card">
+            <div class="audit-dash-card-icon ${e.tipo}"><i class="fa-solid ${_AUDIT_ICON_MAP[e.tipo]||'fa-circle'}"></i></div>
+            <div class="audit-dash-card-body">
+                <div class="audit-dash-card-action">${e.acao}</div>
+                <div class="audit-dash-card-detail">${e.detalhe}</div>
+                <div class="audit-dash-card-footer">
+                    <span class="audit-dash-badge ${e.tipo}"><i class="fa-solid ${_AUDIT_ICON_MAP[e.tipo]||'fa-circle'}"></i> ${_AUDIT_LABEL_MAP[e.tipo]||e.tipo}</span>
+                    <span class="audit-dash-card-time">${time} · ${date}</span>
+                </div>
+                <div class="audit-dash-card-time" style="margin-top:4px">por <strong style="color:var(--text)">${e.usuario}</strong></div>
+            </div>
+        </div>`;
+        }).join('');
+    }
+
+    // Inicializar quando admin
+    document.addEventListener('DOMContentLoaded', function() {
+        const u = JSON.parse(sessionStorage.getItem('naUser') || 'null');
+        if (u && u.role === 'admin') {
+            setTimeout(_renderAuditDash, 100);
+        }
+    });
+</script>
+
+<!-- ── Bottom Navigation ─────────────────────────────────── -->
+<nav class="mob-bottom-nav" aria-label="Navegação principal">
+    <button class="mob-nav-item active" onclick="" aria-label="Dashboard">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Dashboard</span>
+    </button>
+    <button class="mob-nav-item " onclick="showPage('treinos')" aria-label="Treinos">
+        <i class="fa-solid fa-bolt"></i>
+        <span>Treinos</span>
+    </button>
+    <button class="mob-nav-item " onclick="showPage('academia')" aria-label="Academia">
+        <i class="fa-solid fa-dumbbell"></i>
+        <span>Academia</span>
+    </button>
+    <button class="mob-nav-item " onclick="showPage('profissionais')" aria-label="Profissionais">
+        <i class="fa-solid fa-user-doctor"></i>
+        <span>Profissionais</span>
+    </button>
+    <button class="mob-nav-item " onclick="showPage('chat')" aria-label="Chat">
+        <i class="fa-regular fa-comments"></i>
+        <span>Chat</span>
+    </button>
+    <button class="mob-nav-item " onclick="openPanel()" aria-label="Perfil">
+        <i class="fa-solid fa-user"></i>
+        <span>Perfil</span>
+    </button>
+</nav>
+
+<script>
+    /* ── Mobile Navigation JS ── */
+    (function() {
+        function syncMobAvatar() {
+            var sa = document.getElementById('sidebar-avatar');
+            var ma = document.getElementById('mob-avatar');
+            if (!sa || !ma) return;
+            if (sa.querySelector('img')) {
+                ma.innerHTML = sa.innerHTML;
+            } else {
+                ma.textContent = sa.textContent || 'U';
+            }
+            if (sa.style.background) ma.style.background = sa.style.background;
+            if (sa.style.color) ma.style.color = sa.style.color;
+        }
+        window._syncMobAvatar = syncMobAvatar;
+        var sa = document.getElementById('sidebar-avatar');
+        if (sa && window.MutationObserver) {
+            new MutationObserver(syncMobAvatar).observe(sa, { childList: true, subtree: true, characterData: true, attributes: true });
+        }
+        document.addEventListener('DOMContentLoaded', function() { setTimeout(syncMobAvatar, 150); });
+        setTimeout(syncMobAvatar, 400);
+    })();
+
+    function mobToggleDrawer() {
+        var sidebar = document.querySelector('.sidebar');
+        var overlay = document.getElementById('mobDrawerOverlay');
+        var btn     = document.getElementById('mobHamburger');
+        if (!sidebar) return;
+        var isOpen = sidebar.classList.contains('mob-open');
+        if (isOpen) { mobCloseDrawer(); }
+        else {
+            sidebar.classList.add('mob-open');
+            if (overlay) overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            if (btn) btn.setAttribute('aria-expanded', 'true');
+        }
+    }
+
+    function mobCloseDrawer() {
+        var sidebar = document.querySelector('.sidebar');
+        var overlay = document.getElementById('mobDrawerOverlay');
+        var btn     = document.getElementById('mobHamburger');
+        if (sidebar) sidebar.classList.remove('mob-open');
+        if (overlay) overlay.classList.remove('active');
+        document.body.style.overflow = '';
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
+
+    document.addEventListener('click', function(e) {
+        var navItem = e.target.closest('.nav-item');
+        if (navItem && window.innerWidth <= 768) setTimeout(mobCloseDrawer, 120);
+    });
+
+    (function() {
+        var startX, startY, dragging = false;
+        document.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            dragging = startX < 28;
+        }, { passive: true });
+        document.addEventListener('touchend', function(e) {
+            if (!dragging) return;
+            var dx = e.changedTouches[0].clientX - startX;
+            var dy = Math.abs(e.changedTouches[0].clientY - startY);
+            if (dx > 60 && dy < 80) mobToggleDrawer();
+            dragging = false;
+        }, { passive: true });
+        var ppanel = document.getElementById('profile-panel');
+        if (ppanel) {
+            var ppStartY, ppDragging = false;
+            ppanel.addEventListener('touchstart', function(e) {
+                ppStartY = e.touches[0].clientY;
+                ppDragging = ppanel.scrollTop === 0;
+            }, { passive: true });
+            ppanel.addEventListener('touchend', function(e) {
+                if (!ppDragging) return;
+                if (e.changedTouches[0].clientY - ppStartY > 80) closePanel();
+                ppDragging = false;
+            }, { passive: true });
+        }
+    })();
+</script>
+</body>
+</html>
