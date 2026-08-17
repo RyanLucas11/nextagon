@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: next-agon-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: next_agon
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - next-agon-db-data:/var/lib/postgresql/data
+
+volumes:
+  next-agon-db-data:
