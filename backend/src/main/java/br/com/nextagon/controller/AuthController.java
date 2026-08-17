@@ -1,8 +1,8 @@
 package br.com.nextagon.controller;
 
+import br.com.nextagon.dto.RegisterDto;
 import br.com.nextagon.dto.AuthResponseDto;
 import br.com.nextagon.dto.LoginDto;
-import br.com.nextagon.dto.RegisterDto;
 import br.com.nextagon.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

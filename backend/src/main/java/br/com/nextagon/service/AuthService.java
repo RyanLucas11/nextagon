@@ -2,7 +2,6 @@ package br.com.nextagon.service;
 
 import br.com.nextagon.dto.AuthResponseDto;
 import br.com.nextagon.dto.LoginDto;
-import br.com.nextagon.dto.RegisterDto;
 import br.com.nextagon.dto.UserSummaryDto;
 import br.com.nextagon.model.User;
 import br.com.nextagon.repository.UserRepository;
@@ -11,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import br.com.nextagon.dto.RegisterDto;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
