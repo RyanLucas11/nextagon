@@ -35,9 +35,9 @@
 
         <div class="sidebar-profile">
             <div class="sidebar-profile-main" onclick="openAdminPanel()" title="Meu Perfil" role="button" tabindex="0">
-                <div class="sidebar-profile-avatar" id="sideAvatar">CA</div>
+                <div class="sidebar-profile-avatar" id="sideAvatar">A</div>
                 <div style="flex:1;min-width:0;">
-                    <div class="sidebar-profile-name" id="sideNome">Carlos Admin</div>
+                    <div class="sidebar-profile-name" id="sideNome">Administrador</div>
                     <div class="sidebar-profile-role"><i class="fa-solid fa-shield-halved"></i> Administrador</div>
                 </div>
                 <button class="sidebar-profile-gear" onclick="openAdminPanel();event.stopPropagation();" title="Configurações" aria-label="Configurações"><i class="fa-solid fa-gear"></i></button>
@@ -321,7 +321,7 @@
         <div class="modal-body">
             <input type="hidden" id="pIdx">
             <div class="field-row">
-                <div class="field"><label>Nome Completo</label><input id="pNome" placeholder="Ex: Carlos Lima"></div>
+                <div class="field"><label>Nome Completo</label><input id="pNome"></div>
                 <div class="field"><label>Área</label>
                     <select id="pArea">
                         <option>Personal Trainer</option>
@@ -522,8 +522,8 @@
 
     function openAdminPanel() {
         var u = _getUser();
-        var nome  = u ? (u.nome || u.name || 'Carlos Admin') : 'Carlos Admin';
-        var email = u ? (u.email || u.login || 'admin@nextagon.com') : 'admin@nextagon.com';
+        var nome  = u ? (u.nome || u.name || 'Administrador') : 'Administrador';
+        var email = u ? (u.email || u.login || '') : '';
         var ini   = _iniciais(nome);
         var foto  = u && u.foto ? u.foto : null;
 
@@ -731,12 +731,12 @@
 
     <div class="ap-avatar-section">
         <div class="ap-avatar-wrap" onclick="adminOptFoto()" title="Clique para alterar foto">
-            <div class="ap-avatar" id="ap-avatar">CA</div>
+            <div class="ap-avatar" id="ap-avatar">A</div>
             <div class="ap-avatar-edit" aria-hidden="true"><i class="fa-solid fa-camera"></i></div>
         </div>
-        <div class="ap-name" id="ap-nome">Carlos Admin</div>
+        <div class="ap-name" id="ap-nome">Administrador</div>
         <div class="ap-role-badge"><i class="fa-solid fa-shield-halved"></i> Administrador</div>
-        <div class="ap-email" id="ap-email">admin@nextagon.com</div>
+        <div class="ap-email" id="ap-email"></div>
     </div>
 
     <div class="ap-body">
