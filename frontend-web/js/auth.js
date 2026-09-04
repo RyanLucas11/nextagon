@@ -115,9 +115,10 @@ function saveUsers(users) {
    Usa localStorage com TTL para persistir entre abas/recargas.
    ───────────────────────────────────────────────────────────── */
 function saveSession(user) {
+    const role = String(user.role || '').toLowerCase();
     const session = {
-        user:    { email: user.email, nome: user.nome, role: user.role, avatar: user.avatar },
-        perms:   PERMISSIONS[user.role] || {},
+        user:    { id: user.id, email: user.email, nome: user.nome || user.name, role, avatar: user.avatar || (user.nome || user.name || '').split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase() },
+        perms:   PERMISSIONS[role] || {},
         loginAt: Date.now(),
         expAt:   Date.now() + SESSION_TTL_MS,
     };
@@ -162,6 +163,7 @@ function loadSession() {
 
 function clearSession() {
     localStorage.removeItem(NA_SESSION_KEY);
+    clearAuthTokens();
     sessionStorage.removeItem('naUser');
     sessionStorage.removeItem('naPerms');
 }
@@ -225,17 +227,15 @@ async function doLogin() {
         return;
     }
 
-    const users = getUsers();
-    const user  = users.find(u => u.email === email && u.ativo !== false);
-
-    if (!user || !(await verificarSenha(senha, user.senha))) {
+    try {
+        const auth = await NextagonApi.login(email, senha);
+        setAuthTokens(auth);
+        saveSession(auth.user);
+        window.location.href = 'dashboard.html';
+    } catch (error) {
         shakeInputs();
-        showLoginError('E-mail ou senha incorretos.');
-        return;
+        showLoginError(error instanceof Error ? error.message : 'E-mail ou senha incorretos.');
     }
-
-    saveSession(user);
-    window.location.href = 'dashboard.html';
 }
 
 /** Criação de conta */
@@ -249,29 +249,18 @@ async function criarConta() {
 
     if (!nome || !email || !senha)  { setMsg(msg, 'Preencha todos os campos.', 'error'); return; }
     if (!/\S+@\S+\.\S+/.test(email)){ setMsg(msg, 'E-mail inválido.', 'error'); return; }
-    if (senha.length < 6)           { setMsg(msg, 'Senha deve ter pelo menos 6 caracteres.', 'error'); return; }
+    if (senha.length < 8)           { setMsg(msg, 'Senha deve ter pelo menos 8 caracteres.', 'error'); return; }
     if (senha !== confirma)         { setMsg(msg, 'As senhas não coincidem.', 'error'); return; }
 
-    const users = getUsers();
-    if (users.find(u => u.email === email)) {
-        setMsg(msg, 'Este e-mail já está cadastrado.', 'error');
-        return;
+    try {
+        const auth = await NextagonApi.register(nome, email, senha, role);
+        setAuthTokens(auth);
+        saveSession(auth.user);
+        setMsg(msg, '✓ Conta criada com sucesso! Redirecionando…', 'success');
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+    } catch (error) {
+        setMsg(msg, error instanceof Error ? error.message : 'Não foi possível criar a conta.', 'error');
     }
-
-    const senhaHash = await hashSenha(senha);
-    const avatar    = nome.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
-    users.push({ email, senha: senhaHash, role, nome, avatar, ativo: true });
-    saveUsers(users);
-
-    setMsg(msg, '✓ Conta criada com sucesso! Redirecionando…', 'success');
-
-    setTimeout(() => {
-        const emailLogin = document.getElementById('login-email');
-        const passLogin  = document.getElementById('login-pass');
-        if (emailLogin) emailLogin.value = email;
-        // Não pré-preenche a senha (boas práticas)
-        showPanel('login');
-    }, 1800);
 }
 
 /** Troca de senha */
