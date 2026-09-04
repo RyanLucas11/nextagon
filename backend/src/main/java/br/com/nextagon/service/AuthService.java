@@ -2,7 +2,9 @@ package br.com.nextagon.service;
 
 import br.com.nextagon.dto.AuthResponseDto;
 import br.com.nextagon.dto.LoginDto;
+import br.com.nextagon.dto.RegisterDto;
 import br.com.nextagon.dto.UserSummaryDto;
+import br.com.nextagon.model.Role;
 import br.com.nextagon.model.User;
 import br.com.nextagon.repository.UserRepository;
 import br.com.nextagon.util.JwtUtil;
@@ -10,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import br.com.nextagon.dto.RegisterDto;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -25,6 +27,14 @@ public class AuthService {
             throw new IllegalArgumentException("Email já cadastrado");
         }
 
+        if (dto.getRole() == Role.ADMIN) {
+            throw new SecurityException("Não é permitido criar uma conta de administrador por este endpoint");
+        }
+
+        if (dto.getRole() != Role.ATHLETE && dto.getRole() != Role.PROFESSIONAL) {
+            throw new IllegalArgumentException("Tipo de usuário inválido");
+        }
+
         User user = User.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())
@@ -33,6 +43,7 @@ public class AuthService {
                 .build();
 
         User saved = userRepository.save(user);
+
         return buildAuthResponse(saved);
     }
 
@@ -53,12 +64,30 @@ public class AuthService {
 
     private AuthResponseDto buildAuthResponse(User user) {
         String role = user.getRole().name();
-        String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getEmail(), role);
-        String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getEmail(), role);
+
+        String accessToken = jwtUtil.generateAccessToken(
+                user.getId(),
+                user.getEmail(),
+                role
+        );
+
+        String refreshToken = jwtUtil.generateRefreshToken(
+                user.getId(),
+                user.getEmail(),
+                role
+        );
 
         UserSummaryDto userDto = new UserSummaryDto(
-                user.getId(), user.getName(), user.getEmail(), user.getRole());
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole()
+        );
 
-        return new AuthResponseDto(accessToken, refreshToken, userDto);
+        return new AuthResponseDto(
+                accessToken,
+                refreshToken,
+                userDto
+        );
     }
 }
