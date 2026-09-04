@@ -981,26 +981,6 @@
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-    const PROFESSIONALS = [
-        {id:1, nome:"Carlos Lima", iniciais:"CL", foto:"https://randomuser.me/api/portraits/men/32.jpg", area:"Personal Trainer", modalidade:"Presencial", disponivel:true, cidade:"São Paulo, SP"},
-        {id:2, nome:"Fernanda Ramos", iniciais:"FR", foto:"https://randomuser.me/api/portraits/women/55.jpg", area:"Nutricionista", modalidade:"Online", disponivel:true, cidade:"Fortaleza, CE"},
-        {id:3, nome:"Lucas Andrade", iniciais:"LA", foto:"https://randomuser.me/api/portraits/men/75.jpg", area:"Personal Trainer", modalidade:"Ambos", disponivel:true, cidade:"Brasília, DF"},
-        {id:4, nome:"Marina Souza", iniciais:"MS", foto:"https://randomuser.me/api/portraits/women/44.jpg", area:"Nutricionista", modalidade:"Presencial", disponivel:true, cidade:"Rio de Janeiro, RJ"},
-        {id:5, nome:"Rafael Torres", iniciais:"RT", foto:"https://randomuser.me/api/portraits/men/54.jpg", area:"Personal Trainer", modalidade:"Online", disponivel:false, cidade:"Recife, PE"},
-        {id:6, nome:"Patrícia Alves", iniciais:"PA", foto:"https://randomuser.me/api/portraits/women/68.jpg", area:"Nutricionista", modalidade:"Ambos", disponivel:true, cidade:"Curitiba, PR"}
-    ];
-
-    const ACCOUNT_PROFILE_MAP = {
-        "carlos": 1, "carlos lima": 1, "carlos.lima@nextagon.com": 1,
-        "fernanda": 2, "fernanda ramos": 2, "fernanda.ramos@nextagon.com": 2,
-        "lucas": 3, "lucas andrade": 3, "lucas.andrade@nextagon.com": 3,
-        "marina": 4, "marina souza": 4, "marina.souza@nextagon.com": 4,
-        "rafael": 5, "rafael torres": 5, "rafael.torres@nextagon.com": 5,
-        "patricia": 6, "patrícia": 6, "patricia alves": 6, "patrícia alves": 6,
-        "patricia.alves@nextagon.com": 6, "patrícia.alves@nextagon.com": 6,
-        "profissional@nextagon.com": 2
-    };
-
     const CHAT_STORAGE_KEY = "naConversasReaisNextAgon";
     const LAST_UPDATE_KEY = "naConversasReaisUpdatedAt";
 
@@ -1043,16 +1023,11 @@
             if (user) return user;
         } catch(e) {}
 
-        return {
-            nome:"Cliente Local",
-            email:"cliente.local@nextagon.com",
-            role:"atleta",
-            avatar:"CL"
-        };
+        return {};
     }
 
     function getCurrentUserKey() {
-        const raw = currentUser.email || currentUser.login || currentUser.user || currentUser.nome || currentUser.name || "cliente.local";
+        const raw = currentUser.email || currentUser.login || currentUser.user || currentUser.nome || currentUser.name || "";
         return String(raw).toLowerCase().trim();
     }
 
@@ -1068,11 +1043,6 @@
     }
 
     function getConnectedProfessionalProfile() {
-        for (const alias of getAccountAliases()) {
-            const id = ACCOUNT_PROFILE_MAP[alias];
-            if (id) return PROFESSIONALS.find(p => String(p.id) === String(id)) || null;
-        }
-
         const created = getCreatedProfiles();
         const mine = created.find(p => {
             const owner = String(p.ownerKey || p.ownerEmail || "").toLowerCase();
@@ -1108,11 +1078,7 @@
 
     function getAllProfessionals() {
         const created = getCreatedProfiles().map(normalizeProfessional);
-        const createdIds = new Set(created.map(p => String(p.id)));
-        return [
-            ...created,
-            ...PROFESSIONALS.map(normalizeProfessional).filter(p => !createdIds.has(String(p.id)))
-        ];
+        return created;
     }
 
     function isMyProfessionalProfile(prof) {

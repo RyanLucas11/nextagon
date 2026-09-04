@@ -4,21 +4,6 @@
 
 // ── DADOS BASE ──────────────────────────────────────────────────
 
-const USERS_BASE = [
-    { email: 'atleta@nextagon.com',       senha: '123456', role: 'atleta',       nome: 'Lucas Atleta',     avatar: 'LA', ativo: true },
-    { email: 'profissional@nextagon.com', senha: '123456', role: 'profissional', nome: 'Ana Profissional', avatar: 'AP', ativo: true },
-    { email: 'admin@nextagon.com',        senha: '123456', role: 'admin',        nome: 'Carlos Admin',     avatar: 'CA', ativo: true },
-];
-
-const PROFS_BASE = [
-    { id:1, nome:'Carlos Lima',    iniciais:'CL', foto:'https://randomuser.me/api/portraits/men/32.jpg',   area:'Personal Trainer',  modalidade:'Presencial', disponivel:true,  rating:4.9, reviews:127, exp:8,  preco:280, cidade:'São Paulo, SP',      specs:['Hipertrofia','Força','Emagrecimento'],                registro:'CREF 048721-G/SP' },
-    { id:2, nome:'Fernanda Ramos', iniciais:'FR', foto:'https://randomuser.me/api/portraits/women/55.jpg', area:'Nutricionista',     modalidade:'Online',     disponivel:true,  rating:4.9, reviews:189, exp:9,  preco:200, cidade:'Fortaleza, CE',      specs:['Nutrição','Emagrecimento','Reeducação Alimentar'],    registro:'CRN 19384' },
-    { id:3, nome:'Lucas Andrade',  iniciais:'LA', foto:'https://randomuser.me/api/portraits/men/75.jpg',   area:'Personal Trainer',  modalidade:'Ambos',      disponivel:true,  rating:4.8, reviews:96,  exp:6,  preco:220, cidade:'Brasília, DF',       specs:['Funcional','Emagrecimento','Força'],                  registro:'CREF 032118-G/DF' },
-    { id:4, nome:'Marina Souza',   iniciais:'MS', foto:'https://randomuser.me/api/portraits/women/44.jpg', area:'Nutricionista',     modalidade:'Presencial', disponivel:true,  rating:4.7, reviews:74,  exp:5,  preco:180, cidade:'Rio de Janeiro, RJ', specs:['Nutrição','Reeducação Alimentar','Emagrecimento'],    registro:'CRN 22710' },
-    { id:5, nome:'Rafael Torres',  iniciais:'RT', foto:'https://randomuser.me/api/portraits/men/54.jpg',   area:'Personal Trainer',  modalidade:'Online',     disponivel:false, rating:4.6, reviews:58,  exp:4,  preco:160, cidade:'Recife, PE',         specs:['Hipertrofia','Treino em Casa','Emagrecimento'],       registro:'CREF 061455-G/PE' },
-    { id:6, nome:'Patrícia Alves', iniciais:'PA', foto:'https://randomuser.me/api/portraits/women/68.jpg', area:'Nutricionista',     modalidade:'Ambos',      disponivel:true,  rating:5.0, reviews:211, exp:11, preco:260, cidade:'Curitiba, PR',       specs:['Nutrição','Saúde da Mulher','Performance Esportiva'], registro:'CRN 14560' },
-];
-
 const TREINOS_BASE = [
     {
         id: 1,
@@ -52,8 +37,8 @@ const EXERCISES_BASE = [
 
 // ── ESTADO ──────────────────────────────────────────────────────
 
-let usuarios  = JSON.parse(localStorage.getItem('na_admin_users')   || 'null') || USERS_BASE;
-let profs     = JSON.parse(localStorage.getItem('na_admin_profs')   || 'null') || PROFS_BASE;
+let usuarios  = JSON.parse(localStorage.getItem('na_admin_users')   || '[]');
+let profs     = JSON.parse(localStorage.getItem('na_admin_profs')   || '[]');
 let treinos   = JSON.parse(localStorage.getItem('na_admin_treinos') || 'null') || TREINOS_BASE;
 let exercises = JSON.parse(localStorage.getItem('na_admin_exs')    || 'null') || EXERCISES_BASE;
 let auditLog  = JSON.parse(localStorage.getItem('na_admin_log')    || '[]');
