@@ -635,9 +635,9 @@
         </div>
         <!-- Cartão de perfil fixo no rodapé da sidebar -->
         <div class="sidebar-profile" onclick="openPanel()" title="Meu Perfil" role="button" tabindex="0">
-            <div class="sidebar-profile-avatar" id="sidebar-avatar">JR</div>
+            <div class="sidebar-profile-avatar" id="sidebar-avatar">U</div>
             <div class="sidebar-profile-info">
-                <div class="sidebar-profile-name" id="sidebar-nome">João Ribeiro</div>
+                <div class="sidebar-profile-name" id="sidebar-nome">Usuário</div>
                 <div class="sidebar-profile-role" id="sidebar-role"><i class="fa-solid fa-person-running"></i> Atleta</div>
             </div>
             <button class="sidebar-profile-gear"
@@ -1008,122 +1008,7 @@
     }
 
     /* ══ ESTADO GLOBAL ══ */
-    let profissionais = [
-        {
-            id:1,
-            nome:"Carlos Lima",
-            iniciais:"CL",
-            foto:"https://randomuser.me/api/portraits/men/32.jpg",
-            area:"Personal Trainer",
-            modalidade:"Presencial",
-            disponivel:true,
-            rating:4.9,
-            reviews:127,
-            exp:8,
-            preco:280,
-            cidade:"São Paulo, SP",
-            specs:["Hipertrofia","Força","Emagrecimento"],
-            isNovo:false,
-            registro:"CREF 048721-G/SP",
-            login:"carlos.lima@nextagon.com",
-            senha:"prof123"
-        },
-        {
-            id:2,
-            nome:"Fernanda Ramos",
-            iniciais:"FR",
-            foto:"https://randomuser.me/api/portraits/women/55.jpg",
-            area:"Nutricionista",
-            modalidade:"Online",
-            disponivel:true,
-            rating:4.9,
-            reviews:189,
-            exp:9,
-            preco:200,
-            cidade:"Fortaleza, CE",
-            specs:["Nutrição","Emagrecimento","Reeducação Alimentar","Saúde da Mulher"],
-            isNovo:false,
-            registro:"CRN 19384",
-            login:"fernanda.ramos@nextagon.com",
-            senha:"prof123"
-        },
-        {
-            id:3,
-            nome:"Lucas Andrade",
-            iniciais:"LA",
-            foto:"https://randomuser.me/api/portraits/men/75.jpg",
-            area:"Personal Trainer",
-            modalidade:"Ambos",
-            disponivel:true,
-            rating:4.8,
-            reviews:96,
-            exp:6,
-            preco:220,
-            cidade:"Brasília, DF",
-            specs:["Funcional","Emagrecimento","Força"],
-            isNovo:false,
-            registro:"CREF 032118-G/DF",
-            login:"lucas.andrade@nextagon.com",
-            senha:"prof123"
-        },
-        {
-            id:4,
-            nome:"Marina Souza",
-            iniciais:"MS",
-            foto:"https://randomuser.me/api/portraits/women/44.jpg",
-            area:"Nutricionista",
-            modalidade:"Presencial",
-            disponivel:true,
-            rating:4.7,
-            reviews:74,
-            exp:5,
-            preco:180,
-            cidade:"Rio de Janeiro, RJ",
-            specs:["Nutrição","Reeducação Alimentar","Emagrecimento"],
-            isNovo:false,
-            registro:"CRN 22710",
-            login:"marina.souza@nextagon.com",
-            senha:"prof123"
-        },
-        {
-            id:5,
-            nome:"Rafael Torres",
-            iniciais:"RT",
-            foto:"https://randomuser.me/api/portraits/men/54.jpg",
-            area:"Personal Trainer",
-            modalidade:"Online",
-            disponivel:false,
-            rating:4.6,
-            reviews:58,
-            exp:4,
-            preco:160,
-            cidade:"Recife, PE",
-            specs:["Hipertrofia","Treino em Casa","Emagrecimento"],
-            isNovo:false,
-            registro:"CREF 061455-G/PE",
-            login:"rafael.torres@nextagon.com",
-            senha:"prof123"
-        },
-        {
-            id:6,
-            nome:"Patrícia Alves",
-            iniciais:"PA",
-            foto:"https://randomuser.me/api/portraits/women/68.jpg",
-            area:"Nutricionista",
-            modalidade:"Ambos",
-            disponivel:true,
-            rating:5.0,
-            reviews:211,
-            exp:11,
-            preco:260,
-            cidade:"Curitiba, PR",
-            specs:["Nutrição","Saúde da Mulher","Performance Esportiva"],
-            isNovo:false,
-            registro:"CRN 14560",
-            login:"patricia.alves@nextagon.com",
-            senha:"prof123"
-        }
-    ];
+    let profissionais = [];
 
     let favorites = new Set(JSON.parse(localStorage.getItem('favProf') || '[]'));
     let priceMax = 1000;
@@ -1228,7 +1113,6 @@
         const registroBadge = p.registro
             ? `<span class="badge badge-blue" title="Registro profissional"><i class="fa-regular fa-id-card"></i> ${p.registro}</span>`
             : '';
-        const chatPayload = JSON.stringify(p).replace(/'/g, '&apos;');
         const safeName = p.nome.replace(/'/g, "\'");
 
         return `
@@ -1251,7 +1135,6 @@
                         <div class="card-location"><i class="fa-solid fa-location-dot"></i> ${p.cidade}</div>
                     </div>
                     <button class="btn-agendar" onclick="openModalAgendar('${safeName}')">Agendar Avaliação</button>
-                    <button class="btn-chat" onclick='openLoginProfissional(${chatPayload})'><i class="fa-regular fa-comments"></i> Conversar com ${p.nome.split(' ')[0]}</button>
                 </div>
             </div>
         `;
@@ -1708,49 +1591,6 @@
 </aside>
 
 <!-- ══ MODAL LOGIN PROFISSIONAL ══ -->
-<div class="modal-login-prof" id="modalLoginProf" onclick="handleLoginOverlay(event)">
-    <div class="login-card">
-        <div class="login-prof-header">
-            <div class="login-prof-avatar">
-                <img id="lpAvatar" src="" alt="">
-            </div>
-            <div class="login-prof-name" id="lpNome"></div>
-            <div class="login-prof-role" id="lpRole"></div>
-            <div class="login-prof-badge" id="lpBadge">Profissional Verificado</div>
-        </div>
-        <div class="login-prof-body">
-            <div class="login-info-box">
-                <i class="fa-solid fa-lock"></i> Para conversar diretamente com <strong id="lpNomeInfo"></strong>, entre com as credenciais do perfil. O chat é humanizado com IA para uma experiência personalizada.
-            </div>
-            <div class="login-prof-field">
-                <label>Usuário (e-mail ou nome)</label>
-                <input type="text" id="lpUser" placeholder="ex: carlos.lima@nextagon.com" autocomplete="username">
-            </div>
-            <div class="login-prof-field">
-                <label>Senha</label>
-                <input type="password" id="lpSenha" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLoginProf()">
-            </div>
-            <div class="login-error" id="lpError">Usuário ou senha incorretos. Tente novamente.</div>
-            <button class="btn-login-prof" onclick="doLoginProf()"><i class="fa-solid fa-paper-plane"></i> Entrar e Conversar</button>
-            <button class="btn-cancel-login" onclick="closeLoginProf()">Cancelar</button>
-            <div style="font-size:11px;color:var(--text3);text-align:center;line-height:1.7;">
-                <i class="fa-regular fa-lightbulb"></i> <strong style="color:var(--text2)">Credenciais deste perfil:</strong><br>
-                Usuário: <span id="lpDemoUser" style="color:var(--accent)"></span> · Senha: <span style="color:var(--accent)">prof123</span>
-            </div>
-            <div id="listaAcessosDemo" style="font-size:11px;color:var(--text3);line-height:1.7;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
-                <strong style="color:var(--text2)">Logins de exemplo:</strong><br>
-                Carlos: carlos.lima@nextagon.com<br>
-                Fernanda: fernanda.ramos@nextagon.com<br>
-                Lucas: lucas.andrade@nextagon.com<br>
-                Marina: marina.souza@nextagon.com<br>
-                Rafael: rafael.torres@nextagon.com<br>
-                Patrícia: patricia.alves@nextagon.com<br>
-                <span style="color:var(--accent)">Senha para todos: prof123</span>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- ══════════════════════════════════════
      MODAL GERENCIAR FILTROS (ADMIN)
 ══════════════════════════════════════ -->
@@ -1796,80 +1636,6 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"><span id="toastIcon"><i class="fa-solid fa-circle-check"></i></span><span id="toastMsg"></span></div>
 
-<script>
-    /* ══ LOGIN POR PERFIL DO PROFISSIONAL ══ */
-    let _lpProf = null;
-
-    // Mapa de credenciais por id do profissional
-    const PROF_CREDENTIALS = {
-        1: { user: 'carlos.lima@nextagon.com', senha: 'prof123' },
-        2: { user: 'fernanda.ramos@nextagon.com', senha: 'prof123' },
-        3: { user: 'lucas.andrade@nextagon.com', senha: 'prof123' },
-        4: { user: 'marina.souza@nextagon.com', senha: 'prof123' },
-        5: { user: 'rafael.torres@nextagon.com', senha: 'prof123' },
-        6: { user: 'patricia.alves@nextagon.com', senha: 'prof123' }
-    };
-
-    function openLoginProfissional(prof) {
-        _lpProf = prof;
-        document.getElementById('lpAvatar').src = prof.foto || '';
-        document.getElementById('lpNome').textContent = prof.nome;
-        document.getElementById('lpRole').textContent = prof.area + ' · ' + prof.exp + ' anos exp.';
-        document.getElementById('lpNomeInfo').textContent = prof.nome.split(' ')[0];
-        const cred = PROF_CREDENTIALS[prof.id];
-        document.getElementById('lpDemoUser').textContent = cred ? cred.user : prof.nome.toLowerCase().replace(/ /g,'.') + '@nextagon.com';
-        document.getElementById('lpUser').value = '';
-        document.getElementById('lpSenha').value = '';
-        document.getElementById('lpError').classList.remove('show');
-        document.getElementById('modalLoginProf').classList.add('open');
-        document.body.style.overflow = 'hidden';
-        setTimeout(() => document.getElementById('lpUser').focus(), 200);
-    }
-
-    function closeLoginProf() {
-        document.getElementById('modalLoginProf').classList.remove('open');
-        document.body.style.overflow = '';
-        _lpProf = null;
-    }
-
-    function handleLoginOverlay(e) {
-        if (e.target === document.getElementById('modalLoginProf')) closeLoginProf();
-    }
-
-    function doLoginProf() {
-        if (!_lpProf) return;
-
-        const user  = document.getElementById('lpUser').value.trim().toLowerCase();
-        const senha = document.getElementById('lpSenha').value.trim();
-        const cred = PROF_CREDENTIALS[_lpProf.id];
-
-        if (cred && user === cred.user.toLowerCase() && senha === cred.senha) {
-            const usuarioProfissional = {
-                id: _lpProf.id,
-                nome: _lpProf.nome,
-                email: cred.user,
-                role: 'profissional',
-                area: _lpProf.area,
-                foto: _lpProf.foto,
-                registro: _lpProf.registro
-            };
-
-            sessionStorage.setItem('naUser', JSON.stringify(usuarioProfissional));
-            sessionStorage.setItem('naProfissionalLogado', JSON.stringify(_lpProf));
-            localStorage.setItem('naUltimoLoginProfissional', cred.user);
-
-            showToast('<i class="fa-solid fa-circle-check"></i>', 'Login realizado como ' + _lpProf.nome + '.');
-            setTimeout(() => {
-                window.location.href = 'chat.html?prof=' + encodeURIComponent(_lpProf.nome);
-            }, 700);
-        } else {
-            document.getElementById('lpError').textContent = 'Login incorreto. Use o e-mail do perfil selecionado e a senha prof123.';
-            document.getElementById('lpError').classList.add('show');
-        }
-    }
-
-
-</script>
 <script>
     /* ══════════════════════════════════════════════════════════════
        ADMIN FILTER MANAGER — Next Agon

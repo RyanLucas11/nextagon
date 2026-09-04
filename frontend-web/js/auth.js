@@ -34,15 +34,6 @@ async function verificarSenha(senhaDigitada, senhaArmazenada) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   USUÁRIOS PADRÃO (demo)
-   ───────────────────────────────────────────────────────────── */
-const USERS_DEFAULT = [
-    { email: 'atleta@nextagon.com',       senha: '123456', role: 'atleta',       nome: 'Lucas Atleta',     avatar: 'LA', ativo: true },
-    { email: 'profissional@nextagon.com', senha: '123456', role: 'profissional', nome: 'Ana Profissional', avatar: 'AP', ativo: true },
-    { email: 'admin@nextagon.com',        senha: '123456', role: 'admin',        nome: 'Carlos Admin',     avatar: 'CA', ativo: true },
-];
-
-/* ─────────────────────────────────────────────────────────────
    PERMISSÕES POR PAPEL
    ───────────────────────────────────────────────────────────── */
 const PERMISSIONS = {
@@ -93,12 +84,12 @@ const PERMISSIONS = {
 function getUsers() {
     try {
         const saved = localStorage.getItem(NA_USERS_KEY);
-        if (!saved) return [...USERS_DEFAULT];
+        if (!saved) return [];
         const parsed = JSON.parse(saved);
-        return Array.isArray(parsed) && parsed.length ? parsed : [...USERS_DEFAULT];
+        return Array.isArray(parsed) ? parsed : [];
     } catch (e) {
-        console.warn('[NextAgon Auth] Falha ao ler usuários, usando padrão.', e);
-        return [...USERS_DEFAULT];
+        console.warn('[NextAgon Auth] Falha ao ler usuários.', e);
+        return [];
     }
 }
 
@@ -391,12 +382,6 @@ const HINTS = {
     admin:        '🛡️ <strong>Admin:</strong> Acesso total — gerencia usuários, perfis e toda a plataforma.',
 };
 
-const PREFILL = {
-    atleta:       { email: 'atleta@nextagon.com',       senha: '123456' },
-    profissional: { email: 'profissional@nextagon.com', senha: '123456' },
-    admin:        { email: 'admin@nextagon.com',        senha: '123456' },
-};
-
 function showPanel(name) {
     const order = ['login', 'criar', 'senha'];
     document.querySelectorAll('.panel').forEach(p   => p.classList.remove('active'));
@@ -411,13 +396,6 @@ function selectRole(role) {
     document.getElementById('tab-' + role)?.classList.add('active');
     const hint = document.getElementById('hint-box');
     if (hint) hint.innerHTML = HINTS[role] || '';
-    const prefill = PREFILL[role];
-    if (prefill) {
-        const emailEl = document.getElementById('login-email');
-        const passEl  = document.getElementById('login-pass');
-        if (emailEl) emailEl.value = prefill.email;
-        if (passEl)  passEl.value  = prefill.senha;
-    }
 }
 
 /* ─────────────────────────────────────────────────────────────

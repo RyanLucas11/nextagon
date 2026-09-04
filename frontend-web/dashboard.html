@@ -232,9 +232,9 @@
         </nav>
         <!-- Cartão de perfil fixo no rodapé da sidebar -->
         <div class="sidebar-profile" onclick="openPanel()" title="Meu Perfil" role="button" tabindex="0">
-            <div class="sidebar-profile-avatar" id="sidebar-avatar">JR</div>
+            <div class="sidebar-profile-avatar" id="sidebar-avatar">U</div>
             <div class="sidebar-profile-info">
-                <div class="sidebar-profile-name" id="sidebar-nome">João Ribeiro</div>
+                <div class="sidebar-profile-name" id="sidebar-nome">Usuário</div>
                 <div class="sidebar-profile-role" id="sidebar-role"><i class="fa-solid fa-person-running"></i> Atleta</div>
             </div>
             <button class="sidebar-profile-gear"
@@ -478,30 +478,21 @@
 <script src="js/dashboard.js"></script>
 <script>
     (function() {
-        const ACCOUNT_PROFILE_MAP = {
-            "carlos": 1, "carlos lima": 1, "carlos.lima@nextagon.com": 1,
-            "fernanda": 2, "fernanda ramos": 2, "fernanda.ramos@nextagon.com": 2,
-            "lucas": 3, "lucas andrade": 3, "lucas.andrade@nextagon.com": 3,
-            "marina": 4, "marina souza": 4, "marina.souza@nextagon.com": 4,
-            "rafael": 5, "rafael torres": 5, "rafael.torres@nextagon.com": 5,
-            "patricia": 6, "patrícia": 6, "patricia alves": 6, "patrícia alves": 6,
-            "patricia.alves@nextagon.com": 6, "patrícia.alves@nextagon.com": 6,
-            "profissional@nextagon.com": 2
-        };
-
         // ── Identificar usuário e role ──
-        let userKey = 'cliente.local@nextagon.com';
+        let userKey = '';
         let userRole = 'atleta';
         try {
             const u = JSON.parse(sessionStorage.getItem('naUser') || 'null');
             if (u) {
-                userKey = String(u.email || u.login || u.user || u.nome || u.name || 'cliente.local').toLowerCase().trim();
+                userKey = String(u.email || u.login || u.user || u.nome || u.name || '').toLowerCase().trim();
                 userRole = String(u.role || 'atleta').toLowerCase();
             }
         } catch(e) {}
 
         const isProfissional = userRole === 'profissional' || userRole === 'admin';
-        const profId = ACCOUNT_PROFILE_MAP[userKey];
+        const perfisCriados = JSON.parse(localStorage.getItem('naPerfisProfissionaisCriados') || '[]');
+        const perfilProfissional = perfisCriados.find(p => String(p.ownerKey || p.ownerEmail || '').toLowerCase() === userKey);
+        const profId = perfilProfissional ? perfilProfissional.id : null;
         const conversations = JSON.parse(localStorage.getItem('naConversasReaisNextAgon') || '[]');
 
         // ── Card 1 ──
