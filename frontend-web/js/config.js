@@ -1,0 +1,1 @@
+window.NEXTAGON_API_URL = 'https://nextagon-backend.onrender.com';

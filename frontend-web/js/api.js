@@ -1,4 +1,4 @@
-const NEXTAGON_API_URL = window.NEXTAGON_API_URL || 'http://localhost:8080';
+const NEXTAGON_API_URL = window.NEXTAGON_API_URL || 'https://nextagon-backend.onrender.com';
 const NEXTAGON_TOKEN_KEY = 'na_access_token';
 const NEXTAGON_REFRESH_TOKEN_KEY = 'na_refresh_token';
 
