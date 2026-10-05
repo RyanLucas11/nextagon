@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function () {
+            var automatico = localStorage.getItem('na_tema_auto') === '1';
+            var claro = automatico ? window.matchMedia('(prefers-color-scheme: light)').matches : ['light', 'claro'].includes(localStorage.getItem('na_tema'));
+            document.documentElement.setAttribute('data-tema', claro ? 'light' : 'dark');
+        })();
+    </script>
     <title>Academia - Next Agon</title>
     <link rel="stylesheet" href="css/global.css">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -14,6 +21,7 @@
         .app { display: flex; height: 100vh; overflow: hidden; }
         .main { flex: 1; overflow-y: auto; background: var(--bg); }
         :root { --title: #e8ff00; --title2: #c8e000; }
+        [data-tema="light"] { --title: #1558c0; --title2: #1a6bde; }
         h1, h2, h3, h4 { color: var(--title); }
 
         /* ── TOP BAR ── */
@@ -2031,7 +2039,11 @@
         <i class="fa-solid fa-chart-line"></i>
         <span>Dashboard</span>
     </button>
-    <button class="mob-nav-item active" onclick="" aria-label="Academia">
+    <button class="mob-nav-item " onclick="showPage('treinos')" aria-label="Treinos">
+        <i class="fa-solid fa-bolt"></i>
+        <span>Treinos</span>
+    </button>
+    <button class="mob-nav-item active" onclick="showPage('academia')" aria-label="Academia" aria-current="page">
         <i class="fa-solid fa-dumbbell"></i>
         <span>Academia</span>
     </button>

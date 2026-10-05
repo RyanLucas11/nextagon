@@ -9,6 +9,15 @@
 const NA_SESSION_KEY = 'na_session_v2';   // localStorage (persistente entre abas)
 const NA_USERS_KEY   = 'na_admin_users';  // localStorage (base de usuários)
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8 horas
+let selectedLoginRole = 'atleta';
+
+function normalizeRole(role) {
+    const value = String(role || '').toLowerCase();
+    if (value === 'athlete' || value === 'atleta') return 'atleta';
+    if (value === 'professional' || value === 'profissional') return 'profissional';
+    if (value === 'administrator' || value === 'admin') return 'admin';
+    return value;
+}
 
 /* ─────────────────────────────────────────────────────────────
    HASH SIMPLES (SHA-256 via Web Crypto — async)
@@ -106,7 +115,7 @@ function saveUsers(users) {
    Usa localStorage com TTL para persistir entre abas/recargas.
    ───────────────────────────────────────────────────────────── */
 function saveSession(user) {
-    const role = String(user.role || '').toLowerCase();
+    const role = normalizeRole(user.role);
     const session = {
         user:    { id: user.id, email: user.email, nome: user.nome || user.name, role, avatar: user.avatar || (user.nome || user.name || '').split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase() },
         perms:   PERMISSIONS[role] || {},
@@ -220,6 +229,11 @@ async function doLogin() {
 
     try {
         const auth = await NextagonApi.login(email, senha);
+        const authenticatedRole = normalizeRole(auth.user?.role);
+        if (authenticatedRole !== selectedLoginRole) {
+            showLoginError(`Esta conta é ${authenticatedRole === 'profissional' ? 'Profissional' : authenticatedRole === 'admin' ? 'Admin' : 'Atleta'}. Selecione esse perfil para entrar.`);
+            return;
+        }
         setAuthTokens(auth);
         saveSession(auth.user);
         window.location.href = 'dashboard.html';
@@ -381,6 +395,8 @@ function showPanel(name) {
 }
 
 function selectRole(role) {
+    if (!Object.prototype.hasOwnProperty.call(PERMISSIONS, role)) return;
+    selectedLoginRole = role;
     document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
     document.getElementById('tab-' + role)?.classList.add('active');
     const hint = document.getElementById('hint-box');

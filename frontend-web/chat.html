@@ -9,7 +9,10 @@
     <script>
         // Aplica tema antes do render para evitar flash
         (function(){
-            if(localStorage.getItem('na_tema')==='claro'){
+            var claro = localStorage.getItem('na_tema_auto') === '1'
+                ? window.matchMedia('(prefers-color-scheme: light)').matches
+                : ['light', 'claro'].includes(localStorage.getItem('na_tema'));
+            if(claro){
                 document.documentElement.classList.add('pre-tema-claro');
                 document.addEventListener('DOMContentLoaded',function(){
                     document.body.classList.add('tema-claro');
@@ -1786,6 +1789,10 @@
         <i class="fa-solid fa-chart-line"></i>
         <span>Dashboard</span>
     </button>
+    <button class="mob-nav-item " onclick="showPage('treinos')" aria-label="Treinos">
+        <i class="fa-solid fa-bolt"></i>
+        <span>Treinos</span>
+    </button>
     <button class="mob-nav-item " onclick="showPage('academia')" aria-label="Academia">
         <i class="fa-solid fa-dumbbell"></i>
         <span>Academia</span>
@@ -1794,7 +1801,7 @@
         <i class="fa-solid fa-user-doctor"></i>
         <span>Profissionais</span>
     </button>
-    <button class="mob-nav-item active" onclick="" aria-label="Chat">
+    <button class="mob-nav-item active" onclick="showPage('chat')" aria-label="Chat" aria-current="page">
         <i class="fa-regular fa-comments"></i>
         <span>Chat</span>
     </button>

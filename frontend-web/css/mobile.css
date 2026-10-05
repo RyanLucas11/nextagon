@@ -140,10 +140,10 @@
         bottom: 0; left: 0; right: 0;
         height: calc(var(--mob-bottom-h) + var(--mob-safe-bot));
         padding-bottom: var(--mob-safe-bot);
-        background: rgba(10, 17, 32, 0.96);
+        background: var(--card, rgba(10, 17, 32, 0.96));
         backdrop-filter: blur(24px);
         -webkit-backdrop-filter: blur(24px);
-        border-top: 1px solid rgba(26, 44, 66, 0.9);
+        border-top: 1px solid var(--border, rgba(26, 44, 66, 0.9));
         z-index: 900;
         align-items: center;
         justify-content: space-around;
@@ -163,7 +163,7 @@
         color: var(--text3);
         font-size: 10px;
         font-weight: 600;
-        font-family: inherit;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         letter-spacing: 0.02em;
         transition: color 0.18s;
         -webkit-tap-highlight-color: transparent;
@@ -226,6 +226,25 @@
         border: 2px solid var(--bg);
         line-height: 1;
     }
+}
+
+/* Keep the shared mobile navigation identical across pages and themes. */
+.mob-bottom-nav,
+.mob-nav-item,
+.mob-nav-item span {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body.tema-claro .mob-bottom-nav,
+[data-tema="light"] .mob-bottom-nav {
+    background: var(--card, #fff);
+    border-top-color: var(--border, #d1dbe8);
+}
+
+body.tema-claro .mob-header,
+[data-tema="light"] .mob-header {
+    background: var(--card, #fff);
+    border-bottom-color: var(--border, #d1dbe8);
 }
 
 /* ══════════════════════════════════════════════════════════════

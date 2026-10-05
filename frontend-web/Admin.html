@@ -493,8 +493,13 @@
     /* Aplica tema salvo ao carregar */
     (function(){
         try {
-            if (localStorage.getItem('na_tema') === 'claro') {
-                _adminTemaEscuro = false;
+            var automatico = localStorage.getItem('na_tema_auto') === '1';
+            var escuro = automatico
+                ? !window.matchMedia('(prefers-color-scheme: light)').matches
+                : localStorage.getItem('na_tema') !== 'light';
+            _adminTemaEscuro = escuro;
+            if (!_adminTemaEscuro) {
+                document.documentElement.setAttribute('data-tema', 'light');
                 var r = document.documentElement;
                 r.style.setProperty('--bg',    '#f0f4f8');
                 r.style.setProperty('--card',  '#ffffff');
@@ -562,6 +567,8 @@
     function adminOptTema() {
         _adminTemaEscuro = !_adminTemaEscuro;
         var r = document.documentElement;
+        try { localStorage.setItem('na_tema_auto', '0'); } catch(e){}
+        r.setAttribute('data-tema', _adminTemaEscuro ? 'dark' : 'light');
         if (_adminTemaEscuro) {
             r.style.removeProperty('--bg');
             r.style.removeProperty('--card');
@@ -576,7 +583,7 @@
             r.style.setProperty('--text2', '#3d5068');
         }
         _syncTemaUI();
-        try { localStorage.setItem('na_tema', _adminTemaEscuro ? 'escuro' : 'claro'); } catch(e){}
+        try { localStorage.setItem('na_tema', _adminTemaEscuro ? 'dark' : 'light'); } catch(e){}
     }
 
     /* ── Foto ── */
@@ -625,9 +632,13 @@
         document.getElementById('modal-sair-admin').classList.add('ms-open');
     }
     function _confirmarSair() {
-        sessionStorage.removeItem('naUser');
-        sessionStorage.removeItem('naPerms');
-        window.location.href = 'index.html';
+        if (typeof doLogout === 'function') doLogout();
+        else {
+            localStorage.removeItem('na_session_v2');
+            sessionStorage.removeItem('naUser');
+            sessionStorage.removeItem('naPerms');
+            window.location.href = 'index.html';
+        }
     }
     function _cancelarSair() {
         document.getElementById('modal-sair-admin').classList.remove('ms-open');

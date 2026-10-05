@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { AppScreen } from '@/components/Header';
-import { colors } from '@/constants/theme';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const adminStats = [
   ['Usuarios', '148'],
@@ -20,6 +20,8 @@ const initialTasks = [
 ];
 
 export default function Admin() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [tasks, setTasks] = useState(initialTasks.map((title) => ({ title, done: false })));
 
   function toggleTask(title: string) {
@@ -67,7 +69,7 @@ export default function Admin() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',

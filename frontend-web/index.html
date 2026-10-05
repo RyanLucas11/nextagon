@@ -45,12 +45,12 @@
   <!-- PAINEL: LOGIN -->
   <div class="panel active" id="panel-login" role="tabpanel">
     <div class="role-tabs" role="group" aria-label="Selecionar perfil">
-      <div class="role-tab" id="tab-atleta"
+      <div class="role-tab active" id="tab-atleta"
            onclick="selectRole('atleta')" tabindex="0" role="button">
         <span class="rt-icon"><i class="fa-solid fa-person-running"></i></span>
         <div class="rt-label">Atleta</div>
       </div>
-      <div class="role-tab active" id="tab-profissional"
+      <div class="role-tab" id="tab-profissional"
            onclick="selectRole('profissional')" tabindex="0" role="button">
         <span class="rt-icon"><i class="fa-solid fa-user-doctor"></i></span>
         <div class="rt-label">Profissional</div>
@@ -75,7 +75,7 @@
       </div>
     </div>
 
-    <button class="btn-main" onclick="doLogin()">ENTRAR NO TREINO</button>
+    <button class="btn-main" type="button" onclick="doLogin(); return false;">Entrar</button>
     <div class="msg error" id="login-error" aria-live="assertive"></div>
 
     <p class="link-txt">

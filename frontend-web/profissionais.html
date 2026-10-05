@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function () {
+            var automatico = localStorage.getItem('na_tema_auto') === '1';
+            var claro = automatico ? window.matchMedia('(prefers-color-scheme: light)').matches : ['light', 'claro'].includes(localStorage.getItem('na_tema'));
+            document.documentElement.setAttribute('data-tema', claro ? 'light' : 'dark');
+        })();
+    </script>
     <title>Profissionais - Next Agon</title>
     <style>
         /* ══ DESIGN SYSTEM ══ */
@@ -24,6 +31,25 @@
             --radius-lg: 16px;
             --radius-sm: 10px;
         }
+        [data-tema="light"] {
+            --accent: #1558c0;
+            --accent2: #0f469f;
+            --accent-dim: rgba(21,88,192,.12);
+            --accent-glow: rgba(21,88,192,.2);
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --card2: #e8edf3;
+            --border: #d1dbe8;
+            --text: #0f172a;
+            --text2: #475569;
+            --text3: #64748b;
+            --title: #1558c0;
+            --title2: #1a6bde;
+            --green: #16a34a;
+            --blue: #2563eb;
+            --red: #dc2626;
+        }
+        [data-tema="light"] .sidebar-profile-name { color: var(--text) !important; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
 
@@ -2084,11 +2110,15 @@
         <i class="fa-solid fa-chart-line"></i>
         <span>Dashboard</span>
     </button>
+    <button class="mob-nav-item " onclick="showPage('treinos')" aria-label="Treinos">
+        <i class="fa-solid fa-bolt"></i>
+        <span>Treinos</span>
+    </button>
     <button class="mob-nav-item " onclick="showPage('academia')" aria-label="Academia">
         <i class="fa-solid fa-dumbbell"></i>
         <span>Academia</span>
     </button>
-    <button class="mob-nav-item active" onclick="" aria-label="Profissionais">
+    <button class="mob-nav-item active" onclick="showPage('profissionais')" aria-label="Profissionais" aria-current="page">
         <i class="fa-solid fa-user-doctor"></i>
         <span>Profissionais</span>
     </button>

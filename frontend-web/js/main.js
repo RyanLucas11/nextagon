@@ -59,9 +59,6 @@ function initProfile() {
     const adminSec = document.getElementById('admin-section');
     if (adminSec) adminSec.style.display = user.role === 'admin' ? 'block' : 'none';
 
-    const temaSalvo = localStorage.getItem('na_tema') || 'dark';
-    applyTema(temaSalvo, false);
-
     /* Atualiza subtítulo do idioma */
     _updateIdiomaSubLabel();
     /* Atualiza ícone de tema */
@@ -669,11 +666,12 @@ function optTema() {
 }
 
 function applyTema(tema, salvar) {
-    if (salvar) localStorage.setItem('na_tema', tema);
-    document.documentElement.setAttribute('data-tema', tema);
+    const temaPadrao = tema === 'light' || tema === 'claro' ? 'light' : 'dark';
+    if (salvar) localStorage.setItem('na_tema', temaPadrao);
+    document.documentElement.setAttribute('data-tema', temaPadrao);
     const sub = document.getElementById('tema-sub');
-    if (sub) sub.textContent = tema === 'dark' ? 'Escuro ativo' : 'Claro ativo';
-    if (salvar) showToast('Tema ' + (tema === 'dark' ? 'escuro' : 'claro') + ' ativado.');
+    if (sub) sub.textContent = temaPadrao === 'dark' ? 'Escuro ativo' : 'Claro ativo';
+    if (salvar) showToast('Tema ' + (temaPadrao === 'dark' ? 'escuro' : 'claro') + ' ativado.');
 }
 
 /* ══════════════════════════════════════════════════════════

@@ -3,11 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function () {
+            var automatico = localStorage.getItem('na_tema_auto') === '1';
+            var claro = automatico
+                ? window.matchMedia('(prefers-color-scheme: light)').matches
+                : ['light', 'claro'].includes(localStorage.getItem('na_tema'));
+            document.documentElement.setAttribute('data-tema', claro ? 'light' : 'dark');
+        })();
+    </script>
     <title>Treinos — Next Agon</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/mobile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
         /* ── RESET & BASE ─────────────────────────────────────────── */
@@ -28,6 +38,13 @@
             --r-xl:24px;
             --sidebar-w:220px;
             --transition:.18s cubic-bezier(.4,0,.2,1);
+        }
+        [data-tema="light"] {
+            --border2:#d1dbe8;
+            --accent3:#0f469f;
+            --glow:rgba(21,88,192,.16);
+            --neon:#1558c0;
+            --neon2:#0f469f;
         }
         html,body{height:100%;overflow:hidden}
         body{font-family:var(--font-body);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;display:flex}
@@ -398,6 +415,13 @@
 </head>
 <body>
 
+<header class="mob-header" aria-label="Cabeçalho mobile">
+    <button class="mob-hamburger" onclick="mobToggleDrawer()" aria-label="Abrir menu" aria-expanded="false" id="mobHamburger"><i class="fa-solid fa-bars"></i></button>
+    <a class="mob-header-logo" href="dashboard.html"><i class="fa-solid fa-bolt"></i> Next Agon</a>
+    <a class="mob-header-btn" href="chat.html" aria-label="Abrir chat"><i class="fa-regular fa-comments"></i></a>
+</header>
+<div class="mob-drawer-overlay" id="mobDrawerOverlay" onclick="mobCloseDrawer()" aria-hidden="true"></div>
+
 <!-- SIDEBAR -->
 <aside class="sidebar">
     <div class="sidebar-logo"><i class="fa-solid fa-bolt"></i> Next Agon</div>
@@ -602,8 +626,37 @@
 <!-- TOAST -->
 <div class="toast-container" id="toast-container"></div>
 
+<nav class="mob-bottom-nav" aria-label="Navegação principal">
+    <button class="mob-nav-item" onclick="location.href='dashboard.html'" aria-label="Dashboard"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></button>
+    <button class="mob-nav-item active" onclick="location.href='treinos.html'" aria-label="Treinos" aria-current="page"><i class="fa-solid fa-bolt"></i><span>Treinos</span></button>
+    <button class="mob-nav-item" onclick="location.href='academia.html'" aria-label="Academia"><i class="fa-solid fa-dumbbell"></i><span>Academia</span></button>
+    <button class="mob-nav-item" onclick="location.href='profissionais.html'" aria-label="Profissionais"><i class="fa-solid fa-user-doctor"></i><span>Profissionais</span></button>
+    <button class="mob-nav-item" onclick="location.href='chat.html'" aria-label="Chat"><i class="fa-regular fa-comments"></i><span>Chat</span></button>
+    <button class="mob-nav-item" onclick="location.href='dashboard.html'" aria-label="Perfil"><i class="fa-solid fa-user"></i><span>Perfil</span></button>
+</nav>
+
 <script src="js/auth.js"></script>
 <script>
+    function mobToggleDrawer() {
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('mobDrawerOverlay');
+        const button = document.getElementById('mobHamburger');
+        const open = sidebar && !sidebar.classList.contains('mob-open');
+        sidebar?.classList.toggle('mob-open', !!open);
+        overlay?.classList.toggle('active', !!open);
+        document.body.style.overflow = open ? 'hidden' : '';
+        button?.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    function mobCloseDrawer() {
+        document.querySelector('.sidebar')?.classList.remove('mob-open');
+        document.getElementById('mobDrawerOverlay')?.classList.remove('active');
+        document.body.style.overflow = '';
+        document.getElementById('mobHamburger')?.setAttribute('aria-expanded', 'false');
+    }
+    document.addEventListener('click', event => {
+        if (event.target.closest('.sidebar .nav-item')) mobCloseDrawer();
+    });
+
     /* ── ESTADO ─────────────────────────────────────────────────── */
     const STORAGE_KEY = 'na_treinos_v2';
     let workouts = [];

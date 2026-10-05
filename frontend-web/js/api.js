@@ -1,65 +1,119 @@
-const NEXTAGON_API_URL = window.NEXTAGON_API_URL || 'https://nextagon-backend.onrender.com';
-const NEXTAGON_TOKEN_KEY = 'na_access_token';
-const NEXTAGON_REFRESH_TOKEN_KEY = 'na_refresh_token';
+(function () {
+    const DEFAULT_API_URL = 'https://nextagon-backend.onrender.com';
+    const baseUrl = (window.NEXTAGON_API_URL || DEFAULT_API_URL).replace(/\/+$/, '');
 
-function getAccessToken() {
-    return sessionStorage.getItem(NEXTAGON_TOKEN_KEY);
-}
-
-function setAuthTokens(auth) {
-    if (auth.accessToken) sessionStorage.setItem(NEXTAGON_TOKEN_KEY, auth.accessToken);
-    if (auth.refreshToken) sessionStorage.setItem(NEXTAGON_REFRESH_TOKEN_KEY, auth.refreshToken);
-}
-
-function clearAuthTokens() {
-    sessionStorage.removeItem(NEXTAGON_TOKEN_KEY);
-    sessionStorage.removeItem(NEXTAGON_REFRESH_TOKEN_KEY);
-}
-
-async function apiRequest(path, options = {}) {
-    const headers = { Accept: 'application/json', ...(options.headers || {}) };
-    const token = getAccessToken();
-    if (token) headers.Authorization = `Bearer ${token}`;
-    if (options.body !== undefined) headers['Content-Type'] = 'application/json';
-
-    let response;
-    try {
-        response = await fetch(`${NEXTAGON_API_URL}${path}`, { ...options, headers });
-    } catch {
-        throw new Error('Não foi possível conectar ao servidor. Verifique se o backend está em execução.');
+    function normalizeRole(role) {
+        const value = String(role || '').trim().toLowerCase();
+        if (value === 'athlete' || value === 'atleta') return 'atleta';
+        if (value === 'professional' || value === 'profissional') return 'profissional';
+        if (value === 'administrator' || value === 'admin' || value === 'administrador') return 'admin';
+        return value || 'atleta';
     }
 
-    if (response.status === 204) return undefined;
-    const payload = await response.json().catch(() => null);
-    if (!response.ok) {
-        const message = payload?.message || payload?.error || 'Não foi possível concluir a solicitação.';
-        throw new Error(message);
+    function buildUser(payload = {}) {
+        const normalizedRole = normalizeRole(payload.role);
+        return {
+            id: payload.id || payload._id || null,
+            nome: payload.name || payload.nome || '',
+            name: payload.name || payload.nome || '',
+            email: payload.email || '',
+            role: normalizedRole,
+            avatar: payload.avatar || ''
+        };
     }
-    return payload;
-}
 
-const ROLE_MAP = {
-    atleta: 'ATHLETE',
-    profissional: 'PROFESSIONAL',
-    admin: 'ADMIN',
-};
+    async function request(path, options = {}) {
+        const safePath = path.startsWith('/') ? path : `/${path}`;
+        const url = `${baseUrl}${safePath}`;
 
-function mapRoleToBackend(role) {
-    const key = String(role || '').trim().toLowerCase();
-    return ROLE_MAP[key] || key.toUpperCase();
-}
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(options.headers || {})
+                },
+                credentials: 'omit',
+                ...options,
+            });
 
-const NextagonApi = {
-    login: (email, password) => apiRequest('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
-    register: (name, email, password, role) => apiRequest('/auth/register', { method: 'POST', body: JSON.stringify({ name, email, password, role: mapRoleToBackend(role) }) }),
-    currentUser: () => apiRequest('/users/me'),
-    professionals: (page = 0, size = 20, minRating = 0) => apiRequest(`/marketplace/professionals?page=${page}&size=${size}&minRating=${minRating}`),
-    athleteProfile: () => apiRequest('/profile/athlete'),
-    saveAthleteProfile: (profile) => apiRequest('/profile/athlete', { method: 'PUT', body: JSON.stringify(profile) }),
-    professionalProfile: (userId) => apiRequest(`/profile/professional/${encodeURIComponent(userId)}`),
-    saveProfessionalProfile: (profile) => apiRequest('/profile/professional', { method: 'PUT', body: JSON.stringify(profile) }),
-    athleteContracts: (userId) => apiRequest(`/contracts/athlete/${encodeURIComponent(userId)}`),
-    professionalContracts: (userId) => apiRequest(`/contracts/professional/${encodeURIComponent(userId)}`),
-    chatHistory: (contractId) => apiRequest(`/chat/contract/${encodeURIComponent(contractId)}`),
-    sendMessage: (contractId, content, attachmentUrl = null) => apiRequest('/chat/send', { method: 'POST', body: JSON.stringify({ contractId, content, attachmentUrl }) }),
-};
+            let payload = null;
+            const text = await response.text();
+            if (text) {
+                try {
+                    payload = JSON.parse(text);
+                } catch (error) {
+                    payload = { message: text };
+                }
+            }
+
+            if (!response.ok) {
+                const message = payload?.message || payload?.error || payload?.details || 'Erro ao comunicar com o servidor.';
+                throw new Error(message);
+            }
+
+            return payload;
+        } catch (error) {
+            if (error instanceof Error && error.message) {
+                throw error;
+            }
+            throw new Error('Não foi possível conectar com o servidor. Tente novamente.');
+        }
+    }
+
+    const NextagonApi = {
+        async login(email, senha) {
+            const payload = await request('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({
+                    email: String(email || '').trim(),
+                    password: String(senha || '')
+                })
+            });
+
+            return {
+                accessToken: payload.accessToken || '',
+                refreshToken: payload.refreshToken || '',
+                user: buildUser(payload.user || {})
+            };
+        },
+
+        async register(nome, email, senha, role = 'atleta') {
+            const mappedRole = normalizeRole(role);
+            const payloadRole = mappedRole === 'profissional' ? 'PROFESSIONAL' : mappedRole === 'admin' ? 'ADMIN' : 'ATHLETE';
+
+            const payload = await request('/auth/register', {
+                method: 'POST',
+                body: JSON.stringify({
+                    name: String(nome || '').trim(),
+                    email: String(email || '').trim(),
+                    password: String(senha || ''),
+                    role: payloadRole
+                })
+            });
+
+            return {
+                accessToken: payload.accessToken || '',
+                refreshToken: payload.refreshToken || '',
+                user: buildUser(payload.user || {})
+            };
+        }
+    };
+
+    window.NEXTAGON_API_URL = baseUrl;
+    window.NextagonApi = NextagonApi;
+
+    window.setAuthTokens = function (auth) {
+        if (!auth) return;
+        localStorage.setItem('na_access_token', auth.accessToken || '');
+        localStorage.setItem('na_refresh_token', auth.refreshToken || '');
+    };
+
+    window.clearAuthTokens = function () {
+        localStorage.removeItem('na_access_token');
+        localStorage.removeItem('na_refresh_token');
+    };
+
+    window.getAuthToken = function () {
+        return localStorage.getItem('na_access_token') || '';
+    };
+})();

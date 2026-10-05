@@ -30,6 +30,8 @@ const lightColors = {
   accent: '#1558c0',
   accent2: '#0f469f',
   accentDim: 'rgba(21, 88, 192, 0.12)',
+  title: '#1558c0',
+  title2: '#0f469f',
   bgDeep: '#f5f7fb',
   bg: '#f5f7fb',
   card: '#ffffff',

@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function () {
+            var automatico = localStorage.getItem('na_tema_auto') === '1';
+            var claro = automatico ? window.matchMedia('(prefers-color-scheme: light)').matches : ['light', 'claro'].includes(localStorage.getItem('na_tema'));
+            document.documentElement.setAttribute('data-tema', claro ? 'light' : 'dark');
+        })();
+    </script>
     <title>Dashboard — Next Agon</title>
 
     <!-- Design system global -->
@@ -689,7 +696,7 @@
 
 <!-- ── Bottom Navigation ─────────────────────────────────── -->
 <nav class="mob-bottom-nav" aria-label="Navegação principal">
-    <button class="mob-nav-item active" onclick="" aria-label="Dashboard">
+    <button class="mob-nav-item active" onclick="showPage('dashboard')" aria-label="Dashboard" aria-current="page">
         <i class="fa-solid fa-chart-line"></i>
         <span>Dashboard</span>
     </button>
