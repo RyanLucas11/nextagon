@@ -177,6 +177,53 @@ body {
 .panel        { display: none; }
 .panel.active { display: block; }
 
+/* Onboarding pós-cadastro */
+.onboarding-screen[hidden] { display: none; }
+.onboarding-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    place-items: center;
+    overflow-y: auto;
+    padding: 24px 16px;
+    background: rgba(5, 7, 9, 0.94);
+    backdrop-filter: blur(14px);
+}
+.onboarding-card {
+    width: min(100%, 560px);
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    padding: 30px;
+    border: 1px solid rgba(212,247,0,0.2);
+    border-radius: 6px;
+    background: #101214;
+    box-shadow: 0 28px 90px rgba(0,0,0,0.6);
+}
+.onboarding-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.onboarding-step { color:var(--velocity-yellow); font-size:10px; font-weight:800; letter-spacing:.16em; }
+.onboarding-skip { border:0; background:none; color:rgba(255,255,255,.58); font:600 12px 'Inter',sans-serif; cursor:pointer; }
+.onboarding-skip:hover { color:var(--velocity-yellow); }
+.onboarding-progress { height:3px; margin-bottom:25px; background:rgba(255,255,255,.08); }
+.onboarding-progress span { display:block; width:50%; height:100%; background:var(--velocity-yellow); transition:width .2s ease; }
+.onboarding-title { margin:0 0 8px; color:#fff; font-size:25px; font-weight:800; }
+.onboarding-description { margin:0 0 22px; color:rgba(255,255,255,.56); font-size:13px; line-height:1.6; }
+.onboarding-label { display:block; margin:16px 0 8px; color:rgba(255,255,255,.78); font-size:11px; font-weight:700; }
+.onboarding-input, .onboarding-textarea { display:block; width:100%; box-sizing:border-box; padding:13px 14px; border:1px solid rgba(255,255,255,.12); border-radius:3px; outline:0; color:#fff; background:rgba(255,255,255,.04); font:13px 'Inter',sans-serif; }
+.onboarding-input:focus, .onboarding-textarea:focus { border-color:rgba(212,247,0,.5); }
+.onboarding-textarea { min-height:96px; resize:vertical; line-height:1.5; }
+.specialty-options { display:flex; flex-wrap:wrap; gap:8px; }
+.specialty-option { padding:9px 12px; border:1px solid rgba(255,255,255,.12); border-radius:3px; color:rgba(255,255,255,.72); background:rgba(255,255,255,.035); font:600 11px 'Inter',sans-serif; cursor:pointer; }
+.specialty-option.selected { color:var(--velocity-yellow); border-color:rgba(212,247,0,.5); background:rgba(212,247,0,.08); }
+.profile-photo-row { display:flex; align-items:center; gap:16px; margin:22px 0; }
+.profile-photo-preview { width:78px; height:78px; flex:0 0 78px; display:grid; place-items:center; overflow:hidden; border:1px solid rgba(212,247,0,.35); border-radius:50%; color:var(--velocity-yellow); background:rgba(255,255,255,.06); font-size:20px; font-weight:800; }
+.profile-photo-preview img { width:100%; height:100%; object-fit:cover; }
+.photo-picker-label { display:inline-block; padding:10px 12px; border:1px solid rgba(255,255,255,.16); border-radius:3px; color:#fff; font-size:11px; font-weight:700; cursor:pointer; }
+.onboarding-actions { display:flex; gap:10px; margin-top:24px; }
+.onboarding-actions .btn-main { flex:1; margin-top:0; }
+.onboarding-back { padding:0 16px; border:1px solid rgba(255,255,255,.14); border-radius:3px; color:#fff; background:transparent; font-size:11px; font-weight:700; cursor:pointer; }
+@media (max-width:520px) { .onboarding-card { padding:22px 18px; } .onboarding-title { font-size:22px; } }
+
 /* ── Seletor de perfil ───────────────────────────────────── */
 .role-tabs {
     display: grid;
@@ -353,6 +400,9 @@ body {
 }
 
 .btn-main:active { transform: translateY(0); }
+.btn-main:disabled { cursor:wait; opacity:.82; transform:none; }
+.btn-main[aria-busy="true"]::after { content:""; display:inline-block; width:11px; height:11px; margin-left:10px; vertical-align:-1px; border:2px solid rgba(0,0,0,.28); border-top-color:#000; border-radius:50%; animation:loginSpin .65s linear infinite; }
+@keyframes loginSpin { to { transform:rotate(360deg); } }
 
 /* ── Mensagens ───────────────────────────────────────────── */
 .msg {

@@ -115,6 +115,11 @@ function saveUsers(users) {
    Usa localStorage com TTL para persistir entre abas/recargas.
    ───────────────────────────────────────────────────────────── */
 function saveSession(user) {
+    try {
+        const profiles = JSON.parse(localStorage.getItem('na_onboarding_profiles') || '{}');
+        const profile = profiles[user.id] || profiles[user.email];
+        if (profile?.nickname) user = { ...user, nome: profile.nickname };
+    } catch (_) { /* Mantém o login disponível se os dados locais estiverem inválidos. */ }
     const role = normalizeRole(user.role);
     const session = {
         user:    { id: user.id, email: user.email, nome: user.nome || user.name, role, avatar: user.avatar || (user.nome || user.name || '').split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase() },
@@ -215,6 +220,7 @@ function doLogout() {
 
 /** Login principal (chamado pelo botão Entrar) */
 async function doLogin() {
+    if (loginInFlight) return;
     const emailEl = document.getElementById('login-email');
     const passEl  = document.getElementById('login-pass');
     if (!emailEl || !passEl) return;
@@ -227,6 +233,8 @@ async function doLogin() {
         return;
     }
 
+    loginInFlight = true;
+    setLoginLoading(true);
     try {
         const auth = await NextagonApi.login(email, senha);
         const authenticatedRole = normalizeRole(auth.user?.role);
@@ -240,7 +248,20 @@ async function doLogin() {
     } catch (error) {
         shakeInputs();
         showLoginError(error instanceof Error ? error.message : 'E-mail ou senha incorretos.');
+    } finally {
+        loginInFlight = false;
+        setLoginLoading(false);
     }
+}
+
+let loginInFlight = false;
+
+function setLoginLoading(loading) {
+    const button = document.getElementById('login-submit');
+    if (!button) return;
+    button.disabled = loading;
+    button.setAttribute('aria-busy', String(loading));
+    button.textContent = loading ? 'Conectando…' : 'Entrar';
 }
 
 /** Criação de conta */
@@ -261,11 +282,153 @@ async function criarConta() {
         const auth = await NextagonApi.register(nome, email, senha, role);
         setAuthTokens(auth);
         saveSession(auth.user);
-        setMsg(msg, '✓ Conta criada com sucesso! Redirecionando…', 'success');
-        setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+        setMsg(msg, '✓ Conta criada com sucesso!', 'success');
+        startProfileOnboarding(auth.user);
     } catch (error) {
         setMsg(msg, error instanceof Error ? error.message : 'Não foi possível criar a conta.', 'error');
     }
+}
+
+let onboardingStep = 1;
+let onboardingUser = null;
+let onboardingProfile = {};
+const PROFESSIONAL_SPECIALTIES = ['Personal trainer', 'Nutrição esportiva', 'Fisioterapia', 'Preparação física', 'Psicologia do esporte', 'Educação física', 'Medicina esportiva', 'Outro'];
+
+function startProfileOnboarding(user) {
+    onboardingUser = user;
+    onboardingStep = 1;
+    onboardingProfile = { specialties: [] };
+    const screen = document.getElementById('profile-onboarding');
+    if (!screen) { window.location.href = 'dashboard.html'; return; }
+    screen.hidden = false;
+    renderOnboardingStep();
+}
+
+function renderOnboardingStep() {
+    const role = normalizeRole(onboardingUser?.role);
+    const professional = role === 'profissional';
+    const content = document.getElementById('onboarding-content');
+    const step = document.getElementById('onboarding-step');
+    const progress = document.getElementById('onboarding-progress-fill');
+    if (!content || !step || !progress) return;
+    step.textContent = `PASSO ${onboardingStep} DE 2`;
+    progress.style.width = onboardingStep === 1 ? '50%' : '100%';
+
+    if (onboardingStep === 1 && !professional) {
+        content.innerHTML = `
+          <h1 class="onboarding-title" id="onboarding-title">Vamos personalizar sua jornada</h1>
+          <p class="onboarding-description">Conte o que você pratica e como podemos ajudar. Você pode editar essas informações depois.</p>
+          <label class="onboarding-label" for="onboarding-sport">Qual modalidade você pratica e quer ter assistência?</label>
+          <input class="onboarding-input" id="onboarding-sport" placeholder="Ex.: musculação, corrida, natação" value="${escapeOnboarding(onboardingProfile.sport || '')}">
+          <label class="onboarding-label" for="onboarding-focus">Como é o seu foco no treino?</label>
+          <textarea class="onboarding-textarea" id="onboarding-focus" placeholder="Ex.: ganhar força, melhorar a técnica ou manter a constância">${escapeOnboarding(onboardingProfile.focus || '')}</textarea>
+          <label class="onboarding-label" for="onboarding-goal">Qual é o seu principal objetivo?</label>
+          <input class="onboarding-input" id="onboarding-goal" placeholder="Ex.: ganhar massa muscular, melhorar o condicionamento" value="${escapeOnboarding(onboardingProfile.goal || '')}">
+          ${onboardingActions(false)}`;
+    } else if (onboardingStep === 1) {
+        content.innerHTML = `
+          <h1 class="onboarding-title" id="onboarding-title">Apresente seu trabalho</h1>
+          <p class="onboarding-description">Selecione suas especialidades e conte um pouco sobre o serviço que oferece e sua trajetória.</p>
+          <span class="onboarding-label">Quais são suas especialidades?</span>
+          <div class="specialty-options">${PROFESSIONAL_SPECIALTIES.map(item => `<button type="button" class="specialty-option${(onboardingProfile.specialties || []).includes(item) ? ' selected' : ''}" aria-pressed="${(onboardingProfile.specialties || []).includes(item)}" onclick="toggleOnboardingSpecialty(this)">${item}</button>`).join('')}</div>
+          <label class="onboarding-label" for="onboarding-work">Descreva seu trabalho</label>
+          <textarea class="onboarding-textarea" id="onboarding-work" placeholder="Como você ajuda seus clientes?">${escapeOnboarding(onboardingProfile.workDescription || '')}</textarea>
+          <label class="onboarding-label" for="onboarding-experience">Conte sobre sua experiência</label>
+          <textarea class="onboarding-textarea" id="onboarding-experience" placeholder="Tempo de carreira, formações e experiências relevantes">${escapeOnboarding(onboardingProfile.experience || '')}</textarea>
+          ${onboardingActions(false)}`;
+    } else {
+        const initials = (onboardingUser?.nome || onboardingUser?.name || 'NA').split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase();
+        content.innerHTML = `
+          <h1 class="onboarding-title" id="onboarding-title">Deixe seu perfil com a sua cara</h1>
+          <p class="onboarding-description">Escolha como quer ser chamado e, se quiser, adicione uma foto ao seu perfil.</p>
+          <label class="onboarding-label" for="onboarding-nickname">Como você quer ser chamado?</label>
+          <input class="onboarding-input" id="onboarding-nickname" placeholder="Seu nome ou apelido" value="${escapeOnboarding(onboardingProfile.nickname || onboardingUser?.nome || onboardingUser?.name || '')}">
+          <div class="profile-photo-row"><div class="profile-photo-preview" id="onboarding-photo-preview">${onboardingProfile.photo ? `<img src="${onboardingProfile.photo}" alt="Prévia da foto de perfil">` : initials}</div><div><label class="photo-picker-label" for="onboarding-photo">${onboardingProfile.photo ? 'Trocar foto' : 'Adicionar foto'}</label><input id="onboarding-photo" type="file" accept="image/*" hidden onchange="previewOnboardingPhoto(event)"></div></div>
+          ${onboardingActions(true)}`;
+    }
+}
+
+function onboardingActions(isFinalStep) {
+    return `<div class="onboarding-actions">${onboardingStep === 2 ? '<button type="button" class="onboarding-back" onclick="goBackOnboarding()">Voltar</button>' : ''}<button type="button" class="btn-main" onclick="${isFinalStep ? 'finishProfileOnboarding()' : 'advanceOnboarding()'}">${isFinalStep ? 'Concluir' : 'Continuar'}</button></div>`;
+}
+
+function escapeOnboarding(value) {
+    return String(value || '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+}
+
+function collectOnboardingStep() {
+    const value = id => document.getElementById(id)?.value?.trim() || '';
+    if (onboardingStep === 1 && normalizeRole(onboardingUser?.role) === 'profissional') {
+        onboardingProfile.workDescription = value('onboarding-work');
+        onboardingProfile.experience = value('onboarding-experience');
+    } else if (onboardingStep === 1) {
+        onboardingProfile.sport = value('onboarding-sport');
+        onboardingProfile.focus = value('onboarding-focus');
+        onboardingProfile.goal = value('onboarding-goal');
+    } else {
+        onboardingProfile.nickname = value('onboarding-nickname');
+    }
+}
+
+function advanceOnboarding() {
+    collectOnboardingStep();
+    onboardingStep = 2;
+    renderOnboardingStep();
+}
+
+function skipOnboardingStep() {
+    collectOnboardingStep();
+    if (onboardingStep === 1) {
+        onboardingStep = 2;
+        renderOnboardingStep();
+    } else {
+        finishProfileOnboarding();
+    }
+}
+
+function goBackOnboarding() {
+    collectOnboardingStep();
+    onboardingStep = 1;
+    renderOnboardingStep();
+}
+
+function toggleOnboardingSpecialty(button) {
+    const specialty = button.textContent.trim();
+    const selected = new Set(onboardingProfile.specialties || []);
+    if (selected.has(specialty)) selected.delete(specialty); else selected.add(specialty);
+    onboardingProfile.specialties = Array.from(selected);
+    button.classList.toggle('selected', selected.has(specialty));
+    button.setAttribute('aria-pressed', String(selected.has(specialty)));
+}
+
+function previewOnboardingPhoto(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+        onboardingProfile.photo = String(reader.result || '');
+        const preview = document.getElementById('onboarding-photo-preview');
+        if (preview) preview.innerHTML = `<img src="${onboardingProfile.photo}" alt="Prévia da foto de perfil">`;
+    };
+    reader.readAsDataURL(file);
+}
+
+function finishProfileOnboarding() {
+    collectOnboardingStep();
+    try {
+        const id = onboardingUser?.id || onboardingUser?.email || 'new-user';
+        const key = 'na_onboarding_profiles';
+        const saved = JSON.parse(localStorage.getItem(key) || '{}');
+        saved[id] = { ...onboardingProfile, role: normalizeRole(onboardingUser?.role), completedAt: new Date().toISOString() };
+        localStorage.setItem(key, JSON.stringify(saved));
+        if (onboardingProfile.photo) localStorage.setItem('na_avatar_img', onboardingProfile.photo);
+        const nickname = onboardingProfile.nickname;
+        if (nickname && onboardingUser) saveSession({ ...onboardingUser, nome: nickname });
+    } catch (error) {
+        console.warn('[NextAgon Onboarding] Não foi possível salvar todos os dados do perfil.', error);
+    }
+    window.location.href = 'dashboard.html';
 }
 
 /** Troca de senha */
@@ -407,6 +570,9 @@ function selectRole(role) {
    INICIALIZAÇÃO
    ───────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
+    // Inicia o backend em segundo plano enquanto a pessoa preenche os dados.
+    NextagonApi.warmup();
+
     // Redireciona para painel de senha se veio do perfil
     const redirect = sessionStorage.getItem('na_redirect_panel');
     if (redirect) {

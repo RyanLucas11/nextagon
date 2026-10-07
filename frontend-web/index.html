@@ -75,7 +75,7 @@
       </div>
     </div>
 
-    <button class="btn-main" type="button" onclick="doLogin(); return false;">Entrar</button>
+    <button class="btn-main" id="login-submit" type="button" onclick="doLogin(); return false;" aria-live="polite">Entrar</button>
     <div class="msg error" id="login-error" aria-live="assertive"></div>
 
     <p class="link-txt">
@@ -190,6 +190,19 @@
   <p class="footer-text">Next Agon v1.0 · Saúde &amp; Performance</p>
 
 </div>
+
+<!-- Onboarding de perfil exibido após o cadastro -->
+<section class="onboarding-screen" id="profile-onboarding" aria-labelledby="onboarding-title" hidden>
+  <div class="onboarding-card">
+    <div class="onboarding-topbar">
+      <span class="onboarding-step" id="onboarding-step">PASSO 1 DE 2</span>
+      <button type="button" class="onboarding-skip" onclick="skipOnboardingStep()">Pular</button>
+    </div>
+    <div class="onboarding-progress" aria-hidden="true"><span id="onboarding-progress-fill"></span></div>
+    <div id="onboarding-content"></div>
+    <div class="msg" id="onboarding-msg" aria-live="polite"></div>
+  </div>
+</section>
 
 <script src="js/api.js"></script>
 <script src="js/auth.js"></script>

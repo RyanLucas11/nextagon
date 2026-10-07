@@ -180,7 +180,7 @@
 
         .prof-count { font-size:13px; color:var(--text3); }
         .prof-count strong { color:var(--text); font-weight:600; }
-        .prof-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
+        .prof-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(280px, 100%),1fr)); gap:20px; min-width:0; width:100%; }
 
         /* ══ PROF CARD ══ */
         .prof-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; transition:transform .2s,border-color .2s,box-shadow .2s; position:relative; }
@@ -625,6 +625,7 @@
         .btn-confirm-cancel:hover { border-color: #2e4a6a; color: var(--text); }
     </style>
     <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/navigation.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
@@ -1029,7 +1030,7 @@
 <script>
     /* ══ NAVEGAÇÃO ══ */
     function showPage(page) {
-        const urls = { dashboard:'dashboard.html', academia:'academia.html', profissionais:'profissionais.html', chat:'chat.html' };
+        const urls = { dashboard:'dashboard.html', treinos:'treinos.html', academia:'academia.html', profissionais:'profissionais.html', chat:'chat.html' };
         if (urls[page]) window.location.href = urls[page];
     }
 

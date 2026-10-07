@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="css/global.css">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/navigation.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -801,6 +802,28 @@
         }
         .btn-treinou-nao:hover { background: rgba(248,113,113,.25); }
         .btn-treinou-nao.ativo { background: rgba(248,113,113,.25); border-color: #f87171; box-shadow: 0 0 0 2px rgba(248,113,113,.2); }
+
+        @media (max-width: 768px) {
+            .app { height: auto; min-height: 100dvh; overflow: visible; }
+            .main { min-width: 0; width: 100%; padding: calc(var(--app-mobile-header-height) + 18px) 14px calc(var(--app-mobile-nav-height) + 22px + env(safe-area-inset-bottom, 0px)); overflow: visible; }
+            .top-bar { align-items: stretch; gap: 10px; }
+            .top-bar h1 { width: 100%; font-size: 23px; }
+            .search-wrap { min-width: 0; width: 100%; }
+            .filter-tabs { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .filter-tabs .ftab { min-width: 0; }
+            .treino-dia-banner { align-items: flex-start; flex-wrap: wrap; gap: 12px; margin: 0 0 20px; padding: 14px; }
+            .treino-dia-banner .tdb-text { flex: 1 1 calc(100% - 52px); min-width: 0; }
+            .tdb-btns { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .tdb-btns button { min-width: 0; padding: 10px 8px; white-space: normal; }
+            .exercise-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+            .exercise-card, .meu-treino-card, .treino-card { min-width: 0; }
+            .meu-treino-card { padding: 16px; }
+        }
+        @media (max-width: 380px) {
+            .main { padding-inline: 12px; }
+            .exercise-grid { grid-template-columns: minmax(0, 1fr) !important; }
+            .tdb-btns { grid-template-columns: minmax(0, 1fr); }
+        }
     </style>
 </head>
 <body>

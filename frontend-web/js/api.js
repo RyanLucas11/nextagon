@@ -1,6 +1,8 @@
 (function () {
     const DEFAULT_API_URL = 'https://nextagon-backend.onrender.com';
     const baseUrl = (window.NEXTAGON_API_URL || DEFAULT_API_URL).replace(/\/+$/, '');
+    const REQUEST_TIMEOUT_MS = 30000;
+    const LOGIN_TIMEOUT_MS = 65000;
 
     function normalizeRole(role) {
         const value = String(role || '').trim().toLowerCase();
@@ -22,45 +24,41 @@
         };
     }
 
-    async function request(path, options = {}) {
-        const safePath = path.startsWith('/') ? path : `/${path}`;
+    async function request(path, options = {}, config = {}) {
+        const safePath = path.startsWith('/') ? `/${path}` : path;
         const url = `${baseUrl}${safePath}`;
-
-        try {
-            const response = await fetch(url, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(options.headers || {})
-                },
-                credentials: 'omit',
-                ...options,
-            });
-
-            let payload = null;
-            const text = await response.text();
-            if (text) {
-                try {
-                    payload = JSON.parse(text);
-                } catch (error) {
-                    payload = { message: text };
+        const timeoutMs = config.timeoutMs || REQUEST_TIMEOUT_MS, retries = config.retries || 0;
+        for (let attempt = 0; attempt <= retries; attempt++) {
+            const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                const response = await fetch(url, { headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }, credentials: 'omit', ...options, signal: controller.signal });
+                const text = await response.text(); let payload = null;
+                if (text) { try { payload = JSON.parse(text); } catch (_) { payload = { message: text }; } }
+                if (!response.ok) {
+                    const error = new Error(payload?.message || payload?.error || payload?.details || 'Erro ao comunicar com o servidor.'); error.status = response.status;
+                    if (attempt < retries && [408,425,429,502,503,504].includes(response.status)) { await new Promise(r => setTimeout(r, 500*(attempt+1))); continue; }
+                    throw error;
                 }
-            }
-
-            if (!response.ok) {
-                const message = payload?.message || payload?.error || payload?.details || 'Erro ao comunicar com o servidor.';
-                throw new Error(message);
-            }
-
-            return payload;
-        } catch (error) {
-            if (error instanceof Error && error.message) {
-                throw error;
-            }
-            throw new Error('Não foi possível conectar com o servidor. Tente novamente.');
+                return payload;
+            } catch (error) {
+                const retry = error?.name === 'AbortError' || error instanceof TypeError || [408,425,429,502,503,504].includes(error?.status);
+                if (attempt < retries && retry) { await new Promise(r => setTimeout(r, 500*(attempt+1))); continue; }
+                if (error?.name === 'AbortError') throw new Error('O servidor esta demorando para responder. Verifique sua conexao e tente novamente.');
+                if (error instanceof TypeError) throw new Error('Falha de conexao com o servidor. Tente novamente em instantes.');
+                throw error instanceof Error && error.message ? error : new Error('Nao foi possivel conectar com o servidor. Tente novamente.');
+            } finally { clearTimeout(timeout); }
         }
+        throw new Error('N�o foi poss�vel conectar com o servidor. Tente novamente.');
     }
 
     const NextagonApi = {
+        async warmup() {
+            try {
+                await request('/health', { method: 'GET' }, { timeoutMs: 55000, retries: 1 });
+            } catch (_) {
+                // O aquecimento é opcional; o login continua disponível se falhar.
+            }
+        },
         async login(email, senha) {
             const payload = await request('/auth/login', {
                 method: 'POST',
@@ -68,7 +66,7 @@
                     email: String(email || '').trim(),
                     password: String(senha || '')
                 })
-            });
+            }, { timeoutMs: LOGIN_TIMEOUT_MS, retries: 2 });
 
             return {
                 accessToken: payload.accessToken || '',

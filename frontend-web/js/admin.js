@@ -143,8 +143,15 @@ function confirmarLimparLog() {
 function showPage(id, btn) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.admin-bottom-nav .mob-nav-item').forEach(b => {
+        b.classList.remove('active');
+        b.removeAttribute('aria-current');
+    });
     document.getElementById('page-' + id).classList.add('active');
-    if (btn) btn.classList.add('active');
+    if (btn) {
+        btn.classList.add('active');
+        if (btn.classList.contains('mob-nav-item')) btn.setAttribute('aria-current', 'page');
+    }
     renderPage(id);
 }
 

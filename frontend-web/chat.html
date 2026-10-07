@@ -877,6 +877,7 @@
 
     </style>
     <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/navigation.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
@@ -900,8 +901,8 @@
 <!-- ── Drawer Overlay ────────────────────────────────────── -->
 <div class="mob-drawer-overlay" id="mobDrawerOverlay" onclick="mobCloseDrawer()" aria-hidden="true"></div>
 
-<div class="app">
-    <aside class="main-sidebar">
+<div class="app chat-app-shell">
+    <aside class="main-sidebar sidebar">
         <div class="logo"><i class="fa-solid fa-bolt"></i> <span>Next Agon</span></div>
 
         <nav class="nav">
@@ -1624,6 +1625,7 @@
     function showPage(page) {
         const urls = {
             dashboard:"dashboard.html",
+            treinos:"treinos.html",
             academia:"academia.html",
             profissionais:"profissionais.html",
             chat:"chat.html"
