@@ -3,6 +3,7 @@
     const baseUrl = (window.NEXTAGON_API_URL || DEFAULT_API_URL).replace(/\/+$/, '');
     const REQUEST_TIMEOUT_MS = 30000;
     const LOGIN_TIMEOUT_MS = 65000;
+    const RETRY_DELAYS_MS = [1000, 2500, 5000, 8000];
 
     function normalizeRole(role) {
         const value = String(role || '').trim().toLowerCase();
@@ -27,7 +28,7 @@
     async function request(path, options = {}, config = {}) {
         const safePath = path.startsWith('/') ? `/${path}` : path;
         const url = `${baseUrl}${safePath}`;
-        const timeoutMs = config.timeoutMs || REQUEST_TIMEOUT_MS, retries = config.retries || 0;
+        const timeoutMs = config.timeoutMs || REQUEST_TIMEOUT_MS, retries = config.retries ?? 0;
         for (let attempt = 0; attempt <= retries; attempt++) {
             const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), timeoutMs);
             try {
@@ -36,15 +37,22 @@
                 if (text) { try { payload = JSON.parse(text); } catch (_) { payload = { message: text }; } }
                 if (!response.ok) {
                     const error = new Error(payload?.message || payload?.error || payload?.details || 'Erro ao comunicar com o servidor.'); error.status = response.status;
-                    if (attempt < retries && [408,425,429,502,503,504].includes(response.status)) { await new Promise(r => setTimeout(r, 500*(attempt+1))); continue; }
+                    if (attempt < retries && [408,425,429,502,503,504].includes(response.status)) {
+                        await new Promise(r => setTimeout(r, RETRY_DELAYS_MS[attempt] || 8000));
+                        continue;
+                    }
                     throw error;
                 }
                 return payload;
             } catch (error) {
                 const retry = error?.name === 'AbortError' || error instanceof TypeError || [408,425,429,502,503,504].includes(error?.status);
-                if (attempt < retries && retry) { await new Promise(r => setTimeout(r, 500*(attempt+1))); continue; }
-                if (error?.name === 'AbortError') throw new Error('O servidor esta demorando para responder. Verifique sua conexao e tente novamente.');
-                if (error instanceof TypeError) throw new Error('Falha de conexao com o servidor. Tente novamente em instantes.');
+                if (attempt < retries && retry) {
+                    console.warn('Falha temporária na conexão com a API; nova tentativa.', { url, attempt: attempt + 1, error });
+                    await new Promise(r => setTimeout(r, RETRY_DELAYS_MS[attempt] || 8000));
+                    continue;
+                }
+                if (error?.name === 'AbortError') throw new Error('O servidor demorou para responder. Verifique sua conexão e tente novamente.');
+                if (error instanceof TypeError) throw new Error('Não foi possível alcançar o servidor. Verifique a conexão e tente novamente.');
                 throw error instanceof Error && error.message ? error : new Error('Nao foi possivel conectar com o servidor. Tente novamente.');
             } finally { clearTimeout(timeout); }
         }
