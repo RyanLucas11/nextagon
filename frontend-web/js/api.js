@@ -26,7 +26,7 @@
     }
 
     async function request(path, options = {}, config = {}) {
-        const safePath = path.startsWith('/') ? `/${path}` : path;
+        const safePath = path.startsWith('/') ? path : `/${path}`;
         const url = `${baseUrl}${safePath}`;
         const timeoutMs = config.timeoutMs || REQUEST_TIMEOUT_MS, retries = config.retries ?? 0;
         for (let attempt = 0; attempt <= retries; attempt++) {
