@@ -45,7 +45,7 @@
                 }
                 return payload;
             } catch (error) {
-                const retry = error?.name === 'AbortError' || error instanceof TypeError || [408,425,429,502,503,504].includes(error?.status);
+                const retry = error?.name === 'AbortError' || [408,425,429,502,503,504].includes(error?.status);
                 if (attempt < retries && retry) {
                     console.warn('Falha temporária na conexão com a API; nova tentativa.', { url, attempt: attempt + 1, error });
                     await new Promise(r => setTimeout(r, RETRY_DELAYS_MS[attempt] || 8000));
@@ -74,7 +74,7 @@
                     email: String(email || '').trim(),
                     password: String(senha || '')
                 })
-            }, { timeoutMs: LOGIN_TIMEOUT_MS, retries: 2 });
+            }, { timeoutMs: LOGIN_TIMEOUT_MS, retries: 0 });
 
             return {
                 accessToken: payload.accessToken || '',

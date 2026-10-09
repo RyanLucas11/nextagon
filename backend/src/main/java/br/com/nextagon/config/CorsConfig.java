@@ -18,6 +18,9 @@ public class CorsConfig {
     ) {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(allowedOrigins);
+        // Mantém a origem de produção autorizada mesmo se CORS_ALLOWED_ORIGINS
+        // no Render ainda estiver com os endereços antigos de desenvolvimento.
+        config.addAllowedOriginPattern("https://nextagon.vercel.app");
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
         config.setExposedHeaders(List.of("Authorization"));
