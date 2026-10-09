@@ -57,28 +57,28 @@
 
         /* Tema Claro */
         body.tema-claro {
-            --bg:#f0f4f8;
-            --panel:#ffffff;
-            --panel2:#e8edf4;
-            --panel3:#dde4ef;
-            --card:#ffffff;
-            --card2:#e8edf4;
-            --border:#c5d0de;
-            --text:#0a1120;
-            --text2:#3a5068;
-            --text3:#6a8099;
-            --muted:#3a5068;
-            --muted2:#6a8099;
+            --bg:#f1f4ee;
+            --panel:#f9faf6;
+            --panel2:#e9eee5;
+            --panel3:#dfe7da;
+            --card:#f9faf6;
+            --card2:#e9eee5;
+            --border:#d9e1d3;
+            --text:#26312a;
+            --text2:#566458;
+            --text3:#778477;
+            --muted:#566458;
+            --muted2:#778477;
             --bubble-me:#1a6bde;
             --bubble-them:#dde4ef;
             /* superfícies no tema claro */
-            --conv-panel-bg:#e8edf4;
-            --search-input-bg:#f0f4f8;
-            --chat-area-bg:#dde4ef;
-            --icon-btn-bg:#e0e7f0;
-            --textarea-bg:#f0f4f8;
-            --topbar-bg:rgba(255,255,255,.96);
-            --contacts-search-bg:#f0f4f8;
+            --conv-panel-bg:#e9eee5;
+            --search-input-bg:#f6f8f3;
+            --chat-area-bg:#e5ebe0;
+            --icon-btn-bg:#e5ebe0;
+            --textarea-bg:#f6f8f3;
+            --topbar-bg:rgba(249,250,246,.96);
+            --contacts-search-bg:#f6f8f3;
         }
 
         * { box-sizing:border-box; margin:0; padding:0; }
@@ -134,7 +134,7 @@
             transition:.2s;
         }
         .nav button:hover { background:rgba(255,255,255,.04); color:var(--text); }
-        .nav button.active { background:rgba(26,107,222,.14); color:var(--accent); font-weight:800; }
+        .nav button.active { background:rgba(212,247,0,.14); color:#d4f700; font-weight:800; }
 
         .user-box {
             margin-top:auto;
@@ -906,9 +906,8 @@
         <div class="logo"><i class="fa-solid fa-bolt"></i> <span>Next Agon</span></div>
 
         <nav class="nav">
-            <button onclick="showPage('dashboard')"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></button>
+            <button onclick="showPage('dashboard')"><i class="fa-solid fa-house"></i> <span>Rede Fitness</span></button>
             <button onclick="location.href='treinos.html'"><i class="fa-solid fa-bolt"></i> <span>Treinos</span></button>
-            <button onclick="showPage('academia')"><i class="fa-solid fa-dumbbell"></i> <span>Academia</span></button>
             <button onclick="showPage('profissionais')"><i class="fa-solid fa-user-doctor"></i> <span>Profissionais</span></button>
             <button class="active"><i class="fa-regular fa-comments"></i> <span>Chat</span></button>
         </nav>
@@ -919,7 +918,7 @@
                 <div class="user-name" id="sidebar-nome">Usuário</div>
                 <div class="user-role" id="sidebar-role">cliente</div>
             </div>
-            <button onclick="openPanel();event.stopPropagation();" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:4px;border-radius:6px;transition:color .18s;" title="Configurações"><i class="fa-solid fa-gear"></i></button>
+            <button class="sidebar-profile-gear" type="button" onclick="openPanel();event.stopPropagation();" title="Configurações" aria-label="Abrir configurações"><i class="fa-solid fa-gear"></i></button>
         </div>
     </aside>
 
@@ -1626,7 +1625,6 @@
         const urls = {
             dashboard:"dashboard.html",
             treinos:"treinos.html",
-            academia:"academia.html",
             profissionais:"profissionais.html",
             chat:"chat.html"
         };
@@ -1787,17 +1785,13 @@
 
 <!-- ── Bottom Navigation ─────────────────────────────────── -->
 <nav class="mob-bottom-nav" aria-label="Navegação principal">
-    <button class="mob-nav-item " onclick="showPage('dashboard')" aria-label="Dashboard">
-        <i class="fa-solid fa-chart-line"></i>
-        <span>Dashboard</span>
+    <button class="mob-nav-item " onclick="showPage('dashboard')" aria-label="Rede Fitness">
+        <i class="fa-solid fa-house"></i>
+        <span>Rede</span>
     </button>
     <button class="mob-nav-item " onclick="showPage('treinos')" aria-label="Treinos">
         <i class="fa-solid fa-bolt"></i>
         <span>Treinos</span>
-    </button>
-    <button class="mob-nav-item " onclick="showPage('academia')" aria-label="Academia">
-        <i class="fa-solid fa-dumbbell"></i>
-        <span>Academia</span>
     </button>
     <button class="mob-nav-item " onclick="showPage('profissionais')" aria-label="Profissionais">
         <i class="fa-solid fa-user-doctor"></i>

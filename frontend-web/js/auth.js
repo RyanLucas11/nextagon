@@ -48,7 +48,6 @@ async function verificarSenha(senhaDigitada, senhaArmazenada) {
 const PERMISSIONS = {
     atleta: {
         verDashboard:            true,
-        verAcademia:             true,
         verEsportes:             true,
         verProfissionais:        true,
         criarPerfilProfissional: false,
@@ -61,7 +60,6 @@ const PERMISSIONS = {
     },
     profissional: {
         verDashboard:            true,
-        verAcademia:             true,
         verEsportes:             true,
         verProfissionais:        true,
         criarPerfilProfissional: true,
@@ -74,7 +72,6 @@ const PERMISSIONS = {
     },
     admin: {
         verDashboard:            true,
-        verAcademia:             true,
         verEsportes:             true,
         verProfissionais:        true,
         criarPerfilProfissional: true,
@@ -543,7 +540,7 @@ function checkStrengthTrocar(v) {
    PAINEL / ABAS DE LOGIN
    ───────────────────────────────────────────────────────────── */
 const HINTS = {
-    atleta:       '🏃 <strong>Atleta:</strong> Acessa treinos, esportes, profissionais e seu dashboard pessoal.',
+    atleta:       '🏃 <strong>Atleta:</strong> Acessa a rede fitness, a comunidade de treinos e profissionais.',
     profissional: '🩺 <strong>Profissional:</strong> Pode criar e gerenciar seu perfil na plataforma.',
     admin:        '🛡️ <strong>Admin:</strong> Acesso total — gerencia usuários, perfis e toda a plataforma.',
 };

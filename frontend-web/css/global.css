@@ -84,8 +84,8 @@ body {
 .sidebar {
     width: 220px;
     flex-shrink: 0;
-    background: var(--card);
-    border-right: 1px solid var(--border);
+    background: #111a29;
+    border-right: 1px solid #202d3e;
     padding: 24px 14px 16px;
     display: flex;
     flex-direction: column;
@@ -374,23 +374,23 @@ h1, h2, h3, h4,
    TEMA CLARO
    ══════════════════════════════════════════════════════════ */
 [data-tema="light"] {
-    --accent:      #1a6bde;
-    --accent2:     #1558c0;
-    --accent-dim:  rgba(26, 107, 222, 0.10);
-    --accent-glow: rgba(26, 107, 222, 0.20);
+    --accent:      #526d1c;
+    --accent2:     #405719;
+    --accent-dim:  rgba(82, 109, 28, 0.12);
+    --accent-glow: rgba(82, 109, 28, 0.18);
 
-    --title:  #1558c0;
-    --title2: #1a6bde;
+    --title:  #526d1c;
+    --title2: #607b29;
 
-    --bg:    #f0f4f8;
-    --card:  #ffffff;
-    --card2: #e8edf3;
+    --bg:    #f1f4ee;
+    --card:  #f9faf6;
+    --card2: #e9eee5;
 
-    --border: #d1dbe8;
+    --border: #d9e1d3;
 
-    --text:  #0f172a;
-    --text2: #475569;
-    --text3: #94a3b8;
+    --text:  #26312a;
+    --text2: #566458;
+    --text3: #778477;
 
     --green: #16a34a;
     --blue:  #2563eb;
@@ -408,7 +408,7 @@ h1, h2, h3, h4,
 
 [data-tema="light"] .sidebar-logo,
 [data-tema="light"] .sidebar .logo {
-    color: var(--accent) !important;
+    color: #d4f700 !important;
 }
 
 [data-tema="light"] .mob-header {

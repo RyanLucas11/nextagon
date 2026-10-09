@@ -1,6 +1,6 @@
 /* =============================================================
    index.css — Next Agon · Tela de Login (Velocity Athletics)
-   Paleta: preto academia #0d0d0d + neon amarelo-lima #d4f700
+   Paleta preta + neon amarelo-lima #d4f700
    ============================================================= */
 
 body {
@@ -14,7 +14,7 @@ body {
     font-family: 'Inter', system-ui, sans-serif;
 }
 
-/* ── Fundo estilo academia ───────────────────────────────── */
+/* ── Fundo fitness ───────────────────────────────────────── */
 .gym-bg {
     position: fixed;
     inset: 0;

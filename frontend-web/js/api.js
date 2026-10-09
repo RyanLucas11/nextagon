@@ -32,7 +32,8 @@
         for (let attempt = 0; attempt <= retries; attempt++) {
             const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), timeoutMs);
             try {
-                const response = await fetch(url, { headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }, credentials: 'omit', ...options, signal: controller.signal });
+                const headers = { Accept: 'application/json', ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...(options.headers || {}) };
+                const response = await fetch(url, { ...options, headers, credentials: 'omit', signal: controller.signal });
                 const text = await response.text(); let payload = null;
                 if (text) { try { payload = JSON.parse(text); } catch (_) { payload = { message: text }; } }
                 if (!response.ok) {
@@ -102,8 +103,36 @@
                 refreshToken: payload.refreshToken || '',
                 user: buildUser(payload.user || {})
             };
+        },
+
+        async listCommunityPosts(feed) {
+            return request(`/community/posts?feed=${encodeURIComponent(feed)}`, {
+                method: 'GET',
+                headers: communityAuthHeaders()
+            });
+        },
+
+        async createCommunityPost(post) {
+            return request('/community/posts', {
+                method: 'POST',
+                headers: communityAuthHeaders(),
+                body: JSON.stringify(post)
+            });
+        },
+
+        async toggleCommunityLike(postId) {
+            return request(`/community/posts/${encodeURIComponent(postId)}/like`, {
+                method: 'POST',
+                headers: communityAuthHeaders()
+            });
         }
     };
+
+    function communityAuthHeaders() {
+        const token = window.getAuthToken?.();
+        if (!token) throw new Error('Sua sessão expirou. Entre novamente para continuar.');
+        return { Authorization: `Bearer ${token}` };
+    }
 
     window.NEXTAGON_API_URL = baseUrl;
     window.NextagonApi = NextagonApi;

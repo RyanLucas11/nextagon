@@ -73,6 +73,14 @@ function openPanel() {
     document.body.style.overflow = 'hidden';
 }
 
+function openSidebarSettings() {
+    if (document.getElementById('profile-panel')) {
+        openPanel();
+        return;
+    }
+    window.location.href = 'profissionais.html#configuracoes';
+}
+
 function closePanel() {
     const panel   = document.getElementById('profile-panel');
     const overlay = document.getElementById('panel-overlay');
@@ -85,7 +93,6 @@ function closePanel() {
 const PAGE_MAP = {
     dashboard:     'dashboard.html',
     treinos:       'treinos.html',
-    academia:      'academia.html',
     profissionais: 'profissionais.html',
     chat:          'chat.html',
     admin:         'Admin.html',
@@ -682,7 +689,6 @@ const NOTIF_DEFAULTS = {
     chat_msg: true,
     chat_novo: true,
     treino_lembrete: true,
-    treino_concluido: false,
     profissional_resposta: true,
     profissional_agenda: true,
     sistema_atualizacao: false,
@@ -728,9 +734,8 @@ function optNotif() {
             ${row('chat_msg',    'fa-comment-dots', 'rgba(96,165,250,.12)', '#60a5fa', 'Novas mensagens', 'Alertas de mensagens recebidas')}
             ${row('chat_novo',   'fa-user-plus',    'rgba(52,211,153,.12)', '#34d399', 'Novo contato', 'Quando alguém inicia uma conversa')}
 
-            <div class="notif-section-label">Academia</div>
+            <div class="notif-section-label">Treinos</div>
             ${row('treino_lembrete',  'fa-dumbbell',      'rgba(251,191,36,.12)', '#fbbf24', 'Lembrete de treino', 'Avisos do horário do treino')}
-            ${row('treino_concluido', 'fa-trophy',        'rgba(52,211,153,.12)', '#34d399', 'Treino concluído', 'Confirmação ao marcar treino')}
 
             <div class="notif-section-label">Profissionais</div>
             ${row('profissional_resposta', 'fa-user-doctor', 'rgba(167,139,250,.12)', '#a78bfa', 'Resposta de profissional', 'Quando um profissional responder')}
@@ -834,6 +839,9 @@ function showToast(msg, tipo) {
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('sidebar-avatar') || document.getElementById('pp-avatar')) {
         initProfile();
+    }
+    if (window.location.hash === '#configuracoes' && document.getElementById('profile-panel')) {
+        openPanel();
     }
     /* Reaplicar tema salvo ao carregar */
     const temaAuto = localStorage.getItem('na_tema_auto') === '1';

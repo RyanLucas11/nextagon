@@ -540,29 +540,6 @@ body.tema-claro .mob-header,
 }
 
 /* ══════════════════════════════════════════════════════════════
-   ACADEMIA — AJUSTES MOBILE
-══════════════════════════════════════════════════════════════ */
-@media (max-width: 768px) {
-    .treinos-layout {
-        grid-template-columns: 1fr !important;
-    }
-
-    .exercise-grid {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 10px !important;
-    }
-
-    .muscle-tabs {
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 4px;
-    }
-
-    .muscle-tabs::-webkit-scrollbar { display: none; }
-}
-
-/* ══════════════════════════════════════════════════════════════
    ESPORTES — AJUSTES MOBILE
 ══════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {

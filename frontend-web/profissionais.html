@@ -32,24 +32,24 @@
             --radius-sm: 10px;
         }
         [data-tema="light"] {
-            --accent: #1558c0;
-            --accent2: #0f469f;
-            --accent-dim: rgba(21,88,192,.12);
-            --accent-glow: rgba(21,88,192,.2);
-            --bg: #f0f4f8;
-            --card: #ffffff;
-            --card2: #e8edf3;
-            --border: #d1dbe8;
-            --text: #0f172a;
-            --text2: #475569;
-            --text3: #64748b;
-            --title: #1558c0;
-            --title2: #1a6bde;
+            --accent: #526d1c;
+            --accent2: #405719;
+            --accent-dim: rgba(82,109,28,.12);
+            --accent-glow: rgba(82,109,28,.18);
+            --bg: #f1f4ee;
+            --card: #f9faf6;
+            --card2: #e9eee5;
+            --border: #d9e1d3;
+            --text: #26312a;
+            --text2: #566458;
+            --text3: #778477;
+            --title: #526d1c;
+            --title2: #607b29;
             --green: #16a34a;
             --blue: #2563eb;
             --red: #dc2626;
         }
-        [data-tema="light"] .sidebar-profile-name { color: var(--text) !important; }
+        [data-tema="light"] .sidebar-profile-name { color: #f1f5f9 !important; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
 
@@ -64,12 +64,12 @@
         .sidebar-logo { font-size: 17px; font-weight: 800; color: var(--accent); letter-spacing: -0.4px; margin-bottom: 28px; padding: 0 8px; display: flex; align-items: center; gap: 8px; }
         .sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.18s; background: none; border: none; color: var(--text2); width: 100%; text-align: left; font-size: 14px; font-weight: 500; }
-        .nav-item.active { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+        .nav-item.active { background: rgba(212,247,0,.14); color: #d4f700; font-weight: 600; }
         .nav-item:hover:not(.active) { background: rgba(255,255,255,0.04); color: var(--text); }
 
         .sidebar-profile { margin-top: auto; padding: 10px 8px; border-top: 1px solid var(--border, #1e293b); display: flex; align-items: center; gap: 10px; cursor: pointer; border-radius: 8px; transition: background 0.18s; }
         .sidebar-profile:hover { background: rgba(255,255,255,0.04); }
-        .sidebar-profile-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #facc15, #f59e0b); color: #000; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
+        .sidebar-profile-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #287be0, #1558c0); color: #08111e; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
         .sidebar-profile-info { flex: 1; min-width: 0; }
         .sidebar-profile-name { font-size: 13px; font-weight: 600; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .sidebar-profile-role { font-size: 11px; color: #94a3b8; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -654,9 +654,8 @@
     <div class="sidebar">
         <div class="sidebar-logo"><i class="fa-solid fa-bolt"></i> Next Agon</div>
         <div class="sidebar-nav">
-            <button class="nav-item" onclick="showPage('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
+            <button class="nav-item" onclick="showPage('dashboard')"><i class="fa-solid fa-house"></i> Rede Fitness</button>
             <button class="nav-item" onclick="showPage('treinos')"><i class="fa-solid fa-bolt"></i> Treinos</button>
-            <button class="nav-item" onclick="showPage('academia')"><i class="fa-solid fa-dumbbell"></i> Academia</button>
             <button class="nav-item active"><i class="fa-solid fa-user-doctor"></i> Profissionais</button>
             <button class="nav-item" onclick="showPage('chat')"><i class="fa-regular fa-comments"></i> Chat</button>
         </div>
@@ -1030,7 +1029,7 @@
 <script>
     /* ══ NAVEGAÇÃO ══ */
     function showPage(page) {
-        const urls = { dashboard:'dashboard.html', treinos:'treinos.html', academia:'academia.html', profissionais:'profissionais.html', chat:'chat.html' };
+        const urls = { dashboard:'dashboard.html', treinos:'treinos.html', profissionais:'profissionais.html', chat:'chat.html' };
         if (urls[page]) window.location.href = urls[page];
     }
 
@@ -2107,17 +2106,13 @@
 
 <!-- ── Bottom Navigation ─────────────────────────────────── -->
 <nav class="mob-bottom-nav" aria-label="Navegação principal">
-    <button class="mob-nav-item " onclick="showPage('dashboard')" aria-label="Dashboard">
-        <i class="fa-solid fa-chart-line"></i>
-        <span>Dashboard</span>
+    <button class="mob-nav-item " onclick="showPage('dashboard')" aria-label="Rede Fitness">
+        <i class="fa-solid fa-house"></i>
+        <span>Rede</span>
     </button>
     <button class="mob-nav-item " onclick="showPage('treinos')" aria-label="Treinos">
         <i class="fa-solid fa-bolt"></i>
         <span>Treinos</span>
-    </button>
-    <button class="mob-nav-item " onclick="showPage('academia')" aria-label="Academia">
-        <i class="fa-solid fa-dumbbell"></i>
-        <span>Academia</span>
     </button>
     <button class="mob-nav-item active" onclick="showPage('profissionais')" aria-label="Profissionais" aria-current="page">
         <i class="fa-solid fa-user-doctor"></i>

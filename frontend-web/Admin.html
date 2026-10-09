@@ -517,11 +517,13 @@
             if (!_adminTemaEscuro) {
                 document.documentElement.setAttribute('data-tema', 'light');
                 var r = document.documentElement;
-                r.style.setProperty('--bg',    '#f0f4f8');
-                r.style.setProperty('--card',  '#ffffff');
-                r.style.setProperty('--card2', '#e8eef5');
-                r.style.setProperty('--text',  '#0a1120');
-                r.style.setProperty('--text2', '#3d5068');
+                r.style.setProperty('--bg',    '#f1f4ee');
+                r.style.setProperty('--card',  '#f9faf6');
+                r.style.setProperty('--card2', '#e9eee5');
+                r.style.setProperty('--border', '#d9e1d3');
+                r.style.setProperty('--text', '#26312a');
+                r.style.setProperty('--text2', '#566458');
+                r.style.setProperty('--text3', '#778477');
             }
         } catch(e){}
     })();
@@ -589,14 +591,18 @@
             r.style.removeProperty('--bg');
             r.style.removeProperty('--card');
             r.style.removeProperty('--card2');
+            r.style.removeProperty('--border');
             r.style.removeProperty('--text');
             r.style.removeProperty('--text2');
+            r.style.removeProperty('--text3');
         } else {
-            r.style.setProperty('--bg',    '#f0f4f8');
-            r.style.setProperty('--card',  '#ffffff');
-            r.style.setProperty('--card2', '#e8eef5');
-            r.style.setProperty('--text',  '#0a1120');
-            r.style.setProperty('--text2', '#3d5068');
+            r.style.setProperty('--bg',    '#f1f4ee');
+            r.style.setProperty('--card',  '#f9faf6');
+            r.style.setProperty('--card2', '#e9eee5');
+            r.style.setProperty('--border', '#d9e1d3');
+            r.style.setProperty('--text', '#26312a');
+            r.style.setProperty('--text2', '#566458');
+            r.style.setProperty('--text3', '#778477');
         }
         _syncTemaUI();
         try { localStorage.setItem('na_tema', _adminTemaEscuro ? 'dark' : 'light'); } catch(e){}
