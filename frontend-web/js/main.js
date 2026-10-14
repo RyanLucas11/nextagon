@@ -3,8 +3,46 @@
    ============================================================= */
 
 function initProfile() {
-    const user = requireAuth();
-    if (!user) return;
+    const authenticatedUser = getCurrentUser();
+    const guestAccess = document.body.dataset.guestAccess === 'true';
+    if (!authenticatedUser && !guestAccess) {
+        requireAuth();
+        return;
+    }
+    const user = authenticatedUser || { nome: 'Visitante', role: 'visitante', avatar: 'V' };
+
+    if (!authenticatedUser) {
+        const actions = document.createElement('div');
+        actions.className = 'guest-access-actions';
+        actions.innerHTML = '<a href="auth.html?modo=login">Fazer login</a><a href="auth.html?modo=cadastro">Fazer cadastro</a>';
+        const anchor = document.querySelector('.community-topbar, .prof-header, .topbar');
+        if (anchor) anchor.appendChild(actions);
+        const gear = document.querySelector('.sidebar-profile-gear');
+        if (gear) {
+            gear.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i>';
+            gear.title = 'Fazer login';
+            gear.setAttribute('aria-label', 'Fazer login');
+            gear.onclick = event => {
+                event.stopPropagation();
+                showAuthRequiredNotice({ message: 'Entre ou crie sua conta para acessar seu perfil e as configurações pessoais.' });
+            };
+        }
+        document.querySelectorAll('.sidebar-profile[onclick], .mob-header-avatar[onclick]').forEach(profile => {
+            profile.title = 'Fazer cadastro ou login';
+            profile.setAttribute('aria-label', 'Fazer cadastro ou login');
+            profile.onclick = () => showAuthRequiredNotice({ message: 'Entre ou crie sua conta para ter um perfil e acessar suas configurações.' });
+        });
+        document.querySelectorAll('.mob-bottom-nav button[onclick*="doLogout"]').forEach(button => {
+            button.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span>Entrar</span>';
+            button.onclick = () => showAuthRequiredNotice({ message: 'Entre ou crie sua conta para acessar os recursos de membro.' });
+        });
+        document.querySelectorAll('.mob-bottom-nav [href="chat.html"], .mob-header a[href="chat.html"], .topbar-chat').forEach(link => {
+            link.addEventListener('click', event => {
+                event.preventDefault();
+                showAuthRequiredNotice({ title: 'Chat para membros', message: 'Entre ou crie sua conta para conversar com atletas e profissionais.' });
+            });
+        });
+    }
 
     const roleLabel = { atleta: 'Atleta', profissional: 'Profissional', admin: 'Administrador' };
     const roleIcon  = { atleta: 'fa-person-running', profissional: 'fa-user-doctor', admin: 'fa-shield-halved' };
@@ -12,7 +50,7 @@ function initProfile() {
 
     function setAvatar(el) {
         if (!el) return;
-        const saved = localStorage.getItem('na_avatar_img');
+        const saved = authenticatedUser ? localStorage.getItem('na_avatar_img') : '';
         if (saved) {
             el.innerHTML = `<img src="${saved}" alt="avatar">`;
         } else {
@@ -99,6 +137,10 @@ const PAGE_MAP = {
 };
 
 function showPage(name) {
+    if (name === 'chat' && !getCurrentUser()) {
+        showAuthRequiredNotice({ title: 'Chat para membros', message: 'Entre ou crie sua conta para conversar com atletas e profissionais.' });
+        return;
+    }
     const dest = PAGE_MAP[name];
     if (dest && !window.location.pathname.endsWith(dest)) {
         window.location.href = dest;
@@ -786,7 +828,7 @@ function optNotif() {
 function optSenha() {
     closePanel();
     sessionStorage.setItem('na_redirect_panel', 'senha');
-    window.location.href = 'index.html';
+    window.location.href = 'auth.html';
 }
 
 function optLogin() {

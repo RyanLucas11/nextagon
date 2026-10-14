@@ -628,7 +628,7 @@
     <link rel="stylesheet" href="css/navigation.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
-<body>
+<body data-guest-access="true">
 
 <!-- ── Mobile Header ─────────────────────────────────────── -->
 <header class="mob-header" aria-label="Cabeçalho mobile">
@@ -1046,6 +1046,7 @@
 
     function getCurrentUser() {
         try {
+            if (typeof loadSession === 'function') return loadSession()?.user || null;
             return JSON.parse(sessionStorage.getItem('naUser') || 'null');
         } catch(e) {
             return null;
@@ -1290,6 +1291,10 @@
 
     function openModalCadastro() {
         if (!isProfissional()) {
+            if (!getCurrentUser()) {
+                showAuthRequiredNotice({ message: 'Crie sua conta profissional ou entre para cadastrar seu perfil.' });
+                return;
+            }
             showToast('<i class="fa-solid fa-lock"></i>', 'Apenas profissionais podem criar perfil.');
             return;
         }
@@ -1448,6 +1453,10 @@
 
     /* ══ MODAL AGENDAR ══ */
     function openModalAgendar(nomeProfissional) {
+        if (!getCurrentUser()) {
+            showAuthRequiredNotice({ message: 'Entre ou crie sua conta para solicitar um agendamento com este profissional.' });
+            return;
+        }
         agendandoCom = nomeProfissional;
         document.getElementById('agTitle').textContent = 'Agendar com ' + nomeProfissional;
         document.getElementById('agForm').classList.remove('hide');

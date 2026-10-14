@@ -193,16 +193,66 @@ function hasPermission(perm) {
 }
 
 /**
- * Exige autenticação. Se não logado, redireciona para index.html.
+ * Exige autenticação. Se não logado, abre o formulário de login.
  * Retorna o usuário ou null (nunca cria usuário "fantasma").
  */
 function requireAuth() {
     const user = getCurrentUser();
     if (!user) {
-        window.location.href = 'index.html';
+        showAuthRequiredNotice({ onBack: () => window.location.replace('dashboard.html') });
         return null;
     }
     return user;
+}
+
+function showAuthRequiredNotice(options = {}) {
+    const existing = document.getElementById('na-auth-notice');
+    if (existing) return;
+
+    const style = document.createElement('style');
+    style.id = 'na-auth-notice-styles';
+    if (!document.getElementById(style.id)) {
+        style.textContent = `
+            .na-auth-notice { position:fixed; inset:0; z-index:100000; display:grid; place-items:center; padding:20px; background:rgba(5,8,5,.78); backdrop-filter:blur(8px); }
+            .na-auth-notice-card { position:relative; width:min(100%,440px); padding:34px; border:1px solid rgba(212,247,0,.28); background:#11140d; color:#f4f5ed; box-shadow:0 28px 90px rgba(0,0,0,.55); }
+            .na-auth-notice-icon { display:grid; place-items:center; width:48px; height:48px; margin-bottom:20px; background:rgba(212,247,0,.12); color:#d4f700; font-size:19px; }
+            .na-auth-notice-card h2 { margin:0 0 10px; font:700 30px/1 'Barlow Condensed','Arial Narrow',sans-serif; text-transform:uppercase; }
+            .na-auth-notice-card p { margin:0; color:#b6baaa; font:14px/1.65 'DM Sans',Arial,sans-serif; }
+            .na-auth-notice-actions { display:grid; gap:10px; margin-top:24px; }
+            .na-auth-notice-actions a,.na-auth-notice-back { display:flex; justify-content:center; align-items:center; min-height:46px; padding:11px 16px; border:1px solid rgba(255,255,255,.18); color:#f4f5ed; background:transparent; text-decoration:none; font:700 13px 'DM Sans',Arial,sans-serif; cursor:pointer; }
+            .na-auth-notice-actions a:first-child { border-color:#d4f700; color:#11140d; background:#d4f700; }
+            .na-auth-notice-back { width:100%; margin-top:10px; border:0; color:#a5a99b; }
+            .na-auth-notice-actions a:hover,.na-auth-notice-back:hover { filter:brightness(1.1); }
+            @media(max-width:480px) { .na-auth-notice-card { padding:27px 22px; } }
+        `;
+        document.head.appendChild(style);
+    }
+
+    const notice = document.createElement('div');
+    notice.id = 'na-auth-notice';
+    notice.className = 'na-auth-notice';
+    notice.setAttribute('role', 'presentation');
+    const card = document.createElement('section');
+    card.className = 'na-auth-notice-card';
+    card.setAttribute('role', 'alertdialog');
+    card.setAttribute('aria-modal', 'true');
+    card.setAttribute('aria-labelledby', 'na-auth-notice-title');
+    card.innerHTML = '<div class="na-auth-notice-icon"><i class="fa-solid fa-lock" aria-hidden="true"></i></div><h2 id="na-auth-notice-title"></h2><p></p><div class="na-auth-notice-actions"><a href="auth.html?modo=login">Fazer login</a><a href="auth.html?modo=cadastro">Fazer cadastro</a></div><button class="na-auth-notice-back" type="button">Voltar à Rede Fitness</button>';
+    card.querySelector('h2').textContent = options.title || 'Acesso para membros';
+    card.querySelector('p').textContent = options.message || 'Para acessar esta área, faça login ou crie sua conta gratuita na Next Agon.';
+    card.querySelector('.na-auth-notice-back').addEventListener('click', () => {
+        if (options.onBack) options.onBack();
+        else notice.remove();
+    });
+    notice.addEventListener('click', event => {
+        if (event.target === notice) {
+            if (options.onBack) options.onBack();
+            else notice.remove();
+        }
+    });
+    notice.appendChild(card);
+    document.body.appendChild(notice);
+    card.querySelector('a').focus();
 }
 
 /** Encerra a sessão e redireciona */
@@ -576,6 +626,11 @@ document.addEventListener('DOMContentLoaded', () => {
         sessionStorage.removeItem('na_redirect_panel');
         showPanel(redirect);
     }
+
+    // Links da página inicial abrem diretamente o formulário escolhido.
+    const requestedMode = new URLSearchParams(window.location.search).get('modo');
+    if (requestedMode === 'cadastro') showPanel('criar');
+    else if (requestedMode === 'login') showPanel('login');
 
     // Enter no painel de login executa doLogin
     document.addEventListener('keydown', e => {

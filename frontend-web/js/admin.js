@@ -559,7 +559,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <i class="fa-solid fa-shield-halved" style="font-size:48px;color:#f87171"></i>
                 <div style="font-size:20px;font-weight:700">Acesso Negado</div>
                 <div style="color:#7a90aa">Você precisa ser administrador para acessar esta página.</div>
-                <a href="index.html" style="background:#1a6bde;color:#fff;padding:10px 24px;border-radius:10px;text-decoration:none;font-weight:700;margin-top:8px">Ir para o Login</a>
+                <a href="auth.html?modo=login" style="background:#1a6bde;color:#fff;padding:10px 24px;border-radius:10px;text-decoration:none;font-weight:700;margin-top:8px">Fazer login</a>
+                <a href="auth.html?modo=cadastro" style="background:#d4f700;color:#101309;padding:10px 24px;border-radius:10px;text-decoration:none;font-weight:700;margin-top:8px">Fazer cadastro</a>
+                <a href="dashboard.html" style="color:#f1f5f9;padding:10px 18px;text-decoration:none;margin-top:8px">Voltar à Rede Fitness</a>
             </div>`;
         return;
     }

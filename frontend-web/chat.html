@@ -988,7 +988,7 @@
     const CHAT_STORAGE_KEY = "naConversasReaisNextAgon";
     const LAST_UPDATE_KEY = "naConversasReaisUpdatedAt";
 
-    let currentUser = readCurrentUser();
+    let currentUser = typeof getCurrentUser === "function" ? getCurrentUser() : readCurrentUser();
     let currentUserKey = getCurrentUserKey();
     let currentProfile = getConnectedProfessionalProfile();
     let currentMode = currentProfile ? "professional" : "client";
@@ -996,7 +996,12 @@
     let conversations = loadConversations();
     let nextMessageId = Number(localStorage.getItem("naNextMessageId") || "1000");
 
-    init();
+    if (Object.keys(currentUser).length) init();
+    else showAuthRequiredNotice({
+        title: 'Chat para membros',
+        message: 'Entre ou crie sua conta para acessar conversas e falar com atletas e profissionais.',
+        onBack: () => window.location.replace('dashboard.html')
+    });
 
     function init() {
         setupUserUI();

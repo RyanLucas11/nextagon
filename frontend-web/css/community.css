@@ -15,6 +15,12 @@
 .community-subtitle { color:var(--text2); font-size:14px; }
 .topbar-chat { display:inline-flex; gap:8px; align-items:center; padding:10px 14px; border:1px solid var(--border); border-radius:11px; color:var(--text2); text-decoration:none; font-size:13px; }
 .topbar-chat:hover { border-color:var(--title); color:var(--title); }
+.guest-access-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.guest-access-actions a,.guest-composer-prompt a { display:inline-flex; align-items:center; justify-content:center; padding:9px 13px; border:1px solid var(--border); border-radius:10px; color:var(--text); font-size:12px; font-weight:700; text-decoration:none; }
+.guest-access-actions a:last-child,.guest-composer-prompt a { border-color:var(--title); background:var(--title); color:#101309; }
+.guest-access-actions a:hover,.guest-composer-prompt a:hover { filter:brightness(1.08); }
+.guest-composer-prompt { display:flex; align-items:center; justify-content:space-between; gap:16px; color:var(--text2); font-size:13px; line-height:1.5; }
+.composer-controls[hidden] { display:none !important; }
 .community-layout { max-width:1160px; margin:0 auto; display:grid; grid-template-columns:minmax(0, 720px) minmax(220px, 300px); justify-content:center; align-items:start; gap:22px; }
 .feed-column { min-width:0; }
 .composer,.aside-card,.feed-post { background:var(--card); border:1px solid var(--border); border-radius:16px; box-shadow:0 14px 34px rgba(0,0,0,.12); }

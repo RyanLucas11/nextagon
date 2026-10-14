@@ -7,7 +7,9 @@
     const titleField = document.getElementById('postTitle');
     const typeField = document.getElementById('postType');
     const opportunityFields = document.getElementById('opportunityFields');
-    const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+    const authenticatedUser = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+    const guestMode = !authenticatedUser && document.body.dataset.guestAccess === 'true';
+    const user = authenticatedUser || (guestMode ? { nome: 'Visitante', role: 'visitante' } : null);
     let activeFilter = 'all';
     let posts = [];
 
@@ -17,6 +19,15 @@
     const roleLabels = { atleta: 'Atleta', athlete: 'Atleta', profissional: 'Profissional', professional: 'Profissional', admin: 'Administrador', administrator: 'Administrador' };
     const authorRole = roleLabels[String(user.role || '').toLowerCase()] || 'Membro Next Agon';
     const initials = authorName.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'NA';
+
+    if (guestMode) {
+        const controls = form.querySelector('.composer-controls');
+        if (controls) controls.hidden = true;
+        const prompt = document.createElement('div');
+        prompt.className = 'guest-composer-prompt';
+        prompt.innerHTML = '<span>Explore as publicações da comunidade. Para publicar ou curtir, entre na sua conta.</span><a href="auth.html?modo=cadastro">Criar conta</a>';
+        form.appendChild(prompt);
+    }
 
     function escapeHtml(value) {
         return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
@@ -86,6 +97,7 @@
 
     form.addEventListener('submit', async event => {
         event.preventDefault();
+        if (guestMode) { showAuthRequiredNotice({ message: 'Entre ou crie sua conta para publicar na comunidade.' }); return; }
         const type = isTraining ? 'training' : typeField.value;
         const title = titleField?.value.trim() || '';
         const text = textField.value.trim();
@@ -123,6 +135,7 @@
         if (event.target.closest('[data-retry-feed]')) { loadPosts(); return; }
         const button = event.target.closest('[data-like]');
         if (!button) return;
+        if (guestMode) { showAuthRequiredNotice({ message: 'Entre ou crie sua conta para curtir publicações.' }); return; }
         button.disabled = true;
         try {
             const updated = await NextagonApi.toggleCommunityLike(button.dataset.like);
@@ -142,6 +155,7 @@
 
     typeField?.addEventListener('change', toggleOpportunityFields);
     document.getElementById('createOpportunity')?.addEventListener('click', () => {
+        if (guestMode) { showAuthRequiredNotice({ message: 'Crie sua conta ou entre para divulgar uma oportunidade.' }); return; }
         typeField.value = 'opportunity';
         toggleOpportunityFields();
         form.scrollIntoView({ behavior: 'smooth', block: 'center' });
