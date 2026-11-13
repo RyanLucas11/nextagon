@@ -3,6 +3,8 @@ package br.com.nextagon;
 
 import br.com.nextagon.dto.AuthResponseDto;
 import br.com.nextagon.dto.RegisterDto;
+import br.com.nextagon.dto.request.AthleteProfileRequestDto;
+import br.com.nextagon.dto.request.ProfessionalProfileRequestDto;
 import br.com.nextagon.model.Role;
 import br.com.nextagon.model.User;
 import br.com.nextagon.repository.UserRepository;
@@ -14,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,13 +27,11 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import br.com.nextagon.dto.request.AthleteProfileRequestDto;
-import br.com.nextagon.dto.request.ProfessionalProfileRequestDto;
-import org.springframework.http.MediaType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 @Transactional
 class BackendApplicationTests {
 
@@ -47,11 +49,11 @@ class BackendApplicationTests {
 
 	@Test
 	void contextLoads() {
+		// Verifica se o contexto Spring Boot inicia corretamente.
 	}
 
 	@Test
 	void professionalRegistrationCreatesMarketplaceProfile() throws Exception {
-
 		RegisterDto dto = buildRegisterDto(Role.PROFESSIONAL);
 
 		AuthResponseDto response = authService.register(dto);
@@ -68,7 +70,6 @@ class BackendApplicationTests {
 
 		assertEquals(Role.PROFESSIONAL, professional.getRole());
 		assertTrue(professional.isActive());
-
 		assertNotNull(professional.getProfessionalProfile());
 
 		var profile = professional.getProfessionalProfile();
@@ -114,8 +115,8 @@ class BackendApplicationTests {
 
 		for (JsonNode item : content) {
 			if (userId.equals(item.path("id").asText())) {
-
 				foundInApi = true;
+
 				assertFalse(
 						item.has("email"),
 						"O marketplace não deve expor o e-mail do profissional"
@@ -142,7 +143,6 @@ class BackendApplicationTests {
 
 	@Test
 	void athleteRegistrationDoesNotCreateProfessionalProfile() {
-
 		RegisterDto dto = buildRegisterDto(Role.ATHLETE);
 
 		AuthResponseDto response = authService.register(dto);
@@ -160,48 +160,15 @@ class BackendApplicationTests {
 		assertNull(athlete.getProfessionalProfile());
 	}
 
-	private RegisterDto buildRegisterDto(Role role) {
-
-		RegisterDto dto = new RegisterDto();
-
-		ReflectionTestUtils.setField(
-				dto,
-				"name",
-				"Usuario de Teste"
-		);
-
-		ReflectionTestUtils.setField(
-				dto,
-				"email",
-				"teste-" + UUID.randomUUID() + "@example.com"
-		);
-
-		ReflectionTestUtils.setField(
-				dto,
-				"password",
-				"SenhaSegura@123"
-		);
-
-		ReflectionTestUtils.setField(
-				dto,
-				"role",
-				role
-		);
-
-		return dto;
-	}
-
 	@Test
-	void deveDiferenciarCamposAusentesENulosDoAtleta()
-			throws Exception {
-
+	void deveDiferenciarCamposAusentesENulosDoAtleta() throws Exception {
 		String json = """
-            {
-                "displayName": "Atleta Teste",
-                "healthNotes": null,
-                "goals": []
-            }
-            """;
+                {
+                    "displayName": "Atleta Teste",
+                    "healthNotes": null,
+                    "goals": []
+                }
+                """;
 
 		AthleteProfileRequestDto dto = objectMapper.readValue(
 				json,
@@ -220,17 +187,15 @@ class BackendApplicationTests {
 	}
 
 	@Test
-	void deveDiferenciarCamposAusentesENulosDoProfissional()
-			throws Exception {
-
+	void deveDiferenciarCamposAusentesENulosDoProfissional() throws Exception {
 		String json = """
-            {
-                "displayName": "Profissional Teste",
-                "bio": null,
-                "specialties": [],
-                "hourlyRate": 150.0
-            }
-            """;
+                {
+                    "displayName": "Profissional Teste",
+                    "bio": null,
+                    "specialties": [],
+                    "hourlyRate": 150.0
+                }
+                """;
 
 		ProfessionalProfileRequestDto dto = objectMapper.readValue(
 				json,
@@ -251,9 +216,7 @@ class BackendApplicationTests {
 	}
 
 	@Test
-	void deveAtualizarPerfilAtletaSemApagarDados()
-			throws Exception {
-
+	void deveAtualizarPerfilAtletaSemApagarDados() throws Exception {
 		AuthResponseDto auth = authService.register(
 				buildRegisterDto(Role.ATHLETE)
 		);
@@ -261,14 +224,14 @@ class BackendApplicationTests {
 		String token = auth.getAccessToken();
 
 		String cadastro = """
-            {
-                "displayName": "Atleta Teste",
-                "height": 1.80,
-                "weight": 75.0,
-                "healthNotes": "Sem restrições",
-                "goals": ["Hipertrofia"]
-            }
-            """;
+                {
+                    "displayName": "Atleta Teste",
+                    "height": 1.80,
+                    "weight": 75.0,
+                    "healthNotes": "Sem restrições",
+                    "goals": ["Hipertrofia"]
+                }
+                """;
 
 		var primeiraResposta = mockMvc.perform(
 				put("/profile/athlete")
@@ -280,13 +243,13 @@ class BackendApplicationTests {
 		assertEquals(200, primeiraResposta.getStatus());
 
 		String atualizacao = """
-            {
-                "displayName": "Atleta Teste",
-                "weight": 80.0,
-                "healthNotes": null,
-                "goals": []
-            }
-            """;
+                {
+                    "displayName": "Atleta Teste",
+                    "weight": 80.0,
+                    "healthNotes": null,
+                    "goals": []
+                }
+                """;
 
 		var resposta = mockMvc.perform(
 				put("/profile/athlete")
@@ -310,9 +273,7 @@ class BackendApplicationTests {
 	}
 
 	@Test
-	void deveAtualizarPerfilProfissionalSemApagarDados()
-			throws Exception {
-
+	void deveAtualizarPerfilProfissionalSemApagarDados() throws Exception {
 		AuthResponseDto auth = authService.register(
 				buildRegisterDto(Role.PROFESSIONAL)
 		);
@@ -320,14 +281,14 @@ class BackendApplicationTests {
 		String token = auth.getAccessToken();
 
 		String cadastro = """
-            {
-                "displayName": "Personal Trainer",
-                "bio": "Profissional experiente",
-                "hourlyRate": 100.0,
-                "specialties": ["Musculação"],
-                "certificates": ["CREF 12345"]
-            }
-            """;
+                {
+                    "displayName": "Personal Trainer",
+                    "bio": "Profissional experiente",
+                    "hourlyRate": 100.0,
+                    "specialties": ["Musculação"],
+                    "certificates": ["CREF 12345"]
+                }
+                """;
 
 		var primeiraResposta = mockMvc.perform(
 				put("/profile/professional")
@@ -339,13 +300,13 @@ class BackendApplicationTests {
 		assertEquals(200, primeiraResposta.getStatus());
 
 		String atualizacao = """
-            {
-                "displayName": "Personal Trainer",
-                "bio": null,
-                "hourlyRate": 150.0,
-                "specialties": []
-            }
-            """;
+                {
+                    "displayName": "Personal Trainer",
+                    "bio": null,
+                    "hourlyRate": 150.0,
+                    "specialties": []
+                }
+                """;
 
 		var resposta = mockMvc.perform(
 				put("/profile/professional")
@@ -379,19 +340,17 @@ class BackendApplicationTests {
 	}
 
 	@Test
-	void naoDevePermitirAtletaEditarPerfilProfissional()
-			throws Exception {
-
+	void naoDevePermitirAtletaEditarPerfilProfissional() throws Exception {
 		AuthResponseDto auth = authService.register(
 				buildRegisterDto(Role.ATHLETE)
 		);
 
 		String json = """
-            {
-                "displayName": "Tentativa Indevida",
-                "bio": "Teste"
-            }
-            """;
+                {
+                    "displayName": "Tentativa Indevida",
+                    "bio": "Teste"
+                }
+                """;
 
 		var resposta = mockMvc.perform(
 				put("/profile/professional")
@@ -407,14 +366,12 @@ class BackendApplicationTests {
 	}
 
 	@Test
-	void naoDevePermitirEditarPerfilSemAutenticacao()
-			throws Exception {
-
+	void naoDevePermitirEditarPerfilSemAutenticacao() throws Exception {
 		String json = """
-            {
-                "displayName": "Usuario Sem Login"
-            }
-            """;
+                {
+                    "displayName": "Usuario Sem Login"
+                }
+                """;
 
 		var respostaAtleta = mockMvc.perform(
 				put("/profile/athlete")
@@ -432,4 +389,33 @@ class BackendApplicationTests {
 		assertEquals(401, respostaProfissional.getStatus());
 	}
 
+	private RegisterDto buildRegisterDto(Role role) {
+		RegisterDto dto = new RegisterDto();
+
+		ReflectionTestUtils.setField(
+				dto,
+				"name",
+				"Usuario de Teste"
+		);
+
+		ReflectionTestUtils.setField(
+				dto,
+				"email",
+				"teste-" + UUID.randomUUID() + "@example.com"
+		);
+
+		ReflectionTestUtils.setField(
+				dto,
+				"password",
+				"SenhaSegura@123"
+		);
+
+		ReflectionTestUtils.setField(
+				dto,
+				"role",
+				role
+		);
+
+		return dto;
+	}
 }
