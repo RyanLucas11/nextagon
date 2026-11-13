@@ -1,3 +1,4 @@
+
 package br.com.nextagon.util;
 
 import io.jsonwebtoken.Claims;
@@ -17,6 +18,9 @@ import java.util.Date;
 public class JwtUtil {
 
     private static final int MINIMUM_SECRET_LENGTH = 32;
+    private static final String TOKEN_TYPE_CLAIM = "token_type";
+    private static final String ACCESS_TOKEN = "access";
+    private static final String REFRESH_TOKEN = "refresh";
 
     @Value("${jwt.secret}")
     private String secret;
@@ -50,7 +54,7 @@ public class JwtUtil {
             String email,
             String role
     ) {
-        return buildToken(userId, email, role, expiration);
+        return buildToken(userId, email, role, expiration, ACCESS_TOKEN);
     }
 
     public String generateRefreshToken(
@@ -58,29 +62,35 @@ public class JwtUtil {
             String email,
             String role
     ) {
-        return buildToken(userId, email, role, refreshExpiration);
+        return buildToken(userId, email, role, refreshExpiration, REFRESH_TOKEN);
     }
 
     private String buildToken(
             String userId,
             String email,
             String role,
-            long ttl
+            long ttl,
+            String tokenType
     ) {
+        if (userId == null || userId.isBlank()) {
+            throw new IllegalArgumentException("ID do usuário é obrigatório");
+        }
+
         if (ttl <= 0) {
             throw new IllegalStateException(
                     "Tempo de expiração do JWT deve ser maior que zero"
             );
         }
 
+        long now = System.currentTimeMillis();
+
         return Jwts.builder()
                 .setSubject(userId)
                 .claim("email", email)
                 .claim("role", role)
-                .setIssuedAt(new Date())
-                .setExpiration(
-                        new Date(System.currentTimeMillis() + ttl)
-                )
+                .claim(TOKEN_TYPE_CLAIM, tokenType)
+                .setIssuedAt(new Date(now))
+                .setExpiration(new Date(Math.addExact(now, ttl)))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -97,8 +107,34 @@ public class JwtUtil {
 
     public boolean validateToken(String token) {
         try {
-            parseClaims(token);
-            return true;
+            Claims claims = parseClaims(token).getBody();
+
+            return claims.getSubject() != null
+                    && !claims.getSubject().isBlank();
+
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public boolean validateAccessToken(String token) {
+        return validateTokenType(token, ACCESS_TOKEN);
+    }
+
+    public boolean validateRefreshToken(String token) {
+        return validateTokenType(token, REFRESH_TOKEN);
+    }
+
+    private boolean validateTokenType(String token, String expectedType) {
+        try {
+            Claims claims = parseClaims(token).getBody();
+
+            return claims.getSubject() != null
+                    && !claims.getSubject().isBlank()
+                    && expectedType.equals(
+                    claims.get(TOKEN_TYPE_CLAIM, String.class)
+            );
+
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }

@@ -1,3 +1,4 @@
+
 package br.com.nextagon.security;
 
 import br.com.nextagon.util.JwtUtil;
@@ -25,28 +26,52 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final CustomUserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
         String header = request.getHeader("Authorization");
 
         if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
-            try {
-                if (jwtUtil.validateToken(token)) {
-                    String userId = jwtUtil.extractUserId(token);
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+            String token = header.substring(7).trim();
 
-                    UsernamePasswordAuthenticationToken auth =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails, null, userDetails.getAuthorities());
-                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(auth);
+            try {
+                if (jwtUtil.validateAccessToken(token)) {
+                    String userId = jwtUtil.extractUserId(token);
+
+                    UserDetails userDetails =
+                            userDetailsService.loadUserByUsername(userId);
+
+                    if (userDetails.isEnabled()
+                            && userDetails.isAccountNonLocked()
+                            && userDetails.isAccountNonExpired()
+                            && userDetails.isCredentialsNonExpired()) {
+
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails,
+                                        null,
+                                        userDetails.getAuthorities()
+                                );
+
+                        authentication.setDetails(
+                                new WebAuthenticationDetailsSource()
+                                        .buildDetails(request)
+                        );
+
+                        SecurityContextHolder.getContext()
+                                .setAuthentication(authentication);
+                    }
                 }
             } catch (Exception e) {
-                // Log sem expor detalhes do token
-                log.warn("Falha na validação do JWT: {}", e.getClass().getSimpleName());
+                SecurityContextHolder.clearContext();
+
+                log.warn(
+                        "Falha na autenticação JWT: {}",
+                        e.getClass().getSimpleName()
+                );
             }
         }
 
