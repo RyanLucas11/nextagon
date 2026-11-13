@@ -242,4 +242,198 @@ class ProfileServiceTest {
 
         assertEquals("Perfil profissional não encontrado", exception.getMessage());
     }
+
+    @Test
+    @DisplayName("Atualizar peso não deve apagar os outros dados do atleta")
+    void devePreservarDadosAoAtualizarApenasPeso() {
+
+        User athlete = buildAthleteUser();
+        athlete.setName("Atleta Teste");
+
+        AthleteProfile profile = AthleteProfile.builder()
+                .user(athlete)
+                .height(1.80)
+                .weight(75.0)
+                .healthNotes("Sem restrições")
+                .fitnessLevel("intermediate")
+                .build();
+
+        profile.getGoals().add("Hipertrofia");
+        athlete.setAthleteProfile(profile);
+
+        AthleteProfileRequestDto dto = new AthleteProfileRequestDto();
+
+        setField(dto, "displayName", "Atleta Teste");
+        setField(dto, "weight", 80.0);
+
+        when(userRepository.findById(USER_ID))
+                .thenReturn(Optional.of(athlete));
+
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        AthleteProfile result =
+                profileService.saveAthleteProfile(USER_ID, dto);
+
+        assertEquals(80.0, result.getWeight());
+        assertEquals(1.80, result.getHeight());
+        assertEquals("Sem restrições", result.getHealthNotes());
+        assertEquals("intermediate", result.getFitnessLevel());
+        assertEquals(1, result.getGoals().size());
+        assertEquals("Hipertrofia", result.getGoals().get(0));
+
+        verify(userRepository).save(athlete);
+    }
+
+    @Test
+    @DisplayName("Atualizar preço não deve apagar os outros dados do profissional")
+    void devePreservarDadosAoAtualizarApenasPreco() {
+
+        User professional = buildProfessionalUser();
+        professional.setName("Profissional Teste");
+
+        ProfessionalProfile profile = ProfessionalProfile.builder()
+                .user(professional)
+                .bio("Personal trainer experiente")
+                .hourlyRate(100.0)
+                .available(true)
+                .build();
+
+        profile.getSpecialties().add("Musculação");
+        profile.getCertificates().add("CREF 12345");
+
+        professional.setProfessionalProfile(profile);
+
+        ProfessionalProfileRequestDto dto =
+                new ProfessionalProfileRequestDto();
+
+        setField(dto, "displayName", "Profissional Teste");
+        setField(dto, "hourlyRate", 150.0);
+
+        when(userRepository.findById(USER_ID))
+                .thenReturn(Optional.of(professional));
+
+        when(professionalProfileRepository.findByUserId(USER_ID))
+                .thenReturn(Optional.of(profile));
+
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        when(professionalProfileRepository.save(any(ProfessionalProfile.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        ProfessionalProfile result =
+                profileService.saveProfessionalProfile(USER_ID, dto);
+
+        assertEquals(150.0, result.getHourlyRate());
+        assertEquals("Personal trainer experiente", result.getBio());
+        assertTrue(result.isAvailable());
+
+        assertEquals(1, result.getSpecialties().size());
+        assertEquals("Musculação", result.getSpecialties().get(0));
+
+        assertEquals(1, result.getCertificates().size());
+        assertEquals("CREF 12345", result.getCertificates().get(0));
+
+        verify(userRepository).save(professional);
+        verify(professionalProfileRepository).save(profile);
+    }
+
+    @Test
+    @DisplayName("Deve remover observações de saúde sem apagar outros dados")
+    void deveRemoverObservacoesSaudeDoAtleta() {
+
+        User athlete = buildAthleteUser();
+
+        AthleteProfile profile = AthleteProfile.builder()
+                .user(athlete)
+                .height(1.80)
+                .weight(80.0)
+                .healthNotes("Sem restrições")
+                .fitnessLevel("intermediate")
+                .build();
+
+        profile.getGoals().add("Hipertrofia");
+        athlete.setAthleteProfile(profile);
+
+        AthleteProfileRequestDto dto =
+                new AthleteProfileRequestDto();
+
+        setField(dto, "displayName", "Atleta Teste");
+
+        // Null explícito deve remover a informação
+        dto.setHealthNotes(null);
+
+        when(userRepository.findById(USER_ID))
+                .thenReturn(Optional.of(athlete));
+
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        AthleteProfile result =
+                profileService.saveAthleteProfile(USER_ID, dto);
+
+        assertNull(result.getHealthNotes());
+        assertEquals(1.80, result.getHeight());
+        assertEquals(80.0, result.getWeight());
+        assertEquals("intermediate", result.getFitnessLevel());
+        assertEquals(1, result.getGoals().size());
+        assertEquals("Hipertrofia", result.getGoals().get(0));
+    }
+
+    @Test
+    @DisplayName("Deve remover biografia e especialidades do profissional")
+    void deveRemoverDadosOpcionaisDoProfissional() {
+
+        User professional = buildProfessionalUser();
+
+        ProfessionalProfile profile = ProfessionalProfile.builder()
+                .user(professional)
+                .bio("Personal trainer experiente")
+                .hourlyRate(150.0)
+                .available(true)
+                .build();
+
+        profile.getSpecialties().add("Musculação");
+        profile.getCertificates().add("CREF 12345");
+
+        professional.setProfessionalProfile(profile);
+
+        ProfessionalProfileRequestDto dto =
+                new ProfessionalProfileRequestDto();
+
+        setField(dto, "displayName", "Profissional Teste");
+
+        // Remove a biografia
+        dto.setBio(null);
+
+        // Remove todas as especialidades
+        dto.setSpecialties(java.util.List.of());
+
+        when(userRepository.findById(USER_ID))
+                .thenReturn(Optional.of(professional));
+
+        when(professionalProfileRepository.findByUserId(USER_ID))
+                .thenReturn(Optional.of(profile));
+
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        when(professionalProfileRepository.save(
+                any(ProfessionalProfile.class)
+        )).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ProfessionalProfile result =
+                profileService.saveProfessionalProfile(USER_ID, dto);
+
+        assertNull(result.getBio());
+        assertTrue(result.getSpecialties().isEmpty());
+
+        assertEquals(150.0, result.getHourlyRate());
+        assertTrue(result.isAvailable());
+
+        assertEquals(1, result.getCertificates().size());
+        assertEquals("CREF 12345", result.getCertificates().get(0));
+    }
+
 }

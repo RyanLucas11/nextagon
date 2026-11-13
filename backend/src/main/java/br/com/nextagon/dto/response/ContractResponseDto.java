@@ -1,3 +1,4 @@
+
 package br.com.nextagon.dto.response;
 
 import br.com.nextagon.model.Contract;
@@ -16,6 +17,7 @@ public class ContractResponseDto {
     private final String professionalName;
     private final ContractStatus status;
     private final String athleteMessage;
+    private final String rejectionReason;
     private final LocalDateTime createdAt;
     private final LocalDateTime startedAt;
     private final LocalDateTime completedAt;
@@ -28,6 +30,7 @@ public class ContractResponseDto {
         this.professionalName = contract.getProfessional().getName();
         this.status = contract.getStatus();
         this.athleteMessage = contract.getAthleteMessage();
+        this.rejectionReason = contract.getRejectionReason();
         this.createdAt = contract.getCreatedAt();
         this.startedAt = contract.getStartedAt();
         this.completedAt = contract.getCompletedAt();

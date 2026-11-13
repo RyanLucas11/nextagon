@@ -39,6 +39,7 @@ class DietPlanServiceTest {
         User athlete = new User();
         athlete.setId(id);
         athlete.setRole(Role.ATHLETE);
+        athlete.setActive(true);
         return athlete;
     }
 
@@ -46,6 +47,7 @@ class DietPlanServiceTest {
         User professional = new User();
         professional.setId(id);
         professional.setRole(Role.PROFESSIONAL);
+        professional.setActive(true);
         return professional;
     }
 

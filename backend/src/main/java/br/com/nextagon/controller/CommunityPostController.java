@@ -1,3 +1,4 @@
+
 package br.com.nextagon.controller;
 
 import br.com.nextagon.dto.request.CommunityPostRequestDto;
@@ -20,19 +21,47 @@ public class CommunityPostController {
     private final CommunityPostService communityPostService;
 
     @GetMapping
-    public ResponseEntity<List<CommunityPostResponseDto>> list(@RequestParam String feed) {
-        return ResponseEntity.ok(communityPostService.list(feed, AuthenticatedUser.getId()));
+    public ResponseEntity<List<CommunityPostResponseDto>> list(
+            @RequestParam String feed,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        String userId = AuthenticatedUser.getId();
+
+        return ResponseEntity.ok(
+                communityPostService.list(
+                        feed,
+                        userId,
+                        page,
+                        size
+                )
+        );
     }
 
     @PostMapping
     public ResponseEntity<CommunityPostResponseDto> create(
-            @Valid @RequestBody CommunityPostRequestDto request) {
+            @Valid @RequestBody CommunityPostRequestDto request
+    ) {
+        String userId = AuthenticatedUser.getId();
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(communityPostService.create(request, AuthenticatedUser.getId()));
+                .body(communityPostService.create(
+                        request,
+                        userId
+                ));
     }
 
     @PostMapping("/{postId}/like")
-    public ResponseEntity<CommunityPostResponseDto> toggleLike(@PathVariable String postId) {
-        return ResponseEntity.ok(communityPostService.toggleLike(postId, AuthenticatedUser.getId()));
+    public ResponseEntity<CommunityPostResponseDto> toggleLike(
+            @PathVariable String postId
+    ) {
+        String userId = AuthenticatedUser.getId();
+
+        return ResponseEntity.ok(
+                communityPostService.toggleLike(
+                        postId,
+                        userId
+                )
+        );
     }
 }

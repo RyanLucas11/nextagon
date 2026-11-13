@@ -1,3 +1,4 @@
+
 package br.com.nextagon.service;
 
 import br.com.nextagon.model.*;
@@ -5,8 +6,10 @@ import br.com.nextagon.repository.ContractRepository;
 import br.com.nextagon.repository.ProfessionalProfileRepository;
 import br.com.nextagon.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -19,24 +22,81 @@ public class ReviewService {
     private final ProfessionalProfileRepository professionalProfileRepository;
 
     @Transactional
-    public Review createReview(String contractId, String reviewerId, int rating, String comment) {
+    public Review createReview(
+            String contractId,
+            String reviewerId,
+            int rating,
+            String comment
+    ) {
+        if (contractId == null || contractId.isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "ID do contrato é obrigatório"
+            );
+        }
+
         if (rating < 1 || rating > 5) {
-            throw new IllegalArgumentException("Rating deve ser entre 1 e 5");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "A nota deve estar entre 1 e 5"
+            );
+        }
+
+        if (comment != null && comment.length() > 2000) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "O comentário deve ter no máximo 2000 caracteres"
+            );
         }
 
         Contract contract = contractRepository.findById(contractId)
-                .orElseThrow(() -> new IllegalArgumentException("Contrato não encontrado"));
-
-        if (contract.getStatus() != ContractStatus.COMPLETED) {
-            throw new IllegalStateException("Só é possível avaliar contratos com status COMPLETED");
-        }
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Contrato não encontrado"
+                ));
 
         if (!contract.getAthlete().getId().equals(reviewerId)) {
-            throw new SecurityException("Apenas o atleta do contrato pode avaliá-lo");
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Apenas o atleta do contrato pode avaliá-lo"
+            );
         }
 
+        if (!contract.getAthlete().isActive()) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "A conta do atleta está inativa"
+            );
+        }
+
+        if (!contract.getProfessional().isActive()) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Não é possível avaliar um profissional com conta inativa"
+            );
+        }
+
+        if (contract.getStatus() != ContractStatus.COMPLETED) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Apenas contratos concluídos podem ser avaliados"
+            );
+        }
+
+        String professionalId = contract.getProfessional().getId();
+
+        ProfessionalProfile profile = professionalProfileRepository
+                .findByUserIdForUpdate(professionalId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.CONFLICT,
+                        "O perfil profissional precisa ser regularizado antes de receber avaliações"
+                ));
+
         if (reviewRepository.existsByContractId(contractId)) {
-            throw new IllegalStateException("Este contrato já foi avaliado");
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Este contrato já foi avaliado"
+            );
         }
 
         Review review = Review.builder()
@@ -44,33 +104,53 @@ public class ReviewService {
                 .reviewer(contract.getAthlete())
                 .professional(contract.getProfessional())
                 .rating(rating)
-                .comment(comment)
+                .comment(
+                        comment == null || comment.isBlank()
+                                ? null
+                                : comment.trim()
+                )
                 .build();
 
-        reviewRepository.save(review);
+        Review savedReview = reviewRepository.saveAndFlush(review);
 
-        // Atualiza média real usando query de agregação no banco
-        recalculateProfessionalRating(contract.getProfessional().getId());
+        recalculateProfessionalRating(professionalId, profile);
 
-        return review;
+        return savedReview;
     }
 
-    public List<Review> getReviewsByProfessional(String professionalId) {
+    @Transactional(readOnly = true)
+    public List<Review> getReviewsByProfessional(
+            String professionalId
+    ) {
+        if (professionalId == null || professionalId.isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "ID do profissional é obrigatório"
+            );
+        }
+
         return reviewRepository.findByProfessionalId(professionalId);
     }
 
-    private void recalculateProfessionalRating(String professionalUserId) {
-        ProfessionalProfile profile = professionalProfileRepository
-                .findByUserId(professionalUserId)
-                .orElse(null);
+    private void recalculateProfessionalRating(
+            String professionalId,
+            ProfessionalProfile profile
+    ) {
+        Double average = reviewRepository
+                .calculateAverageRatingByProfessional(professionalId);
 
-        if (profile == null) return;
+        Long count = reviewRepository
+                .countByProfessionalId(professionalId);
 
-        Double avg = reviewRepository.calculateAverageRatingByProfessional(professionalUserId);
-        Long count = reviewRepository.countByProfessionalId(professionalUserId);
+        double roundedAverage = average == null
+                ? 0.0
+                : Math.round(average * 100.0) / 100.0;
 
-        profile.setAverageRating(avg != null ? Math.round(avg * 100.0) / 100.0 : 0.0);
-        profile.setTotalReviews(count != null ? count.intValue() : 0);
+        profile.setAverageRating(roundedAverage);
+        profile.setTotalReviews(
+                count == null ? 0 : Math.toIntExact(count)
+        );
+
         professionalProfileRepository.save(profile);
     }
 }
