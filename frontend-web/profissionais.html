@@ -623,9 +623,22 @@
         .btn-confirm-del:hover { background: rgba(248,113,113,.25); }
         .btn-confirm-cancel { flex: 1; background: transparent; border: 1px solid var(--border); color: var(--text2); padding: 11px; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .18s; }
         .btn-confirm-cancel:hover { border-color: #2e4a6a; color: var(--text); }
-    </style>
+
+        /* NEXTAGON-PROFISSIONAIS-LINK-FIX */
+        .sidebar .sidebar-logo,
+        .sidebar .sidebar-logo:link,
+        .sidebar .sidebar-logo:visited,
+        .sidebar .sidebar-logo:hover,
+        .sidebar .sidebar-nav .nav-item,
+        .sidebar .sidebar-nav .nav-item:link,
+        .sidebar .sidebar-nav .nav-item:visited,
+        .sidebar .sidebar-nav .nav-item:hover {
+            text-decoration: none !important;
+            text-decoration-line: none !important;
+        }
+</style>
     <link rel="stylesheet" href="css/mobile.css">
-    <link rel="stylesheet" href="css/navigation.css">
+    <link rel="stylesheet" href="css/navigation.css?v=20261116-3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body data-guest-access="true">
@@ -651,26 +664,62 @@
 
 <div class="app">
     <!-- ══ SIDEBAR ══ -->
-    <div class="sidebar">
-        <div class="sidebar-logo"><i class="fa-solid fa-bolt"></i> Next Agon</div>
-        <div class="sidebar-nav">
-            <button class="nav-item" onclick="showPage('dashboard')"><i class="fa-solid fa-house"></i> Rede Fitness</button>
-            <button class="nav-item" onclick="showPage('treinos')"><i class="fa-solid fa-bolt"></i> Treinos</button>
-            <button class="nav-item active"><i class="fa-solid fa-user-doctor"></i> Profissionais</button>
-            <button class="nav-item" onclick="showPage('chat')"><i class="fa-regular fa-comments"></i> Chat</button>
-        </div>
-        <!-- Cartão de perfil fixo no rodapé da sidebar -->
-        <div class="sidebar-profile" onclick="openPanel()" title="Meu Perfil" role="button" tabindex="0">
-            <div class="sidebar-profile-avatar" id="sidebar-avatar">U</div>
+    <aside class="sidebar community-sidebar">
+
+        <a class="sidebar-logo" href="dashboard.html">
+            <i class="fa-solid fa-bolt"></i> Next Agon
+        </a>
+
+        <nav class="sidebar-nav" aria-label="Menu principal">
+
+            <a class="nav-item" href="dashboard.html">
+                <i class="fa-solid fa-house"></i> Rede Fitness
+            </a>
+
+            <a class="nav-item" href="treinos.html">
+                <i class="fa-solid fa-dumbbell"></i> Treinos
+            </a>
+
+            <a class="nav-item active"
+               href="profissionais.html"
+               aria-current="page">
+                <i class="fa-solid fa-user-doctor"></i> Profissionais
+            </a>
+
+            <a class="nav-item" href="chat.html">
+                <i class="fa-regular fa-comments"></i> Chat
+            </a>
+
+        </nav>
+
+        <div class="sidebar-profile"
+             onclick="openPanel()"
+             title="Meu Perfil"
+             role="button"
+             tabindex="0">
+
+            <div class="sidebar-profile-avatar"
+                 id="sidebar-avatar">U</div>
+
             <div class="sidebar-profile-info">
-                <div class="sidebar-profile-name" id="sidebar-nome">Usuário</div>
-                <div class="sidebar-profile-role" id="sidebar-role"><i class="fa-solid fa-person-running"></i> Atleta</div>
+                <div class="sidebar-profile-name"
+                     id="sidebar-nome">Usuário</div>
+
+                <div class="sidebar-profile-role"
+                     id="sidebar-role">Membro</div>
             </div>
+
             <button class="sidebar-profile-gear"
+                    type="button"
                     onclick="openPanel(); event.stopPropagation();"
-                    aria-label="Configurações do perfil" title="Configurações"><i class="fa-solid fa-gear"></i></button>
+                    title="Configurações"
+                    aria-label="Abrir configurações">
+                <i class="fa-solid fa-gear"></i>
+            </button>
         </div>
-    </div>
+
+    </aside>
+
 
     <!-- ══ MAIN ══ -->
     <div class="main">
@@ -863,7 +912,7 @@
             <!-- Nome -->
             <div class="form-field">
                 <label for="cNome">Nome completo *</label>
-                <input type="text" id="cNome" placeholder="Ex: João Silva">
+                <input type="text" id="cNome" placeholder="Ex.: João Silva">
             </div>
 
             <!-- Telefone -->
@@ -904,7 +953,7 @@
                     id="cExperienciaDescricao"
                     rows="3"
                     maxlength="2000"
-                    placeholder="Descreva sua trajetoria e formacoes"
+                    placeholder="Ex.: formado em Fisioterapia, com atuação em reabilitação esportiva."
                 ></textarea>
             </div>
 
@@ -950,7 +999,7 @@
             </div>
             <div class="form-field">
                 <label for="cCidade">Região que atua *</label>
-                <input type="text" id="cCidade" placeholder="Ex: São Paulo, SP">
+                <input type="text" id="cCidade" placeholder="Ex.: Brasília, DF">
             </div>
         </div>
 
@@ -1187,6 +1236,13 @@
                         <div class="card-price">Por sessão: <strong>R$ ${p.preco}</strong></div>
                         <div class="card-location"><i class="fa-solid fa-location-dot"></i> ${p.cidade}</div>
                     </div>
+                    ${usuarioPodeVerPerfilCriado(p) ? `
+                        <button class="btn-agendar"
+                            style="margin-bottom:8px"
+                            onclick="editarMeuPerfilProfissional(${Number(p.id)})">
+                            <i class="fa-solid fa-pen"></i> Editar meu perfil
+                        </button>
+                    ` : ''}
                     <button class="btn-agendar" onclick="openModalAgendar('${safeName}')">Agendar Avaliação</button>
                 </div>
             </div>
@@ -1322,6 +1378,87 @@
         } catch(e) { return false; }
     }
 
+    let editandoPerfilId = null;
+
+    function editarMeuPerfilProfissional(id) {
+        const perfil = getPerfisCriados().find(
+            item => Number(item.id) === Number(id) &&
+                item.criadoPeloUsuario &&
+                item.ownerKey === getCurrentUserKey()
+        );
+
+        if (!perfil || !isProfissional()) {
+            showToast('', 'Voce nao pode editar este perfil.');
+            return;
+        }
+
+        openModalCadastro();
+        editandoPerfilId = perfil.id;
+
+        const set = (idCampo, valor) => {
+            const campo = document.getElementById(idCampo);
+            if (campo) campo.value = valor ?? '';
+        };
+
+        set('cNome', perfil.nome);
+        set('cTel', perfil.tel);
+        set('cIdade', perfil.idade);
+        set('cRegistro', perfil.registro);
+        set('cPreco', perfil.preco);
+        set('cCidade', perfil.cidade);
+        set('cExperienciaAnos', perfil.exp);
+        set('cExperienciaDescricao', perfil.experienceDescription);
+
+        const areas = Array.isArray(perfil.areas)
+            ? perfil.areas
+            : [perfil.area];
+
+        document.querySelectorAll('input[name="cArea"]').forEach(
+            input => {
+                input.checked = areas.includes(input.value);
+            }
+        );
+
+        set('cModalidade', perfil.modalidade || 'Presencial');
+        document.querySelectorAll('.modal-toggle-btn').forEach(btn => {
+            btn.classList.toggle(
+                'active',
+                btn.dataset.mod === (perfil.modalidade || 'Presencial')
+            );
+        });
+
+        const status = perfil.statusLabel ||
+            (perfil.disponivel ? 'ativo' : 'pausado');
+
+        set('cStatus', status);
+
+        document.querySelectorAll('.status-btn').forEach(btn => {
+            btn.className = 'status-btn';
+            if (btn.dataset.status === status) {
+                btn.classList.add('active-' + status);
+            }
+        });
+
+        const enviar = document.querySelector(
+            '#modalCadastro .btn-submit'
+        );
+
+        if (enviar) enviar.textContent = 'Salvar alterações do perfil';
+
+        if (perfil.foto) {
+            const preview = document.getElementById('fotoPreview');
+            preview.replaceChildren();
+
+            const img = document.createElement('img');
+            img.src = perfil.foto;
+            img.alt = 'Foto do profissional';
+            img.style.cssText =
+                'width:100%;height:100%;object-fit:cover';
+
+            preview.appendChild(img);
+        }
+    }
+
     function openModalCadastro() {
         if (!isProfissional()) {
             if (!getCurrentUser()) {
@@ -1331,6 +1468,16 @@
             showToast('<i class="fa-solid fa-lock"></i>', 'Apenas profissionais podem criar perfil.');
             return;
         }
+        editandoPerfilId = null;
+
+        const enviar = document.querySelector(
+            '#modalCadastro .btn-submit'
+        );
+
+        if (enviar) {
+            enviar.textContent = '+ Cadastrar-se como Profissional';
+        }
+
         document.getElementById('modalCadastro').classList.add('open');
         document.body.style.overflow = 'hidden';
         document.getElementById('modalForm').classList.remove('hide');
@@ -1484,12 +1631,27 @@
         const partes = nome.split(' ').filter(Boolean);
         const iniciais = ((partes[0]||'')[0]||'').toUpperCase() + ((partes[1]||'')[0]||'').toUpperCase();
 
+        const perfilAnterior = editandoPerfilId === null
+            ? null
+            : getPerfisCriados().find(
+                item => Number(item.id) === Number(editandoPerfilId) &&
+                    item.criadoPeloUsuario &&
+                    item.ownerKey === getCurrentUserKey()
+            );
+
+        if (editandoPerfilId !== null && !perfilAnterior) {
+            showToast('', 'Perfil nao autorizado para edicao.');
+            return;
+        }
+
         const statusMap = { ativo: true, pausado: false, ferias: false };
         const novoProfissional = {
-            id: nextId++,
+            ...(perfilAnterior || {}),
+            id: perfilAnterior ? perfilAnterior.id : nextId++,
             nome,
             iniciais,
-            foto: window._fotoDataUrl || '',
+            foto: window._fotoDataUrl || perfilAnterior?.foto || '',
+            tel,
             area: areas[0],
             areas,
             modalidade,
@@ -1507,7 +1669,8 @@
             isNovo: true,
             criadoPeloUsuario: true,
             ownerKey: getCurrentUserKey(),
-            criadoEm: new Date().toISOString()
+            criadoEm: perfilAnterior?.criadoEm || new Date().toISOString(),
+            atualizadoEm: new Date().toISOString()
         };
 
         const criados = getPerfisCriados().filter(p => !(p.ownerKey === novoProfissional.ownerKey && p.criadoPeloUsuario));

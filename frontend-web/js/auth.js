@@ -352,6 +352,63 @@ function startProfileOnboarding(user) {
 }
 
 function renderOnboardingStep() {
+    if (!document.getElementById('na-onboarding-form-style')) {
+        const style = document.createElement('style');
+        style.id = 'na-onboarding-form-style';
+
+        style.textContent = `
+            #profile-onboarding .onboarding-input,
+            #profile-onboarding .onboarding-textarea {
+                display: block;
+                box-sizing: border-box;
+                width: 100%;
+                min-height: 45px;
+                padding: 13px 14px;
+                border: 1px solid #344256;
+                border-radius: 10px;
+                background: #192437;
+                color: #f8fafc;
+                font: inherit;
+                font-size: 14px;
+                outline: none;
+                transition: border-color .2s, box-shadow .2s;
+            }
+
+            #profile-onboarding .onboarding-textarea {
+                min-height: 95px;
+                resize: vertical;
+                line-height: 1.55;
+            }
+
+            #profile-onboarding .onboarding-input::placeholder,
+            #profile-onboarding .onboarding-textarea::placeholder {
+                color: #94a3b8;
+                opacity: 1;
+            }
+
+            #profile-onboarding .onboarding-input:focus,
+            #profile-onboarding .onboarding-textarea:focus {
+                border-color: #d9ff00;
+                box-shadow: 0 0 0 3px rgba(217,255,0,.10);
+            }
+
+            #profile-onboarding .onboarding-label {
+                display: block;
+                margin-top: 14px;
+                margin-bottom: 6px;
+                color: #e2e8f0;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            #profile-onboarding .specialty-option.selected {
+                border-color: #d9ff00;
+                color: #d9ff00;
+            }
+        `;
+
+        document.head.appendChild(style);
+    }
     const role = normalizeRole(onboardingUser?.role);
     const professional = role === 'profissional';
     const content = document.getElementById('onboarding-content');
@@ -368,9 +425,9 @@ function renderOnboardingStep() {
           <label class="onboarding-label" for="onboarding-sport">Qual modalidade você pratica e quer ter assistência?</label>
           <input class="onboarding-input" id="onboarding-sport" placeholder="Ex.: musculação, corrida, natação" value="${escapeOnboarding(onboardingProfile.sport || '')}">
           <label class="onboarding-label" for="onboarding-focus">Como é o seu foco no treino?</label>
-          <textarea class="onboarding-textarea" id="onboarding-focus" placeholder="Ex.: ganhar força, melhorar a técnica ou manter a constância">${escapeOnboarding(onboardingProfile.focus || '')}</textarea>
+          <textarea class="onboarding-textarea" id="onboarding-focus" placeholder="Ex.: melhorar minha resistência, técnica e condicionamento físico.">${escapeOnboarding(onboardingProfile.focus || '')}</textarea>
           <label class="onboarding-label" for="onboarding-goal">Qual é o seu principal objetivo?</label>
-          <input class="onboarding-input" id="onboarding-goal" placeholder="Ex.: ganhar massa muscular, melhorar o condicionamento" value="${escapeOnboarding(onboardingProfile.goal || '')}">
+          <input class="onboarding-input" id="onboarding-goal" placeholder="Ex.: evoluir no futebol e encontrar profissionais qualificados." value="${escapeOnboarding(onboardingProfile.goal || '')}">
           ${onboardingActions(false)}`;
     } else if (onboardingStep === 1) {
         content.innerHTML = `
@@ -379,11 +436,11 @@ function renderOnboardingStep() {
           <span class="onboarding-label">Quais são suas especialidades?</span>
           <div class="specialty-options">${PROFESSIONAL_SPECIALTIES.map(item => `<button type="button" class="specialty-option${(onboardingProfile.specialties || []).includes(item) ? ' selected' : ''}" aria-pressed="${(onboardingProfile.specialties || []).includes(item)}" onclick="toggleOnboardingSpecialty(this)">${item}</button>`).join('')}</div>
           <label class="onboarding-label" for="onboarding-work">Descreva seu trabalho</label>
-          <textarea class="onboarding-textarea" id="onboarding-work" placeholder="Como você ajuda seus clientes?">${escapeOnboarding(onboardingProfile.workDescription || '')}</textarea>
+          <textarea class="onboarding-textarea" id="onboarding-work" placeholder="Ex.: ajudo atletas na reabilitação esportiva e prevenção de lesões.">${escapeOnboarding(onboardingProfile.workDescription || '')}</textarea>
           <label class="onboarding-label" for="onboarding-experience-years">Tempo de experiência (anos) *</label>
           <input class="onboarding-input" id="onboarding-experience-years" type="number" min="0" max="60" step="1" required placeholder="Ex.: 5" value="${escapeOnboarding(onboardingProfile.experienceYears ?? '')}">
           <label class="onboarding-label" for="onboarding-experience">Conte sobre sua experiência</label>
-          <textarea class="onboarding-textarea" id="onboarding-experience" placeholder="Tempo de carreira, formações e experiências relevantes">${escapeOnboarding(onboardingProfile.experience || '')}</textarea>
+          <textarea class="onboarding-textarea" id="onboarding-experience" placeholder="Ex.: sou formado em Fisioterapia e atuo há 5 anos com atletas.">${escapeOnboarding(onboardingProfile.experience || '')}</textarea>
           ${onboardingActions(false)}`;
     } else {
         const initials = (onboardingUser?.nome || onboardingUser?.name || 'NA').split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase();
@@ -391,7 +448,7 @@ function renderOnboardingStep() {
           <h1 class="onboarding-title" id="onboarding-title">Deixe seu perfil com a sua cara</h1>
           <p class="onboarding-description">Escolha como quer ser chamado e, se quiser, adicione uma foto ao seu perfil.</p>
           <label class="onboarding-label" for="onboarding-nickname">Como você quer ser chamado?</label>
-          <input class="onboarding-input" id="onboarding-nickname" placeholder="Seu nome ou apelido" value="${escapeOnboarding(onboardingProfile.nickname || onboardingUser?.nome || onboardingUser?.name || '')}">
+          <input class="onboarding-input" id="onboarding-nickname" placeholder="Ex.: João Silva ou João Personal" value="${escapeOnboarding(onboardingProfile.nickname || onboardingUser?.nome || onboardingUser?.name || '')}">
           <div class="profile-photo-row"><div class="profile-photo-preview" id="onboarding-photo-preview">${onboardingProfile.photo ? `<img src="${onboardingProfile.photo}" alt="Prévia da foto de perfil">` : initials}</div><div><label class="photo-picker-label" for="onboarding-photo">${onboardingProfile.photo ? 'Trocar foto' : 'Adicionar foto'}</label><input id="onboarding-photo" type="file" accept="image/*" hidden onchange="previewOnboardingPhoto(event)"></div></div>
           ${onboardingActions(true)}`;
     }

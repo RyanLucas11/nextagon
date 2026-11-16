@@ -84,6 +84,36 @@ function initProfile() {
     }
     if (ppEmail) ppEmail.textContent = user.email;
 
+    const painelCorpo = document.querySelector('#profile-panel .pp-body');
+
+    if (painelCorpo && !document.getElementById('na-edit-profile')) {
+        const opcao = document.createElement('div');
+        opcao.id = 'na-edit-profile';
+        opcao.className = 'pp-opt';
+        opcao.tabIndex = 0;
+        opcao.setAttribute('role', 'button');
+        opcao.innerHTML = `
+            <div class="pp-icon" style="background:var(--accent-dim)">
+                <i class="fa-solid fa-user-pen" style="color:var(--accent)"></i>
+            </div>
+            <div>
+                <div class="pp-opt-title">Editar informações do perfil</div>
+                <div class="pp-opt-sub">Atualize seus dados pessoais e profissionais</div>
+            </div>
+            <span class="pp-arrow" aria-hidden="true">›</span>
+        `;
+
+        opcao.addEventListener('click', optEditarPerfil);
+        opcao.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                optEditarPerfil();
+            }
+        });
+
+        painelCorpo.insertBefore(opcao, painelCorpo.firstChild);
+    }
+
     const userNomeEl = document.getElementById('user-nome');
     if (userNomeEl) userNomeEl.textContent = user.nome.split(' ')[0];
 
@@ -424,6 +454,325 @@ function _createModal(titleHtml, bodyHtml) {
 /* ══════════════════════════════════════════════════════════
    ALTERAR FOTO DE PERFIL — upload real + fallback iniciais
    ══════════════════════════════════════════════════════════ */
+function optEditarPerfil() {
+    if (!document.getElementById('na-profile-edit-style')) {
+        const style = document.createElement('style');
+        style.id = 'na-profile-edit-style';
+
+        style.textContent = `
+            .na-edit-profile-modal {
+                max-width: 540px !important;
+                background: #101827 !important;
+                border: 1px solid #26354a !important;
+                border-radius: 20px !important;
+            }
+
+            .na-edit-profile-modal .na-modal-header {
+                padding: 24px 26px 10px;
+            }
+
+            .na-edit-profile-modal .na-modal-title {
+                color: #f8fafc;
+                font-size: 18px;
+                font-weight: 700;
+            }
+
+            .na-edit-profile-modal .na-modal-title i {
+                color: #d9ff00;
+            }
+
+            .na-edit-profile-modal .na-modal-body {
+                padding: 12px 26px 26px;
+            }
+
+            .na-edit-profile-modal #na-edit-profile-form {
+                display: flex !important;
+                flex-direction: column;
+                gap: 8px !important;
+            }
+
+            .na-edit-profile-modal .onboarding-label {
+                display: block;
+                color: #e2e8f0;
+                font-size: 13px;
+                font-weight: 600;
+                margin-top: 13px;
+                margin-bottom: 3px;
+            }
+
+            .na-edit-profile-modal .onboarding-input,
+            .na-edit-profile-modal .onboarding-textarea {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+                padding: 13px 14px;
+                min-height: 45px;
+                border: 1px solid #344256;
+                border-radius: 10px;
+                background: #192437 !important;
+                color: #f8fafc !important;
+                font: inherit;
+                font-size: 14px;
+                outline: none;
+                box-shadow: none;
+                transition: border-color .2s, box-shadow .2s;
+            }
+
+            .na-edit-profile-modal .onboarding-textarea {
+                min-height: 95px;
+                resize: vertical;
+                line-height: 1.55;
+            }
+
+            .na-edit-profile-modal .onboarding-input::placeholder,
+            .na-edit-profile-modal .onboarding-textarea::placeholder {
+                color: #94a3b8;
+                opacity: 1;
+            }
+
+            .na-edit-profile-modal .onboarding-input:focus,
+            .na-edit-profile-modal .onboarding-textarea:focus {
+                border-color: #d9ff00;
+                box-shadow: 0 0 0 3px rgba(217,255,0,.10);
+            }
+
+            .na-edit-profile-modal #edit-specialties {
+                background: #192437;
+                padding: 14px;
+                border: 1px solid #344256;
+                border-radius: 10px;
+                grid-template-columns: repeat(auto-fit,minmax(165px,1fr));
+            }
+
+            .na-edit-profile-modal #edit-specialties label {
+                font-size: 13px;
+                line-height: 1.5;
+            }
+
+            .na-edit-profile-modal #edit-specialties input {
+                accent-color: #d9ff00;
+            }
+
+            .na-edit-profile-modal .na-modal-save-btn {
+                margin-top: 18px;
+                padding: 15px;
+                background: #d9ff00;
+                color: #101827;
+                border-radius: 11px;
+                font-size: 14px;
+                font-weight: 800;
+            }
+
+            .na-edit-profile-modal .na-modal-save-btn:hover {
+                background: #c4e800;
+                opacity: 1;
+            }
+
+            @media (max-width: 600px) {
+                .na-edit-profile-modal .na-modal-header {
+                    padding: 20px 18px 8px;
+                }
+
+                .na-edit-profile-modal .na-modal-body {
+                    padding: 12px 18px 22px;
+                }
+            }
+        `;
+
+        document.head.appendChild(style);
+    }
+    const user = getCurrentUser();
+
+    if (!user || !user.id && !user.email) {
+        showToast('Entre na sua conta para editar o perfil.', 'warn');
+        return;
+    }
+
+    const key = 'na_onboarding_profiles';
+    const id = String(user.id || user.email);
+
+    let profiles;
+
+    try {
+        profiles = JSON.parse(localStorage.getItem(key) || '{}');
+
+        if (!profiles || typeof profiles !== 'object' ||
+            Array.isArray(profiles)) {
+            throw new Error('Formato de dados invalido.');
+        }
+    } catch (error) {
+        showToast('Nao foi possivel carregar o perfil.', 'err');
+        return;
+    }
+
+    const profile = profiles[id] || profiles[user.email] || {};
+    const professional = ['profissional', 'professional'].includes(
+        String(user.role).toLowerCase()
+    );
+
+    const escape = value => String(value ?? '').replace(
+        /[&<>"']/g,
+        char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        })[char]
+    );
+
+    const fields = professional ? `
+        <label class="onboarding-label">Especialidades</label>
+        <div id="edit-specialties" style="display:grid;gap:8px;margin-bottom:15px">
+            ${(typeof PROFESSIONAL_SPECIALTIES !== 'undefined'
+                ? PROFESSIONAL_SPECIALTIES
+                : (profile.specialties || [])
+            ).map(item => `
+                <label style="display:flex;gap:8px;align-items:center;color:var(--text)">
+                    <input type="checkbox" name="specialties"
+                        value="${escape(item)}"
+                        ${(profile.specialties || []).includes(item) ? 'checked' : ''}>
+                    ${escape(item)}
+                </label>
+            `).join('')}
+        </div>
+
+        <label class="onboarding-label" for="edit-years">
+            Tempo de experiência (anos)
+        </label>
+        <input class="onboarding-input" id="edit-years" placeholder="Ex.: 5"
+            type="number" min="0" max="60" step="1" required
+            value="${escape(profile.experienceYears ?? '')}">
+
+        <label class="onboarding-label" for="edit-work">
+            Descrição do trabalho
+        </label>
+        <textarea class="onboarding-textarea" id="edit-work" placeholder="Ex.: atendo atletas com reabilitação esportiva e prevenção de lesões."
+            maxlength="2000">${escape(profile.workDescription)}</textarea>
+
+        <label class="onboarding-label" for="edit-experience">
+            Trajetória profissional
+        </label>
+        <textarea class="onboarding-textarea" id="edit-experience" placeholder="Ex.: sou formado em Fisioterapia e atuo há 5 anos na área esportiva."
+            maxlength="2000">${escape(profile.experience)}</textarea>
+    ` : `
+        <label class="onboarding-label" for="edit-sport">
+            Modalidade esportiva
+        </label>
+        <input class="onboarding-input" id="edit-sport" placeholder="Ex.: musculação, futebol, corrida ou natação"
+            maxlength="120" value="${escape(profile.sport)}">
+
+        <label class="onboarding-label" for="edit-focus">
+            Foco na prática esportiva
+        </label>
+        <textarea class="onboarding-textarea" id="edit-focus" placeholder="Ex.: melhorar minha resistência, técnica e condicionamento físico."
+            maxlength="1000">${escape(profile.focus)}</textarea>
+
+        <label class="onboarding-label" for="edit-goal">
+            Objetivo principal
+        </label>
+        <textarea class="onboarding-textarea" id="edit-goal" placeholder="Ex.: evoluir no futebol e encontrar profissionais qualificados."
+            maxlength="1000">${escape(profile.goal)}</textarea>
+    `;
+
+    const body = `
+        <form id="na-edit-profile-form" style="display:grid;gap:10px">
+            <label class="onboarding-label" for="edit-nickname">
+                Nome de exibição
+            </label>
+            <input class="onboarding-input" id="edit-nickname" placeholder="Ex.: João Silva ou João Personal"
+                maxlength="100" required
+                value="${escape(profile.nickname || user.nome)}">
+
+            ${fields}
+
+            <button type="submit" class="na-modal-save-btn">
+                <i class="fa-solid fa-check"></i> Salvar alterações
+            </button>
+        </form>
+    `;
+
+    const modal = _createModal(
+        '<i class="fa-solid fa-user-pen"></i> Editar informações',
+        body
+    );
+
+    modal.querySelector('.na-modal')?.classList.add('na-edit-profile-modal');
+
+    const form = modal.querySelector('#na-edit-profile-form');
+
+    form.addEventListener('submit', event => {
+        event.preventDefault();
+
+        const value = selector =>
+            form.querySelector(selector)?.value.trim() || '';
+
+        const nickname = value('#edit-nickname');
+
+        if (!nickname || nickname.length > 100) {
+            showToast('Informe um nome de exibição válido.', 'warn');
+            return;
+        }
+
+        const updated = {
+            ...profile,
+            nickname,
+            role: user.role,
+            updatedAt: new Date().toISOString()
+        };
+
+        if (professional) {
+            const rawYears = value('#edit-years');
+            const years = Number(rawYears);
+
+            if (
+                rawYears === '' ||
+                !Number.isInteger(years) ||
+                years < 0 ||
+                years > 60
+            ) {
+                showToast('Informe de 0 a 60 anos de experiência.', 'warn');
+                return;
+            }
+
+            updated.experienceYears = years;
+            updated.workDescription = value('#edit-work');
+            updated.experience = value('#edit-experience');
+            updated.specialties = Array.from(
+                form.querySelectorAll(
+                    'input[name="specialties"]:checked'
+                ),
+                input => input.value
+            );
+        } else {
+            updated.sport = value('#edit-sport');
+            updated.focus = value('#edit-focus');
+            updated.goal = value('#edit-goal');
+        }
+
+        try {
+            localStorage.setItem(
+                key,
+                JSON.stringify({
+                    ...profiles,
+                    [id]: updated
+                })
+            );
+        } catch (error) {
+            showToast('Falha ao salvar as informações.', 'err');
+            return;
+        }
+
+        if (typeof saveSession === 'function') {
+            saveSession({ ...user, nome: nickname });
+        }
+
+        modal.remove();
+        initProfile();
+        showToast('Informações atualizadas com sucesso!');
+    });
+}
+
 function optFoto() {
     const user = getCurrentUser();
     if (!user) return;
