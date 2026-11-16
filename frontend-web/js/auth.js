@@ -339,7 +339,7 @@ async function criarConta() {
 let onboardingStep = 1;
 let onboardingUser = null;
 let onboardingProfile = {};
-const PROFESSIONAL_SPECIALTIES = ['Personal trainer', 'Nutrição esportiva', 'Fisioterapia', 'Preparação física', 'Psicologia do esporte', 'Educação física', 'Medicina esportiva', 'Outro'];
+const PROFESSIONAL_SPECIALTIES = ['Personal trainer', 'Nutrição esportiva', 'Fisioterapeuta', 'Fisioterapia', 'Preparação física', 'Psicologia do esporte', 'Educação física', 'Medicina esportiva', 'Outro'];
 
 function startProfileOnboarding(user) {
     onboardingUser = user;
@@ -380,6 +380,8 @@ function renderOnboardingStep() {
           <div class="specialty-options">${PROFESSIONAL_SPECIALTIES.map(item => `<button type="button" class="specialty-option${(onboardingProfile.specialties || []).includes(item) ? ' selected' : ''}" aria-pressed="${(onboardingProfile.specialties || []).includes(item)}" onclick="toggleOnboardingSpecialty(this)">${item}</button>`).join('')}</div>
           <label class="onboarding-label" for="onboarding-work">Descreva seu trabalho</label>
           <textarea class="onboarding-textarea" id="onboarding-work" placeholder="Como você ajuda seus clientes?">${escapeOnboarding(onboardingProfile.workDescription || '')}</textarea>
+          <label class="onboarding-label" for="onboarding-experience-years">Tempo de experiência (anos) *</label>
+          <input class="onboarding-input" id="onboarding-experience-years" type="number" min="0" max="60" step="1" required placeholder="Ex.: 5" value="${escapeOnboarding(onboardingProfile.experienceYears ?? '')}">
           <label class="onboarding-label" for="onboarding-experience">Conte sobre sua experiência</label>
           <textarea class="onboarding-textarea" id="onboarding-experience" placeholder="Tempo de carreira, formações e experiências relevantes">${escapeOnboarding(onboardingProfile.experience || '')}</textarea>
           ${onboardingActions(false)}`;
@@ -408,6 +410,10 @@ function collectOnboardingStep() {
     if (onboardingStep === 1 && normalizeRole(onboardingUser?.role) === 'profissional') {
         onboardingProfile.workDescription = value('onboarding-work');
         onboardingProfile.experience = value('onboarding-experience');
+        const yearsRaw = value('onboarding-experience-years');
+        onboardingProfile.experienceYears = yearsRaw === ''
+            ? null
+            : Number(yearsRaw);
     } else if (onboardingStep === 1) {
         onboardingProfile.sport = value('onboarding-sport');
         onboardingProfile.focus = value('onboarding-focus');
@@ -417,13 +423,48 @@ function collectOnboardingStep() {
     }
 }
 
+function validarExperienciaOnboarding() {
+    if (
+        onboardingStep !== 1 ||
+        normalizeRole(onboardingUser?.role) !== 'profissional'
+    ) {
+        return true;
+    }
+
+    const campo = document.getElementById('onboarding-experience-years');
+
+    if (!campo) return false;
+
+    const texto = campo.value.trim();
+    const anos = Number(texto);
+
+    campo.setCustomValidity('');
+
+    if (
+        texto === '' ||
+        !Number.isInteger(anos) ||
+        anos < 0 ||
+        anos > 60
+    ) {
+        campo.setCustomValidity(
+            'Informe um numero inteiro entre 0 e 60 anos.'
+        );
+        campo.reportValidity();
+        return false;
+    }
+
+    return true;
+}
+
 function advanceOnboarding() {
+    if (!validarExperienciaOnboarding()) return;
     collectOnboardingStep();
     onboardingStep = 2;
     renderOnboardingStep();
 }
 
 function skipOnboardingStep() {
+    if (!validarExperienciaOnboarding()) return;
     collectOnboardingStep();
     if (onboardingStep === 1) {
         onboardingStep = 2;

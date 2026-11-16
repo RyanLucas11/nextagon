@@ -676,7 +676,7 @@
     <div class="main">
         <div class="topbar">
             <div>
-                <div class="page-title">Nutricionistas & <span>Personal Trainers</span></div>
+                <div class="page-title">Profissionais <span>da Saude e do Esporte</span></div>
                 <div class="page-subtitle">Filtre por tipo, modalidade, especialidade e preço em uma busca mais moderna</div>
             </div>
             <button class="btn-cadastrar" id="btnCadastrarProf" onclick="openModalCadastro()" style="display:none"><i class="fa-solid fa-user-plus"></i> Cadastrar-se</button>
@@ -717,7 +717,7 @@
                     <div class="hero-icon"><i class="fa-solid fa-user-group"></i></div>
                     <div>
                         <strong>Curadoria simplificada</strong>
-                        <span>Mostrando somente nutricionistas e personal trainers para facilitar a escolha do usuário.</span>
+                        <span>Encontre personal trainers, nutricionistas e fisioterapeutas.</span>
                     </div>
                 </div>
                 <div class="filter-hero-card">
@@ -731,7 +731,7 @@
                     <div class="hero-icon"><i class="fa-solid fa-user-shield"></i></div>
                     <div>
                         <strong>Profissionais em destaque</strong>
-                        <span>Dois perfis selecionados para demonstração: um personal trainer e uma nutricionista.</span>
+                        <span>Conheca profissionais de diferentes especialidades.</span>
                     </div>
                 </div>
             </div>
@@ -743,6 +743,7 @@
                         <button class="seg-btn active" onclick="setArea(this,'')"><i class="fa-solid fa-layer-group"></i> Todos</button>
                         <button class="seg-btn" onclick="setArea(this,'Personal Trainer')"><i class="fa-solid fa-dumbbell"></i> Personal Trainer</button>
                         <button class="seg-btn" onclick="setArea(this,'Nutricionista')"><i class="fa-solid fa-apple-whole"></i> Nutricionista</button>
+                        <button class="seg-btn" onclick="setArea(this,'Fisioterapeuta')"><i class="fa-solid fa-heart-pulse"></i> Fisioterapeuta</button>
                     </div>
                     <input type="hidden" id="areaSelect" value="">
                     <div class="info-pill"><i class="fa-solid fa-circle-info"></i> Exibindo apenas as duas categorias solicitadas.</div>
@@ -883,12 +884,37 @@
                 </div>
             </div>
 
+            <!-- Experiencia profissional -->
+            <div class="form-field">
+                <label for="cExperienciaAnos">Tempo de experiencia (anos) *</label>
+                <input
+                    type="number"
+                    id="cExperienciaAnos"
+                    min="0"
+                    max="60"
+                    step="1"
+                    placeholder="Ex.: 5"
+                    required
+                >
+            </div>
+
+            <div class="form-field">
+                <label for="cExperienciaDescricao">Conte sobre sua experiencia</label>
+                <textarea
+                    id="cExperienciaDescricao"
+                    rows="3"
+                    maxlength="2000"
+                    placeholder="Descreva sua trajetoria e formacoes"
+                ></textarea>
+            </div>
+
             <!-- Áreas de atuação (multi-select) -->
             <div class="form-field">
                 <label>Áreas de atuação * <span style="color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0">(selecione uma ou mais)</span></label>
                 <div class="areas-grid">
                     <label class="area-check-label"><input type="checkbox" name="cArea" value="Personal Trainer"><span class="check-box"></span><span class="check-name">Personal Trainer</span></label>
                     <label class="area-check-label"><input type="checkbox" name="cArea" value="Nutricionista"><span class="check-box"></span><span class="check-name">Nutricionista</span></label>
+                    <label class="area-check-label"><input type="checkbox" name="cArea" value="Fisioterapeuta"><span class="check-box"></span><span class="check-name">Fisioterapeuta</span></label>
                 </div>
             </div>
 
@@ -1182,7 +1208,10 @@
         let res = base.filter(p => {
             const mQ = !q || p.nome.toLowerCase().includes(q) || p.area.toLowerCase().includes(q)
                 || p.cidade.toLowerCase().includes(q) || p.specs.some(s => s.toLowerCase().includes(q));
-            const mA = !area  || p.area === area;
+            const areasProfissional = Array.isArray(p.areas)
+                ? p.areas
+                : [p.area].filter(Boolean);
+            const mA = !area || areasProfissional.includes(area);
             const mM = !modal || p.modalidade === modal || p.modalidade === 'Ambos';
             const mP = p.preco <= priceMax;
             const mS = !activeSpec || p.specs.includes(activeSpec);
@@ -1193,7 +1222,11 @@
         if (sort === 'rating')    res.sort((a,b) => b.rating - a.rating);
         if (sort === 'priceAsc')  res.sort((a,b) => a.preco  - b.preco);
         if (sort === 'priceDesc') res.sort((a,b) => b.preco  - a.preco);
-        if (sort === 'exp')       res.sort((a,b) => b.exp    - a.exp);
+        if (sort === 'exp') {
+            res.sort(
+                (a, b) => (Number(b.exp) || 0) - (Number(a.exp) || 0)
+            );
+        }
         if (sort === 'novo')      res.sort((a,b) => b.id     - a.id);
 
         const grid = document.getElementById('profGrid');
@@ -1303,6 +1336,40 @@
         document.getElementById('modalForm').classList.remove('hide');
         document.getElementById('modalSuccess').classList.remove('show');
         resetFormCadastro();
+
+        try {
+            const usuario = getCurrentUser();
+
+            const perfis = JSON.parse(
+                localStorage.getItem('na_onboarding_profiles') || '{}'
+            );
+
+            const perfil = perfis[usuario?.id] ||
+                perfis[usuario?.email] || {};
+
+            const campoAnos = document.getElementById(
+                'cExperienciaAnos'
+            );
+
+            const campoDescricao = document.getElementById(
+                'cExperienciaDescricao'
+            );
+
+            if (
+                Number.isInteger(perfil.experienceYears) &&
+                perfil.experienceYears >= 0 &&
+                perfil.experienceYears <= 60
+            ) {
+                campoAnos.value = String(perfil.experienceYears);
+            }
+
+            campoDescricao.value = perfil.experience || '';
+        } catch (erro) {
+            console.warn(
+                '[Next Agon] Falha ao carregar experiencia:',
+                erro
+            );
+        }
     }
 
     function closeModalCadastro() {
@@ -1323,7 +1390,8 @@
     }
 
     function resetFormCadastro() {
-        ['cNome','cTel','cPreco','cCidade'].forEach(id => {
+        ['cNome','cTel','cPreco','cCidade',
+         'cExperienciaAnos','cExperienciaDescricao'].forEach(id => {
             document.getElementById(id).value = '';
         });
         document.querySelectorAll('input[name="cArea"]').forEach(c => c.checked = false);
@@ -1380,6 +1448,29 @@
         const idade  = parseInt(document.getElementById('cIdade').value) || 0;
         const registro = document.getElementById('cRegistro').value.trim();
 
+        const experienciaTexto = document.getElementById(
+            'cExperienciaAnos'
+        ).value.trim();
+
+        const experienciaAnos = Number(experienciaTexto);
+
+        const experienciaDescricao = document.getElementById(
+            'cExperienciaDescricao'
+        ).value.trim();
+
+        if (
+            experienciaTexto === '' ||
+            !Number.isInteger(experienciaAnos) ||
+            experienciaAnos < 0 ||
+            experienciaAnos > 60
+        ) {
+            showToast(
+                '',
+                'Informe entre 0 e 60 anos de experiencia.'
+            );
+            return;
+        }
+
         if (!nome || !tel || areas.length === 0 || !preco || !cidade || !idade) {
             showToast('<i class="fa-solid fa-triangle-exclamation"></i>', 'Preencha todos os campos obrigatórios.');
             return;
@@ -1406,7 +1497,8 @@
             statusLabel: status,
             rating: 0,
             reviews: 0,
-            exp: 1,
+            exp: experienciaAnos,
+            experienceDescription: experienciaDescricao,
             preco,
             cidade,
             idade,
@@ -1683,6 +1775,7 @@
         areas: [
             { id: 'a1', label: 'Personal Trainer', icon: 'fa-dumbbell',    value: 'Personal Trainer', active: true },
             { id: 'a2', label: 'Nutricionista',    icon: 'fa-apple-whole', value: 'Nutricionista',    active: true },
+            { id: 'a3', label: 'Fisioterapeuta', icon: 'fa-heart-pulse', value: 'Fisioterapeuta', active: true },
         ],
         modals: [
             { id: 'm1', label: 'Presencial', icon: 'fa-location-dot',   value: 'Presencial', active: true },
@@ -1699,6 +1792,7 @@
             { id: 's7',  label: 'Reeducação Alimentar', icon: 'fa-utensils',     value: 'Reeducação Alimentar',active: true },
             { id: 's8',  label: 'Saúde da Mulher',      icon: 'fa-heart-pulse',  value: 'Saúde da Mulher',     active: true },
             { id: 's9',  label: 'Performance Esportiva',icon: 'fa-medal',        value: 'Performance Esportiva',active: true },
+            { id: 's10', label: 'Fisioterapia', icon: 'fa-heart-pulse', value: 'Fisioterapia', active: true },
         ],
         quickPrices: [
             { id: 'p1', label: 'Até R$ 180', value: 180, active: true },
@@ -1717,10 +1811,72 @@
     };
 
     function getFMConfig() {
+        const defaults = JSON.parse(JSON.stringify(FM_DEFAULTS));
+
         try {
-            const s = localStorage.getItem(FM_KEY);
-            return s ? JSON.parse(s) : JSON.parse(JSON.stringify(FM_DEFAULTS));
-        } catch(e) { return JSON.parse(JSON.stringify(FM_DEFAULTS)); }
+            const saved = localStorage.getItem(FM_KEY);
+            if (!saved) return defaults;
+
+            const parsed = JSON.parse(saved);
+
+            if (!parsed || typeof parsed !== 'object' ||
+                Array.isArray(parsed)) {
+                return defaults;
+            }
+
+            const config = { ...defaults, ...parsed };
+            let changed = false;
+
+            for (const key of Object.keys(defaults)) {
+                if (!Array.isArray(config[key])) {
+                    config[key] = defaults[key];
+                    changed = true;
+                }
+            }
+
+            const required = [
+                {
+                    collection: 'areas',
+                    item: {
+                        id: 'a3',
+                        label: 'Fisioterapeuta',
+                        icon: 'fa-heart-pulse',
+                        value: 'Fisioterapeuta',
+                        active: true
+                    }
+                },
+                {
+                    collection: 'specs',
+                    item: {
+                        id: 's10',
+                        label: 'Fisioterapia',
+                        icon: 'fa-heart-pulse',
+                        value: 'Fisioterapia',
+                        active: true
+                    }
+                }
+            ];
+
+            for (const entry of required) {
+                const exists = config[entry.collection].some(
+                    item => item.value === entry.item.value
+                );
+
+                if (!exists) {
+                    config[entry.collection].push(entry.item);
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                localStorage.setItem(FM_KEY, JSON.stringify(config));
+            }
+
+            return config;
+        } catch (error) {
+            console.warn('[Next Agon] Erro nos filtros:', error);
+            return defaults;
+        }
     }
 
     function saveFMConfig(cfg) {
@@ -2076,8 +2232,6 @@
             var email = u ? (u.email || u.login || 'Não informado') : 'Não informado';
             alert('Informações de Login\n\nE-mail: ' + email + '\nDispositivo: ' + navigator.userAgent.split(' ').slice(-1)[0] + '\nÚltimo acesso: agora');
         }
-    }
-    }
     }
     if (typeof optNotif === 'undefined') {
         function optNotif() { alert('Notificações\n\nNenhuma notificação pendente.\n\nEm breve você poderá configurar alertas de treino e consultas.'); }
