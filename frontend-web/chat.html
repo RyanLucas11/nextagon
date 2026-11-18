@@ -993,6 +993,9 @@
     let currentProfile = getConnectedProfessionalProfile();
     let currentMode = currentProfile ? "professional" : "client";
     let activeConversationId = null;
+    let apiProfessionals = [];
+    let apiContacts = [];
+    let serverConversations = [];
     let conversations = loadConversations();
     let nextMessageId = Number(localStorage.getItem("naNextMessageId") || "1000");
 
@@ -1008,6 +1011,7 @@
         applyModeUI();
         openFromUrl();
         renderConversationList();
+        syncChatFromBackend();
 
         window.addEventListener("storage", (event) => {
             if (event.key === CHAT_STORAGE_KEY || event.key === LAST_UPDATE_KEY) {
@@ -1087,7 +1091,8 @@
 
     function getAllProfessionals() {
         const created = getCreatedProfiles().map(normalizeProfessional);
-        return created;
+        const seen = new Set(created.map(p => String(p.id)));
+        return [...created, ...apiProfessionals.filter(p => !seen.has(String(p.id)))];
     }
 
     function isMyProfessionalProfile(prof) {
@@ -1135,6 +1140,109 @@
         }
     }
 
+    // Consultas autenticadas: cada usuário visualiza apenas seus próprios contratos.
+    async function syncChatFromBackend() {
+        if (!window.NextagonApi?.listProfessionalCards) return;
+        try {
+            apiProfessionals = await NextagonApi.listProfessionalCards();
+            const userId = currentUser.id;
+            const isProfessional = currentUser.role === 'profissional'
+                || currentUser.role === 'professional';
+            const mine = apiProfessionals.find(p => p.serverId === userId);
+            if (isProfessional && mine) {
+                currentProfile = normalizeProfessional(mine);
+                currentMode = 'professional';
+                applyModeUI();
+            }
+
+            apiContacts = !isProfessional ? apiProfessionals
+                .filter(p => p.serverId !== userId)
+                .map(p => ({
+                    id: 'catalog-' + p.serverId,
+                    catalogContact: true,
+                    clientKey: currentUserKey,
+                    clientName: currentUser.nome || currentUser.name || 'Atleta',
+                    clientAvatar: initials(currentUser.nome || currentUser.name || 'Atleta'),
+                    professionalId: p.id,
+                    professionalServerId: p.serverId,
+                    professionalName: p.nome,
+                    professionalArea: p.area,
+                    professionalModalidade: p.modalidade,
+                    professionalPhoto: null,
+                    professionalInitials: p.iniciais,
+                    professionalOnline: p.disponivel,
+                    updatedAt: new Date(0).toISOString(),
+                    lastMsg: 'Perfil demonstrativo · sem conversa iniciada',
+                    unreadForClient: 0,
+                    unreadForProfessional: 0,
+                    messages: []
+                })) : [];
+
+            if (userId && window.getAuthToken?.()) {
+                const endpoint = isProfessional ? 'professional' : 'athlete';
+                const headers = {Authorization: 'Bearer ' + getAuthToken()};
+                const apiUrl = window.NEXTAGON_API_URL.replace(/\/+$/, '');
+                const response = await fetch(
+                    `${apiUrl}/contracts/${endpoint}/${encodeURIComponent(userId)}`,
+                    {headers, credentials: 'omit'}
+                );
+                if (!response.ok) throw new Error('Contratos indisponíveis: ' + response.status);
+                const contracts = await response.json();
+                serverConversations = await Promise.all(
+                    (Array.isArray(contracts) ? contracts : [])
+                        .filter(c => c.status === 'ACTIVE')
+                        .map(async c => {
+                            const messagesResponse = await fetch(
+                                `${apiUrl}/chat/contract/${encodeURIComponent(c.id)}`,
+                                {headers, credentials: 'omit'}
+                            );
+                            if (!messagesResponse.ok) return null;
+                            const payload = await messagesResponse.json();
+                            const messages = (Array.isArray(payload) ? payload : []).map(m => ({
+                                id: m.id,
+                                senderKey: m.senderId === userId ? currentUserKey : 'outro-participante',
+                                senderName: m.senderName || '',
+                                text: escapeHtml(m.content || ''),
+                                time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) : '',
+                                createdAt: m.createdAt,
+                                attachment: null
+                            }));
+                            const profile = apiProfessionals.find(p => p.serverId === c.professionalId);
+                            return {
+                                id: 'backend-' + c.id,
+                                contractId: c.id,
+                                clientKey: isProfessional ? 'contract-athlete-' + c.athleteId : currentUserKey,
+                                clientName: c.athleteName || 'Atleta',
+                                clientAvatar: initials(c.athleteName || 'Atleta'),
+                                professionalId: profile?.id || c.professionalId,
+                                professionalName: c.professionalName || profile?.nome || 'Profissional',
+                                professionalArea: profile?.area || 'Profissional esportivo',
+                                professionalModalidade: profile?.modalidade || 'Atendimento',
+                                professionalInitials: initials(c.professionalName || 'Profissional'),
+                                professionalPhoto: null,
+                                professionalOnline: true,
+                                updatedAt: messages.at(-1)?.createdAt || c.createdAt,
+                                lastMsg: messages.at(-1)?.text || 'Conversa ativa',
+                                unreadForClient: 0,
+                                unreadForProfessional: 0,
+                                messages
+                            };
+                        })
+                );
+                serverConversations = serverConversations.filter(Boolean);
+            }
+            conversations = loadConversations();
+            renderConversationList();
+            if (document.getElementById('contactsModal')?.classList.contains('open')) {
+                renderContactsList();
+            }
+        } catch (error) {
+            console.error('Não foi possível sincronizar o chat com a API:', error);
+            conversations = loadConversations();
+            renderConversationList();
+        }
+    }
+
     function openFromUrl() {
         const params = new URLSearchParams(window.location.search);
         const profId = params.get("profId") || params.get("prof");
@@ -1166,6 +1274,18 @@
 
     function startConversationWithProfessional(prof) {
         prof = normalizeProfessional(prof);
+        if (prof.serverId) {
+            const linked = conversations.find(c =>
+                c.contractId && c.professionalId === prof.id
+            );
+            const preview = conversations.find(c =>
+                c.catalogContact && c.professionalServerId === prof.serverId
+            );
+            closeContactsModal();
+            if (linked || preview) openConversation((linked || preview).id);
+            else showToast('Contato disponível, mas sem conversa ativa.');
+            return;
+        }
 
         if (isMyProfessionalProfile(prof)) {
             showToast("Você não pode enviar mensagem para você mesmo.");
@@ -1390,9 +1510,39 @@
         `;
     }
 
-    function sendMessage() {
+    async function sendMessage() {
         const conv = conversations.find(c => c.id === activeConversationId);
         if (!conv) return;
+        if (conv.catalogContact) {
+            showToast('Contato de demonstração. É necessário um contrato ativo para enviar mensagens.');
+            return;
+        }
+        if (conv.contractId) {
+            const input = document.getElementById('messageInput');
+            const text = input?.value.trim();
+            if (!text) return;
+            input.disabled = true;
+            try {
+                const response = await fetch(window.NEXTAGON_API_URL + '/chat/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: 'Bearer ' + getAuthToken()
+                    },
+                    credentials: 'omit',
+                    body: JSON.stringify({contractId: conv.contractId, content: text})
+                });
+                if (!response.ok) throw new Error('Falha ao enviar mensagem: ' + response.status);
+                input.value = '';
+                await syncChatFromBackend();
+                const fresh = conversations.find(c => c.id === activeConversationId);
+                if (fresh) { renderMessages(fresh); scrollToBottom(); }
+            } catch (error) {
+                console.error(error);
+                showToast('Não foi possível enviar a mensagem.');
+            } finally { input.disabled = false; }
+            return;
+        }
 
         if (currentMode === "client" && currentProfile && String(currentProfile.id) === String(conv.professionalId)) {
             showToast("Você não pode enviar mensagem para seu próprio perfil.");
@@ -1447,6 +1597,11 @@
     }
 
     function openFilePicker() {
+        const selected = conversations.find(c => c.id === activeConversationId);
+        if (selected?.catalogContact || selected?.contractId) {
+            showToast('Anexos ainda não estão disponíveis nessas conversas.');
+            return;
+        }
         if (!activeConversationId) {
             showToast("Selecione uma conversa antes de anexar.");
             return;
@@ -1559,16 +1714,26 @@
     }
 
     function saveConversations() {
-        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(conversations));
+        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(
+            conversations.filter(c => !c.catalogContact && !c.contractId)
+        ));
         localStorage.setItem(LAST_UPDATE_KEY, String(Date.now()));
     }
 
     function loadConversations() {
+        let local = [];
         try {
-            return JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || "[]") || [];
-        } catch(e) {
-            return [];
-        }
+            const data = JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || '[]');
+            local = Array.isArray(data) ? data : [];
+        } catch(e) { console.warn('Histórico local inválido.', e); }
+        // Conversas do banco e contatos da API nunca são gravados no localStorage.
+        const liveIds = new Set(serverConversations.map(c => c.id));
+        const existing = new Set([...local, ...serverConversations].map(c => c.id));
+        return [
+            ...serverConversations,
+            ...local.filter(c => !liveIds.has(c.id)),
+            ...apiContacts.filter(c => !existing.has(c.id))
+        ];
     }
 
     function autoResize(el) {

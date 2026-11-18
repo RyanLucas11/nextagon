@@ -1228,7 +1228,7 @@
                             <i class="fa-solid fa-pen"></i> Editar meu perfil
                         </button>
                     ` : ''}
-                    <button class="btn-agendar" onclick="openModalAgendar('${safeName}')">Agendar Avaliação</button>
+                    <button class="btn-agendar" onclick="window.location.href='chat.html?profId=${p.id}'">Conversar com profissional</button>
                 </div>
             </div>
         `;
@@ -1750,6 +1750,26 @@
     /* ══ INIT ══ */
     carregarPerfisCriados();
     filterProfissionais();
+
+    // Sincroniza perfis públicos do marketplace do Spring Boot.
+    (async function carregarProfissionaisDaApi() {
+        try {
+            const perfis = await window.NextagonApi.listProfessionalCards();
+            for (const perfil of perfis) {
+                if (!profissionais.some(p => p.serverId === perfil.serverId)) {
+                    profissionais.push(perfil);
+                }
+            }
+            atualizarAbasProfissional();
+            filterProfissionais();
+        } catch (error) {
+            console.error('Falha ao listar profissionais no backend:', error);
+            const grid = document.getElementById('profGrid');
+            if (grid && !profissionais.length) {
+                grid.textContent = 'Não foi possível buscar profissionais. Confira a conexão com a API.';
+            }
+        }
+    })();
 
     // Exibe o botão "Cadastrar-se" somente para profissional/admin
     (function checkProfAccess() {

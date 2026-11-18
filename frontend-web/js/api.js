@@ -105,6 +105,42 @@
             };
         },
 
+        async listProfessionalCards() {
+            const data = await request('/marketplace/professionals?page=0&size=50', {method: 'GET'});
+            const records = Array.isArray(data?.content) ? data.content : [];
+            const clean = value => String(value ?? '').replace(/[<>&"'`]/g, '').trim();
+            const number = value => Number.isFinite(Number(value)) ? Number(value) : 0;
+            return records.map(p => {
+                const name = clean(p.name) || 'Profissional';
+                const specialties = Array.isArray(p.specialties)
+                    ? p.specialties.map(clean).filter(Boolean) : [];
+                let hash = 0;
+                for (const character of String(p.id)) {
+                    hash = (Math.imul(hash, 31) + character.charCodeAt(0)) | 0;
+                }
+                return {
+                    id: (hash >>> 0) + 100000,
+                    serverId: String(p.id),
+                    nome: name,
+                    iniciais: name.split(/\s+/).slice(0, 2).map(v => v[0]).join('').toUpperCase(),
+                    area: specialties[0] || 'Profissional esportivo',
+                    areas: specialties,
+                    specs: specialties,
+                    modalidade: 'Ambos',
+                    cidade: 'Brasília - DF',
+                    preco: number(p.hourlyRate),
+                    rating: number(p.averageRating),
+                    reviews: number(p.totalReviews),
+                    disponivel: p.available === true,
+                    exp: 1,
+                    foto: null,
+                    registro: '',
+                    criadoPeloUsuario: false,
+                    isNovo: false
+                };
+            });
+        },
+
         async listCommunityPosts(feed) {
             return request(`/community/posts?feed=${encodeURIComponent(feed)}`, {
                 method: 'GET',
