@@ -1006,12 +1006,11 @@
         onBack: () => window.location.replace('dashboard.html')
     });
 
-    function init() {
-        setupUserUI();
-        applyModeUI();
-        openFromUrl();
-        renderConversationList();
-        syncChatFromBackend();
+function init() {
+    setupUserUI();
+    applyModeUI();
+    renderConversationList();
+    syncChatFromBackend();
 
         window.addEventListener("storage", (event) => {
             if (event.key === CHAT_STORAGE_KEY || event.key === LAST_UPDATE_KEY) {
@@ -1145,6 +1144,18 @@
         if (!window.NextagonApi?.listProfessionalCards) return;
         try {
             apiProfessionals = await NextagonApi.listProfessionalCards();
+
+            // Atualiza os contatos assim que os profissionais chegam.
+            // Não depende da consulta de contratos ou mensagens.
+            if (document.getElementById('contactsModal')?.classList.contains('open')) {
+                renderContactsList();
+            }
+
+            console.log(
+                'Profissionais disponíveis no chat:',
+                apiProfessionals.length
+            );
+
             const userId = currentUser.id;
             const isProfessional = currentUser.role === 'profissional'
                 || currentUser.role === 'professional';
@@ -1177,6 +1188,20 @@
                     unreadForProfessional: 0,
                     messages: []
                 })) : [];
+                // Contatos disponíveis antes de consultar os contratos.
+                renderConversationList();
+                if (document.getElementById("contactsModal")
+                        ?.classList.contains("open")) {
+                        renderContactsList();
+}
+// Abre o profissional indicado pela URL após carregá-lo.
+openFromUrl();
+
+console.log(
+    "Contatos carregados:",
+     apiProfessionals.length
+);
+
 
             if (userId && window.getAuthToken?.()) {
                 const endpoint = isProfessional ? 'professional' : 'athlete';
@@ -1236,12 +1261,22 @@
             if (document.getElementById('contactsModal')?.classList.contains('open')) {
                 renderContactsList();
             }
+
+
         } catch (error) {
-            console.error('Não foi possível sincronizar o chat com a API:', error);
+            console.error(
+                'Não foi possível sincronizar o chat com a API:',
+                error
+            );
+
             conversations = loadConversations();
             renderConversationList();
+
+            if (document.getElementById('contactsModal')?.classList.contains('open')) {
+                renderContactsList();
+            }
         }
-    }
+    } // Fecha syncChatFromBackend()
 
     function openFromUrl() {
         const params = new URLSearchParams(window.location.search);
@@ -1264,28 +1299,102 @@
         return `conv-${clientKey}-prof-${profId}`.replace(/[^a-zA-Z0-9@._-]/g, "_");
     }
 
-    function getVisibleConversations() {
-        if (currentMode === "professional" && currentProfile) {
-            return conversations.filter(c => String(c.professionalId) === String(currentProfile.id));
+
+function getAllConversations() {
+    const all = [
+        ...serverConversations,
+        ...conversations,
+        ...apiContacts
+    ];
+
+    const seen = new Set();
+
+    return all.filter(conv => {
+        if (!conv || !conv.id || seen.has(conv.id)) {
+            return false;
         }
 
-        return conversations.filter(c => c.clientKey === currentUserKey);
+        seen.add(conv.id);
+        return true;
+    });
+}
+
+function getVisibleConversations() {
+    const all = getAllConversations();
+
+    if (currentMode === "professional") {
+        const myId = String(currentUser.id || "");
+
+        return all.filter(conv => {
+            if (conv.catalogContact) return false;
+
+            if (conv.contractId) {
+                return String(conv.professionalServerId || "") === myId
+                    || conv.professionalId === currentProfile?.id;
+            }
+
+            return currentProfile
+                && String(conv.professionalId)
+                    === String(currentProfile.id);
+        });
     }
+
+    return all.filter(conv =>
+        conv.clientKey === currentUserKey
+    );
+}
+
 
     function startConversationWithProfessional(prof) {
         prof = normalizeProfessional(prof);
-        if (prof.serverId) {
-            const linked = conversations.find(c =>
-                c.contractId && c.professionalId === prof.id
-            );
-            const preview = conversations.find(c =>
-                c.catalogContact && c.professionalServerId === prof.serverId
-            );
-            closeContactsModal();
-            if (linked || preview) openConversation((linked || preview).id);
-            else showToast('Contato disponível, mas sem conversa ativa.');
-            return;
-        }
+
+if (prof.serverId) {
+    if (String(prof.serverId) === String(currentUser.id)) {
+        showToast("Você não pode conversar consigo mesmo.");
+        return;
+    }
+
+    const linked = serverConversations.find(c =>
+        c.contractId &&
+        String(c.professionalServerId) === String(prof.serverId)
+    );
+
+    let preview = apiContacts.find(c =>
+        String(c.professionalServerId) === String(prof.serverId)
+    );
+
+    if (!preview && !linked) {
+        preview = {
+            id: "catalog-" + prof.serverId,
+            catalogContact: true,
+            clientKey: currentUserKey,
+            clientName: currentUser.nome || currentUser.name || "Atleta",
+            clientAvatar: initials(currentUser.nome || "Atleta"),
+            professionalId: prof.id,
+            professionalServerId: prof.serverId,
+            professionalName: prof.nome,
+            professionalArea: prof.area,
+            professionalModalidade: prof.modalidade,
+            professionalPhoto: null,
+            professionalInitials: prof.iniciais,
+            professionalOnline: prof.disponivel,
+            updatedAt: new Date().toISOString(),
+            lastMsg: "Contato de demonstração",
+            unreadForClient: 0,
+            unreadForProfessional: 0,
+            messages: []
+        };
+
+        apiContacts.push(preview);
+    }
+
+    closeContactsModal();
+    renderConversationList();
+    openConversation((linked || preview).id);
+
+    return;
+}
+
 
         if (isMyProfessionalProfile(prof)) {
             showToast("Você não pode enviar mensagem para você mesmo.");
@@ -1324,7 +1433,7 @@
     }
 
     function openConversation(id, focusInput = true) {
-        const conv = conversations.find(c => c.id === id);
+        const conv = getAllConversations().find(c => c.id === id);
         if (!conv) return;
 
         activeConversationId = id;
@@ -1334,8 +1443,11 @@
         } else {
             conv.unreadForClient = 0;
         }
+        // Somente conversas locais devem ser gravadas no navegador.
+        if (!conv.contractId && !conv.catalogContact) {
+            saveConversations();
+}
 
-        saveConversations();
 
         document.getElementById("chatPlaceholder").style.display = "none";
         document.getElementById("chatWindow").style.display = "flex";
@@ -1916,8 +2028,6 @@
             var email = u ? (u.email || u.login || 'Não informado') : 'Não informado';
             alert('Informações de Login\n\nE-mail: ' + email + '\nDispositivo: ' + navigator.userAgent.split(' ').slice(-1)[0] + '\nÚltimo acesso: agora');
         }
-    }
-    }
     }
     if (typeof optNotif === 'undefined') {
         function optNotif() { alert('Notificações\n\nNenhuma notificação pendente.\n\nEm breve você poderá configurar alertas de treino e consultas.'); }
