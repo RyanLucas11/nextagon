@@ -1108,11 +1108,38 @@ function init() {
         return false;
     }
 
-    function setupUserUI() {
-        document.getElementById("userName").textContent = currentUser.nome || currentUser.name || currentUser.email || "Usuário";
-        document.getElementById("userRole").textContent = currentMode === "professional" ? "profissional" : "cliente";
-        document.getElementById("userAvatar").textContent = currentUser.avatar || initials(currentUser.nome || currentUser.email || "U");
+
+function setupUserUI() {
+    const nome = currentUser.nome
+        || currentUser.name
+        || currentUser.email
+        || "Usuário";
+
+    const role = currentMode === "professional"
+        ? "profissional"
+        : "cliente";
+
+    const avatar = currentUser.avatar
+        || initials(nome);
+
+    // IDs reais existentes no HTML.
+    const userName = document.getElementById("sidebar-nome");
+    const userRole = document.getElementById("sidebar-role");
+    const userAvatar = document.getElementById("sidebar-avatar");
+
+    if (userName) {
+        userName.textContent = nome;
     }
+
+    if (userRole) {
+        userRole.textContent = role;
+    }
+
+    if (userAvatar) {
+        userAvatar.textContent = avatar;
+    }
+}
+
 
     function applyModeUI() {
         const badge = document.getElementById("modeBadge");
