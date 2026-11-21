@@ -4,13 +4,17 @@ package br.com.nextagon.controller;
 import br.com.nextagon.dto.response.ProfessionalResponseDto;
 import br.com.nextagon.model.Role;
 import br.com.nextagon.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 @RestController
 @RequestMapping("/marketplace")
@@ -19,8 +23,9 @@ public class MarketplaceController {
 
     private final UserRepository userRepository;
 
-    @GetMapping("/professionals")
-    public ResponseEntity<Page<ProfessionalResponseDto>> getProfessionals(
+ @GetMapping("/professionals")
+@Transactional(readOnly = true)
+public ResponseEntity<Page<ProfessionalResponseDto>> getProfessionals(
             @RequestParam(defaultValue = "0") double minRating,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
@@ -40,10 +45,12 @@ public class MarketplaceController {
             );
         }
 
-        if (!Double.isFinite(minRating) || minRating < 0) {
+        if (!Double.isFinite(minRating)
+                || minRating < 0
+                || minRating > 5) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "A avaliação mínima deve ser um número não negativo"
+                    "A avaliação mínima deve estar entre 0 e 5"
             );
         }
 
