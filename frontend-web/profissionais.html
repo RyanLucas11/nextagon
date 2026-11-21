@@ -1751,25 +1751,50 @@
     carregarPerfisCriados();
     filterProfissionais();
 
-    // Sincroniza perfis públicos do marketplace do Spring Boot.
-    (async function carregarProfissionaisDaApi() {
+
+    // Carrega profissionais após a inicialização da API.
+    window.addEventListener('load', async function carregarProfissionaisDaApi() {
+        const grid = document.getElementById('profGrid');
+
         try {
+            if (!window.NextagonApi?.listProfessionalCards) {
+                throw new Error('API do Next Agon não inicializada.');
+            }
+
             const perfis = await window.NextagonApi.listProfessionalCards();
+
             for (const perfil of perfis) {
-                if (!profissionais.some(p => p.serverId === perfil.serverId)) {
+                const existente = profissionais.some(
+                    p => p.serverId === perfil.serverId
+                );
+
+                if (!existente) {
                     profissionais.push(perfil);
                 }
             }
+
             atualizarAbasProfissional();
             filterProfissionais();
+
+            console.log(
+                'Profissionais carregados:',
+                perfis.length
+            );
+
         } catch (error) {
-            console.error('Falha ao listar profissionais no backend:', error);
-            const grid = document.getElementById('profGrid');
+            console.error(
+                'Erro ao carregar profissionais:',
+                error
+            );
+
             if (grid && !profissionais.length) {
-                grid.textContent = 'Não foi possível buscar profissionais. Confira a conexão com a API.';
+                grid.textContent =
+                    'Não foi possível carregar os profissionais. ' +
+                    'Verifique a conexão e tente novamente.';
             }
         }
-    })();
+    });
+
 
     // Exibe o botão "Cadastrar-se" somente para profissional/admin
     (function checkProfAccess() {
