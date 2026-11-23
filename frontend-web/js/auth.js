@@ -729,6 +729,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const requestedMode = new URLSearchParams(window.location.search).get('modo');
     if (requestedMode === 'cadastro') showPanel('criar');
     else if (requestedMode === 'login') showPanel('login');
+const requestedRole = new URLSearchParams(
+    window.location.search
+).get('perfil');
+
+if (requestedRole === 'profissional') {
+    selectRole('profissional');
+}
+
 
     // Enter no painel de login executa doLogin
     document.addEventListener('keydown', e => {
