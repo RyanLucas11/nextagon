@@ -903,14 +903,38 @@
 
 <div class="app chat-app-shell">
     <aside class="main-sidebar sidebar">
-        <div class="logo"><i class="fa-solid fa-bolt"></i> <span>Next Agon</span></div>
 
-        <nav class="nav">
-    <button onclick="showPage('dashboard')"><i class="fa-solid fa-house"></i> <span>Rede Fitness</span></button>
-    <button onclick="showPage('treinos')"><i class="fa-solid fa-dumbbell"></i> <span>Comunidade</span></button>
-    <button onclick="showPage('profissionais')"><i class="fa-solid fa-user-doctor"></i> <span>Profissionais</span></button>
-    <button class="active" onclick="showPage('chat')" aria-current="page"><i class="fa-regular fa-comments"></i> <span>Chat</span></button>
+<a class="sidebar-logo" href="dashboard.html">
+    <i class="fa-solid fa-bolt"></i>
+    Next Agon
+</a>
+
+<nav class="sidebar-nav" aria-label="Menu principal">
+
+    <a class="nav-item" href="dashboard.html">
+        <i class="fa-solid fa-house"></i>
+        Rede Fitness
+    </a>
+
+    <a class="nav-item" href="treinos.html">
+        <i class="fa-solid fa-dumbbell"></i>
+        Comunidade
+    </a>
+
+    <a class="nav-item" href="profissionais.html">
+        <i class="fa-solid fa-user-doctor"></i>
+        Profissionais
+    </a>
+
+    <a class="nav-item active"
+       href="chat.html"
+       aria-current="page">
+        <i class="fa-regular fa-comments"></i>
+        Chat
+    </a>
+
 </nav>
+
 
         <div class="user-box sidebar-profile" onclick="openPanel()" title="Meu Perfil" style="cursor:pointer;">
             <div class="user-avatar sidebar-profile-avatar" id="sidebar-avatar">U</div>
