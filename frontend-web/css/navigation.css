@@ -635,3 +635,111 @@ body .chat-app-shell > .main-sidebar {
         transform: none !important;
     }
 }
+
+/* ==========================================================
+   NEXT AGON - TEMA CLARO VERDE ESMERALDA
+   ========================================================== */
+
+html[data-tema="light"],
+body.tema-claro {
+    --accent: #16805d;
+    --accent2: #126b4c;
+    --accent-dim: rgba(22, 128, 93, 0.10);
+    --accent-glow: rgba(22, 128, 93, 0.18);
+
+    --title: #172c26;
+    --title2: #126b4c;
+
+    --bg: #f4f8f6;
+    --bg2: #ffffff;
+    --bg3: #eaf3ed;
+
+    --card: #ffffff;
+    --card2: #eaf3ed;
+
+    --panel: #ffffff;
+    --panel2: #eaf3ed;
+    --panel3: #dcebe2;
+
+    --border: #d7e7de;
+    --border2: #bfd7c9;
+
+    --text: #172c26;
+    --text2: #51675d;
+    --text3: #60776b;
+
+    --muted: #51675d;
+    --muted2: #60776b;
+
+    --conv-panel-bg: #ffffff;
+    --search-input-bg: #f8fbf9;
+    --chat-area-bg: #f4f8f6;
+    --icon-btn-bg: #eaf3ed;
+    --textarea-bg: #ffffff;
+    --contacts-search-bg: #f8fbf9;
+    --topbar-bg: rgba(255, 255, 255, 0.97);
+
+    --bubble-me: #16805d;
+    --bubble-them: #e3f3ea;
+}
+
+/* Títulos */
+html[data-tema="light"] h1,
+html[data-tema="light"] h2,
+html[data-tema="light"] h3,
+html[data-tema="light"] h4,
+body.tema-claro h1,
+body.tema-claro h2,
+body.tema-claro h3,
+body.tema-claro h4 {
+    color: #172c26;
+}
+
+html[data-tema="light"] .page-title,
+html[data-tema="light"] .panel-title,
+html[data-tema="light"] .contacts-title,
+html[data-tema="light"] .modal-title,
+body.tema-claro .panel-title,
+body.tema-claro .contacts-title {
+    color: #172c26 !important;
+}
+
+/* Logo */
+html[data-tema="light"] .sidebar-logo,
+html[data-tema="light"] .sidebar .logo,
+body.tema-claro .sidebar-logo {
+    color: #16805d !important;
+}
+
+/* Navegação ativa */
+html[data-tema="light"] .nav-item.active,
+html[data-tema="light"] .sidebar .nav-item.active,
+body.tema-claro .nav button.active {
+    background: #e3f3ea !important;
+    color: #126b4c !important;
+}
+
+html[data-tema="light"] .nav-item.active i,
+body.tema-claro .nav button.active i {
+    color: #126b4c !important;
+}
+
+/* Botões */
+html[data-tema="light"] .btn-agendar,
+html[data-tema="light"] .new-chat-btn,
+body.tema-claro .new-chat-btn {
+    background: #16805d !important;
+    color: #ffffff !important;
+    border-color: #16805d;
+}
+
+/* Mensagens */
+body.tema-claro .message-row.mine .message-bubble {
+    background: #16805d;
+    color: #ffffff;
+}
+
+body.tema-claro .message-row.theirs .message-bubble {
+    background: #e3f3ea;
+    color: #172c26;
+}
