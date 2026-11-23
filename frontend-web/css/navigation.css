@@ -743,3 +743,40 @@ body.tema-claro .message-row.theirs .message-bubble {
     background: #e3f3ea;
     color: #172c26;
 }
+
+/* ==================================================
+   NEXT AGON - MENU LATERAL PADRONIZADO
+   ================================================== */
+
+/* Item ativo: Rede, Comunidade, Profissionais e Chat */
+body .app > .sidebar .nav-item.active,
+body.page-shell > .sidebar .nav-item.active,
+body .chat-app-shell > .main-sidebar .nav button.active {
+    background: #e3f3ea !important;
+    color: #172c26 !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+}
+
+/* Ícones do item ativo */
+body .app > .sidebar .nav-item.active i,
+body.page-shell > .sidebar .nav-item.active i,
+body .chat-app-shell > .main-sidebar .nav button.active i {
+    color: #16805d !important;
+}
+
+/* Mantém o alinhamento uniforme */
+body .app > .sidebar .nav-item,
+body.page-shell > .sidebar .nav-item,
+body .chat-app-shell > .main-sidebar .nav button {
+    min-height: 42px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Preserva a identidade da marca no tema escuro */
+body:not(.tema-claro) .chat-app-shell > .main-sidebar .logo {
+    color: #d4f700 !important;
+}
